@@ -16,7 +16,7 @@
   #pantallaBienvenida p { font-size: 1.1rem; color: #a0aec0; margin-bottom: 40px; letter-spacing: 2px; }
   .btn-bienvenida { background: var(--ipostel-rojo); border: none; color: white; padding: 12px 50px; border-radius: 30px; font-weight: 700; font-size: 1.1rem; transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 15px rgba(200, 16, 46, 0.4); }
   .btn-bienvenida:hover { background: #a00d25; color: white; transform: translateY(-2px); }
-  #pantallaLogin { display: none; min-height: 100vh; padding: 40px 20px; background: linear-gradient(135deg, var(--ipostel-azul) 0%, #001a33 100%); }
+  #pantallaLogin, #pantallaApp { display: none; min-height: 100vh; padding: 40px 20px; background: linear-gradient(135deg, var(--ipostel-azul) 0%, #001a33 100%); }
   .card-ipostel { background: #fff; color: #222; border-radius: 12px; box-shadow: 0 8px 25px rgba(0,0,0,0.2); width: 100%; max-width: 600px; margin: auto; padding: 30px; border-top: 5px solid var(--ipostel-rojo); }
   .titulo { color: var(--ipostel-azul); font-weight: 800; margin-bottom: 0; }
   .subtitulo { color: #6c757d; font-size: 0.9rem; }
@@ -27,6 +27,7 @@
   .form-control:focus, .form-select:focus { border-color: var(--ipostel-rojo); box-shadow: 0 0 0 0.25rem rgba(200, 16, 46, 0.25); }
   .oculto { display: none !important; }
   .box-clave { background: #f8f9fa; border-radius: 8px; padding: 15px; border: 1px solid #e9ecef; }
+  .header-app { background: #003366; color: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
 </style>
 </head>
 <body>
@@ -91,6 +92,59 @@
     <div class="mt-3">
       <button id="btnIngresar" class="btn btn-ipostel w-100 mb-2 oculto" onclick="enviarAlBackend()">🔑 Ingresar al Sistema</button>
       <button id="btnVolver" class="btn btn-outline-secondary w-100 oculto" onclick="volverAtras()">⬅ Volver / Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<div id="pantallaApp">
+  <div class="card card-ipostel" style="max-width: 1000px;">
+    <div class="header-app">
+      <h5 class="m-0" id="lblBienvenida">Cargando...</h5>
+      <button class="btn btn-sm btn-outline-light" onclick="location.reload()">Salir</button>
+    </div>
+
+    <!-- PANEL JEFE OPT (Diseño Aeropuerto simplificado) -->
+    <div id="appOPT" class="oculto">
+      <h5 class="text-primary mb-3">Panel de Control - Jefe de OPT</h5>
+      <div class="row g-2 mb-3">
+        <div class="col-6 col-md-3"><div class="p-2 bg-warning bg-opacity-25 rounded text-center"><small class="text-warning fw-bold">Por Recibir</small><h3 class="text-warning m-0">0</h3></div></div>
+        <div class="col-6 col-md-3"><div class="p-2 bg-primary bg-opacity-10 rounded text-center"><small class="text-primary fw-bold">En Custodia</small><h3 class="text-primary m-0">0</h3></div></div>
+        <div class="col-6 col-md-3"><div class="p-2 bg-success bg-opacity-10 rounded text-center"><small class="text-success fw-bold">Entregados</small><h3 class="text-success m-0">0</h3></div></div>
+        <div class="col-6 col-md-3"><div class="p-2 bg-danger bg-opacity-10 rounded text-center"><small class="text-danger fw-bold">Incidencias</small><h3 class="text-danger m-0">0</h3></div></div>
+      </div>
+
+      <h6 class="text-secondary mt-4 mb-2">Historial de Reportes</h6>
+      <div class="table-responsive mb-4">
+        <table class="table table-sm table-bordered">
+          <thead class="table-dark"><tr><th>Fecha</th><th>Recibidas</th><th>Entregadas</th><th>Pendientes</th><th>Estatus</th></tr></thead>
+          <tbody id="tablaHistorialOPT"><tr><td colspan="5" class="text-center text-muted">Cargando...</td></tr></tbody>
+        </table>
+      </div>
+
+      <hr>
+      <h5 class="text-primary mb-3">Enviar Nuevo Reporte Diario</h5>
+      <form id="formReporteOPT" class="p-3 bg-light border rounded">
+        <div class="row">
+          <div class="col-md-6 mb-3"><label>Piezas Recibidas</label><input type="number" class="form-control" name="recibidas" required></div>
+          <div class="col-md-6 mb-3"><label>Entregas</label><input type="number" class="form-control" name="entregas" required></div>
+          <div class="col-md-6 mb-3"><label>Pendientes</label><input type="number" class="form-control" name="pendientes" required></div>
+          <div class="col-md-6 mb-3"><label>Incidencias</label><input type="number" class="form-control" name="incidencias" required></div>
+          <div class="col-12 mb-3"><label>URL Foto</label><input type="url" class="form-control" name="evidencia" required></div>
+        </div>
+        <button type="submit" class="btn btn-primary w-100 fw-bold">Enviar Consolidado a CNC</button>
+      </form>
+    </div>
+
+    <!-- PANEL CNC -->
+    <div id="appCNC" class="oculto">
+      <h5 class="text-primary mb-3">Aprobación de Reportes (CNC)</h5>
+      <div id="listaAprobaciones">Cargando reportes pendientes...</div>
+    </div>
+
+    <!-- PANEL OBSERVATORIO -->
+    <div id="appObservatorio" class="oculto">
+      <h5 class="text-primary mb-3">Observatorio Estratégico (KPIs)</h5>
+      <div id="dashboardObservatorio">Cargando datos...</div>
     </div>
   </div>
 </div>
@@ -177,27 +231,97 @@ async function enviarAlBackend() {
   try {
     const resp = await postAPI(payload);
     if (!resp.exito) { Swal.fire('Acceso denegado', resp.mensaje || 'No autorizado', 'error'); btn.disabled = false; btn.textContent = '🔑 Ingresar al Sistema'; return; }
-    redirigir(resp);
+    iniciarApp(resp);
   } catch (err) { Swal.fire('Error de conexión', err.message, 'error'); btn.disabled = false; btn.textContent = '🔑 Ingresar al Sistema'; }
 }
 
-function redirigir(r) {
-  const rol = r.rol || estadoApp.rol;
-  sessionStorage.setItem('ipostel_rol', rol);
-  sessionStorage.setItem('ipostel_usuario', r.usuario || 'Usuario');
-  if (estadoApp.estadoSel) sessionStorage.setItem('ipostel_estado', estadoApp.estadoSel);
-  if (estadoApp.optSel) sessionStorage.setItem('ipostel_opt', estadoApp.optSel);
-
-  // Redirección a los paneles de Aeropuerto según el rol
-  if (rol === 'JEFE_OPT' || rol === 'ANALISTA_OPT') {
-    window.location.replace('portal_opt.html');
-  } else if (rol === 'GERENTE_ESTADO') {
-    window.location.replace('estados.html');
+function iniciarApp(r) {
+  document.getElementById('pantallaLogin').style.display = 'none';
+  document.getElementById('pantallaApp').style.display = 'block';
+  document.getElementById('lblBienvenida').innerText = `Rol: ${r.rol} | ${estadoApp.optSel || ''}`;
+  
+  if (r.rol === 'JEFE_OPT' || r.rol === 'ANALISTA_OPT') {
+    mostrar('appOPT'); 
+    configurarFormularioOPT();
+    cargarHistorialOPT(); 
+  } else if (r.rol === 'DIR_CNC' || r.rol === 'COORD_CNC') {
+    mostrar('appCNC'); cargarPendientesCNC();
   } else {
-    window.location.replace('observatorio.html');
+    mostrar('appObservatorio'); cargarObservatorio();
   }
 }
 
+// --- LOGICA OPT ---
+async function cargarHistorialOPT() {
+  const tbody = document.getElementById('tablaHistorialOPT');
+  tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Cargando...</td></tr>';
+  try {
+    const res = await postAPI({ accion: 'obtenerHistorialOPT', opt: estadoApp.optSel });
+    if (!res.exito || !res.historial || res.historial.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">No hay reportes.</td></tr>'; return;
+    }
+    tbody.innerHTML = '';
+    res.historial.forEach(item => {
+      let fechaStr = new Date(item.fecha).toLocaleDateString();
+      let badge = item.estatus === 'APROBADO' ? 'bg-success' : 'bg-warning text-dark';
+      tbody.innerHTML += `<tr><td>${fechaStr}</td><td>${item.recibidas}</td><td>${item.entregadas}</td><td>${item.pendientes}</td><td><span class="badge ${badge}">${item.estatus}</span></td></tr>`;
+    });
+  } catch(e) { tbody.innerHTML = '<tr><td colspan="5" class="text-center text-danger">Error al cargar.</td></tr>'; }
+}
+
+function configurarFormularioOPT() {
+  document.getElementById('formReporteOPT').onsubmit = async function(e) {
+    e.preventDefault();
+    const btn = e.target.querySelector('button');
+    btn.disabled = true; btn.innerText = 'Enviando...';
+    const formData = new FormData(e.target);
+    const data = Object.fromEntries(formData.entries());
+    data.rol = estadoApp.rol;
+    data.opt = estadoApp.optSel;
+    try {
+      const res = await postAPI({ accion: 'guardarReporte', formData: data });
+      Swal.fire('Éxito', res.mensaje, 'success');
+      if(res.exito) { e.target.reset(); cargarHistorialOPT(); }
+    } catch(e) { Swal.fire('Error', 'No se pudo enviar', 'error'); }
+    btn.disabled = false; btn.innerText = 'Enviar Consolidado a CNC';
+  };
+}
+
+// --- LOGICA CNC ---
+async function cargarPendientesCNC() {
+  const div = document.getElementById('listaAprobaciones');
+  try {
+    const res = await postAPI({ accion: 'obtenerPendientesOPT' });
+    if (!res.exito || !res.pendientes || res.pendientes.length === 0) { div.innerHTML = '<p class="text-muted">No hay reportes pendientes.</p>'; return; }
+    let html = '<table class="table table-sm"><thead><tr><th>OPT</th><th>Recib.</th><th>Entreg.</th><th>Pend.</th><th>Acción</th></tr></thead><tbody>';
+    res.pendientes.forEach(item => { 
+      html += `<tr><td>${item.opt}</td><td>${item.recibidas}</td><td>${item.entregadas}</td><td>${item.pendientes}</td><td><button class="btn btn-sm btn-success" onclick="aprobar(${item.fila})">Aprobar</button></td></tr>`; 
+    });
+    html += '</tbody></table>'; div.innerHTML = html;
+  } catch(e) { console.error(e); }
+}
+
+async function aprobar(fila) {
+  if(!confirm('¿Aprobar este reporte?')) return;
+  try {
+    const res = await postAPI({ accion: 'aprobarReporteOPT', fila: fila });
+    Swal.fire('Info', res.mensaje, 'success'); if(res.exito) cargarPendientesCNC();
+  } catch(e) { Swal.fire('Error', e, 'error'); }
+}
+
+// --- LOGICA OBSERVATORIO ---
+async function cargarObservatorio() {
+  const div = document.getElementById('dashboardObservatorio');
+  try {
+    const res = await postAPI({ accion: 'obtenerDatosObservatorio' });
+    if (!res.exito || !res.datos || res.datos.length === 0) { div.innerHTML = '<p class="text-muted">No hay datos consolidados.</p>'; return; }
+    let html = '<table class="table table-sm"><thead><tr><th>OPT</th><th>Recib.</th><th>Entreg.</th><th>Pend.</th></tr></thead><tbody>';
+    res.datos.forEach(row => { html += `<tr><td>${row[1]}</td><td>${row[2]}</td><td>${row[3]}</td><td>${row[4]}</td></tr>`; });
+    html += '</tbody></table>'; div.innerHTML = html;
+  } catch(e) { console.error(e); }
+}
+
+// --- UTILIDADES ---
 function volverAtras() {
   if (!document.getElementById('pasoCredenciales').classList.contains('oculto')) {
     document.getElementById('pasoCredenciales').classList.add('oculto');
