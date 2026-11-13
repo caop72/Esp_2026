@@ -1,8 +1,9 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Observatorio Estratégico</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     body { background: #f4f6f9; }
@@ -20,77 +21,45 @@
 
   <div class="container">
     <div class="row mb-4">
-      <div class="col-md-4">
-        <div class="kpi-card">
-          <div class="text-muted">Reportes OPT Aprobados</div>
-          <div class="kpi-val text-primary" id="kpiOpt">0</div>
-        </div>
-      </div>
-      <div class="col-md-4">
-        <div class="kpi-card" style="border-left-color: #198754;">
-          <div class="text-muted">Total Entregas</div>
-          <div class="kpi-val text-success" id="kpiEntregas">0</div>
-        </div>
-      </div>
-      <div class="col-md-4">
-        <div class="kpi-card" style="border-left-color: #dc3545;">
-          <div class="text-muted">Total Incidencias</div>
-          <div class="kpi-val text-danger" id="kpiIncidencias">0</div>
-        </div>
-      </div>
+      <div class="col-md-4"><div class="kpi-card"><div class="text-muted">Reportes Aprobados</div><div class="kpi-val text-primary" id="kpiOpt">0</div></div></div>
+      <div class="col-md-4"><div class="kpi-card" style="border-left-color: #198754;"><div class="text-muted">Total Entregas</div><div class="kpi-val text-success" id="kpiEntregas">0</div></div></div>
+      <div class="col-md-4"><div class="kpi-card" style="border-left-color: #dc3545;"><div class="text-muted">Total Incidencias</div><div class="kpi-val text-danger" id="kpiIncidencias">0</div></div></div>
     </div>
 
     <div class="card p-4">
-      <h5>Reportes Oficiales de OPT (Validados por CNC)</h5>
+      <h5>Reportes Oficiales de OPT</h5>
       <table class="table table-hover mt-3">
-        <thead>
-          <tr>
-            <th>Fecha</th>
-            <th>OPT</th>
-            <th>Recibidas</th>
-            <th>Entregadas</th>
-            <th>Pendientes</th>
-            <th>Incidencias</th>
-            <th>Evidencia</th>
-          </tr>
-        </thead>
-        <tbody id="tablaDatos"></tbody>
+        <thead><tr><th>Fecha</th><th>OPT</th><th>Recibidas</th><th>Entregadas</th><th>Pendientes</th><th>Incidencias</th><th>Evidencia</th></tr></thead>
+        <tbody id="tablaDatos"><tr><td colspan="7" class="text-center">Cargando...</td></tr></tbody>
       </table>
     </div>
   </div>
 
   <script>
-    window.onload = cargarDatos;
+    const API_URL = 'https://script.google.com/macros/s/AKfycbzx_AeJRGOOXphA0N5sUFEMJbDBwsyzfElr0hH38dmzUmFt9dy1NJ7w3MjMycrWzoI2/exec'; 
 
-    function cargarDatos() {
+    async function cargarDatos() {
       const tabla = document.getElementById('tablaDatos');
       tabla.innerHTML = '<tr><td colspan="7" class="text-center text-muted">Cargando datos...</td></tr>';
       
-      google.script.run.withSuccessHandler(renderizar).obtenerDatosObservatorio();
-    }
+      try {
+        const res = await fetch(API_URL + '?accion=obtenerDatosObservatorio');
+        const json = await res.json();
+        
+        if (!json.success || !json.data || json.data.length === 0) {
+          tabla.innerHTML = '<tr><td colspan="7" class="text-center text-muted">No hay reportes aprobados.</td></tr>';
+          return;
+        }
 
-    function renderizar(datos) {
-      const tabla = document.getElementById('tablaDatos');
-      tabla.innerHTML = '';
-      let totalEntregas = 0;
-      let totalIncidencias = 0;
-      
-      // datos.opt son las filas aprobadas (sin encabezado)
-      const data = datos.opt;
-      
-      if (data.length === 0) {
-        tabla.innerHTML = '<tr><td colspan="7" class="text-center text-muted">No hay reportes aprobados por el CNC aún.</td></tr>';
-        return;
-      }
-
-      data.forEach(row => {
-        totalEntregas += Number(row[4]) || 0; 
-        totalIncidencias += Number(row[6]) || 0;
-
-        let fechaStr = new Date(row[0]).toLocaleString();
-
-        tabla.innerHTML += `
-          <tr>
+        let totalEntregas = 0; let totalIncidencias = 0;
+        tabla.innerHTML = '';
+        
+        json.data.forEach(row => {
+          totalEntregas += Number(row[4]) || 0; 
+          totalIncidencias += Number(row[6]) || 0;
+          let fechaStr = new Date(row[0]).toLocaleString();
+          
+          tabla.innerHTML += `<tr>
             <td>${fechaStr}</td>
             <td><strong>${row[2]}</strong></td>
             <td>${row[3]}</td>
@@ -98,14 +67,19 @@
             <td>${row[5]}</td>
             <td>${row[6]}</td>
             <td><a href="${row[7]}" target="_blank">Ver Foto</a></td>
-          </tr>
-        `;
-      });
+          </tr>`;
+        });
 
-      document.getElementById('kpiOpt').innerText = data.length;
-      document.getElementById('kpiEntregas').innerText = totalEntregas;
-      document.getElementById('kpiIncidencias').innerText = totalIncidencias;
+        document.getElementById('kpiOpt').innerText = json.data.length;
+        document.getElementById('kpiEntregas').innerText = totalEntregas;
+        document.getElementById('kpiIncidencias').innerText = totalIncidencias;
+      } catch(e) {
+        tabla.innerHTML = '<tr><td colspan="7" class="text-center text-danger">Error al cargar datos.</td></tr>';
+        console.error(e);
+      }
     }
+
+    window.onload = cargarDatos;
   </script>
 </body>
 </html>
