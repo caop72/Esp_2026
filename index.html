@@ -331,7 +331,7 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
-        <div class="alert alert-info small">Extraiga las piezas de la valija y asígnelas a una OPT. Puede crear varios paquetes de la misma valija.</div>
+        <div class="alert alert-info small">Extraiga las piezas de la valija y asígnelas a una OPT. Un mismo paquete puede llevar certificados y ordinarios.</div>
         <div class="mb-3"><label class="form-label fw-bold">Valija Origen</label><input type="text" class="form-control" id="clasificarGuia" readonly></div>
         <div class="mb-3">
             <label class="form-label fw-bold">ID del Nuevo Paquete</label>
@@ -349,15 +349,12 @@
         </div>
         <div class="row">
           <div class="col-6">
-            <label class="form-label fw-bold">Tipo</label>
-            <select class="form-select" id="paqueteTipo" required>
-              <option value="Certificado">Certificado</option>
-              <option value="Ordinario">Ordinario</option>
-            </select>
+            <label class="form-label fw-bold text-primary">Certificados</label>
+            <input type="number" class="form-control" id="paqueteCertificados" min="0" value="0" required>
           </div>
           <div class="col-6">
-            <label class="form-label fw-bold">Cantidad (Piezas)</label>
-            <input type="number" class="form-control" id="paquetePiezas" min="1" required>
+            <label class="form-label fw-bold text-info">Ordinarios</label>
+            <input type="number" class="form-control" id="paqueteOrdinarios" min="0" value="0" required>
           </div>
         </div>
       </div>
