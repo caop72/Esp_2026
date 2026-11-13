@@ -364,7 +364,6 @@ async function cargarEstadisticasOPT() {
     if (rCustodia.exito) document.getElementById('statCustodia').textContent = rCustodia.total;
     
     if (rHistorial.exito) {
-      // Contar cuántas fueron entregadas HOY
       const hoy = new Date().toLocaleDateString();
       const entregadasHoy = rHistorial.datos.filter(d => {
         if (!d.fechaEntrega) return false;
@@ -373,11 +372,44 @@ async function cargarEstadisticasOPT() {
       }).length;
       document.getElementById('statEntregados').textContent = entregadasHoy;
       
-      // Contar incidencias (Retrasados/Extraviados)
       const incidencias = rHistorial.datos.filter(d => ['Retrasado', 'Extraviado'].includes(d.estatus)).length;
       document.getElementById('statRetrasados').textContent = incidencias;
     }
   } catch (e) { console.error("Error en KPIs:", e); }
+}
+
+async function cargarPorRecibir() {
+  const tbody = document.getElementById('tablaPorRecibir');
+  tbody.innerHTML = '<tr><td colspan="6" class="text-center py-3 text-muted">Cargando valijas...</td></tr>';
+  
+  try {
+    const r = await postAPI({accion: 'cargarPorRecibir', opt: estadoApp.optSel});
+    if (!r.exito) throw new Error(r.mensaje);
+    
+    if (r.datos.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" class="text-center py-3 text-muted">No hay valijas en tránsito.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = '';
+    r.datos.forEach(item => {
+      let fecha = item.fechaSalida;
+      if (fecha && fecha.includes('T')) fecha = fecha.split('T')[0].split('-').reverse().join('/');
+      
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><span class="codigo-5d">${item.id}</span></td>
+        <td>Valija</td>
+        <td>${item.piezas}</td>
+        <td>${fecha}</td>
+        <td><b>0</b></td>
+        <td><button class="btn btn-sm btn-warning fw-bold" onclick="abrirModalRecepcion('${item.id}', ${item.piezas})"><i class="bi bi-box-arrow-in-down"></i> Recibir</button></td>
+      `;
+      tbody.appendChild(tr);
+    });
+  } catch (e) {
+    tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">Error: ${e.message}</td></tr>`;
+  }
 }
 
 function abrirModalRecepcion(codigo, piezas) {
@@ -405,8 +437,6 @@ async function confirmarRecepcion() {
   Swal.fire({title: 'Procesando recepción...', allowOutsideClick: false, didOpen: () => Swal.showLoading()});
   
   try {
-    // Nota: En un caso real, aquí subirías la foto a Drive y obtendrías la URL.
-    // Por ahora, enviamos un string simulado como URL para que guarde el registro.
     const fotoUrl = "https://drive.google.com/foto_simulada_" + codigo; 
 
     const r = await postAPI({
@@ -425,7 +455,6 @@ async function confirmarRecepcion() {
     modalRecepcion.hide();
     Swal.fire('✅ Recepción Confirmada', 'La valija ahora está en custodia.', 'success');
     
-    // Refrescar todo el panel
     cargarEstadisticasOPT();
     cargarPorRecibir();
     cargarCustodia();
@@ -459,7 +488,6 @@ async function cargarCustodia() {
       if (item.semaforoColor === 'negro') badgeColor = 'bg-dark';
 
       const tr = document.createElement('tr');
-      // Si es semáforo rojo o negro, pintamos la fila con clases de tu CSS
       if (item.semaforoColor === 'rojo') tr.className = 'fila-critica';
       if (item.semaforoColor === 'amarillo') tr.className = 'fila-alerta';
 
@@ -489,27 +517,8 @@ function abrirModalEntrega(codigo, piezas) {
   document.getElementById('fotoEntrega').value = '';
   document.getElementById('entHora').value = '';
   document.getElementById('entGPS').value = '';
+  document.getElementById('entDeclaracion').checked = false; // Limpiar el checkbox
   modalEntrega.show();
-}
-
-async function confirmarEntregaUPAE() {
-  const nombre = document.getElementById('entNombreReceptor').value;
-  const cedula = document.getElementById('entCedulaReceptor').value;
-  const relacion = document.getElementById('entRelacion').value;
-  const estadoSobre = document.getElementById('entEstadoPaquete').value;
-  const foto = document.getElementById('fotoEntrega').files[0];
-  const declaracion = document.getElementById('entDeclaracion').checked;
-
-  if (!nombre || !cedula || !relacion || !estadoSobre || !foto || !declaracion) {
-    return Swal.fire('Datos incompletos', 'Debe completar todos los campos y subir la foto.', 'warning');
-  }
-
-  Swal.fire({title: 'Registrando Acta...', allowOutsideClick: false, didOpen: () => Swal.showLoading()});
-  setTimeout(() => {
-    modalEntrega.hide();
-    Swal.fire('✅ Entrega Registrada (Inmutable)', 'El acta ha sido guardada.', 'success');
-    cargarCustodia();
-  }, 1500);
 }
 
 async function confirmarEntregaUPAE() {
@@ -548,13 +557,51 @@ async function confirmarEntregaUPAE() {
     modalEntrega.hide();
     Swal.fire('✅ Entrega Registrada (Inmutable)', 'El acta ha sido guardada.', 'success');
     
-    // Refrescar todo el panel (esto hará que baje el KPI de custodia y suba el de entregas)
     cargarEstadisticasOPT();
     cargarPorRecibir();
     cargarCustodia();
     cargarHistorialEntregas();
   } catch (e) {
     Swal.fire('Error', 'No se pudo registrar la entrega: ' + e.message, 'error');
+  }
+}
+
+async function cargarHistorialEntregas() {
+  const tbody = document.getElementById('tablaHistorial');
+  tbody.innerHTML = '<tr><td colspan="7" class="text-center py-3 text-muted">Cargando historial...</td></tr>';
+  
+  try {
+    const r = await postAPI({accion: 'cargarHistorialEntregas', opt: estadoApp.optSel});
+    if (!r.exito) throw new Error(r.mensaje);
+
+    if (r.datos.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="7" class="text-center py-3 text-muted">No hay entregas registradas.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = '';
+    r.datos.forEach(item => {
+      let fechaEnt = item.fechaEntrega;
+      if (fechaEnt && fechaEnt.includes('T')) {
+        fechaEnt = new Date(fechaEnt).toLocaleString();
+      } else {
+        fechaEnt = fechaEnt || '—';
+      }
+
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><span class="badge bg-secondary">${item.estatus}</span></td>
+        <td><span class="codigo-5d">${item.id}</span></td>
+        <td>${item.nombreRecibe || '—'}</td>
+        <td>${item.cedulaRecibe || '—'}</td>
+        <td>${fechaEnt}</td>
+        <td><small>${item.gpsEntrega || '—'}</small></td>
+        <td>${item.fotoEntrega ? '<i class="bi bi-image text-success"></i>' : '—'}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  } catch (e) {
+    tbody.innerHTML = `<tr><td colspan="7" class="text-center text-danger">Error: ${e.message}</td></tr>`;
   }
 }
 
