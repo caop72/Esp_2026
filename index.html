@@ -352,28 +352,32 @@ function iniciarApp(r) {
 }
 
 // --- LOGICA PANEL JEFE OPT (AEROPUERTO) ---
-function cargarEstadisticasOPT() {
-  document.getElementById('statRecibir').textContent = '1'; // Simulación visual
-  document.getElementById('statCustodia').textContent = '2';
-  document.getElementById('statEntregados').textContent = '0';
-  document.getElementById('statRetrasados').textContent = '0';
-}
-
-async function cargarPorRecibir() {
-  const tbody = document.getElementById('tablaPorRecibir');
-  tbody.innerHTML = '<tr><td colspan="6" class="text-center py-3 text-muted">Cargando valijas...</td></tr>';
-  
-  // Simulación de datos (Luego conectamos al backend real)
-  tbody.innerHTML = `
-    <tr class="fila-alerta">
-      <td><span class="codigo-5d">VAL-001</span></td>
-      <td>MST-ANZ-999</td>
-      <td>50</td>
-      <td>12/11/2026</td>
-      <td><b>2</b></td>
-      <td><button class="btn btn-sm btn-warning fw-bold" onclick="abrirModalRecepcion('VAL-001', 50)"><i class="bi bi-box-arrow-in-down"></i> Recibir</button></td>
-    </tr>
-  `;
+async function cargarEstadisticasOPT() {
+  try {
+    const [rRecibir, rCustodia, rHistorial] = await Promise.all([
+      postAPI({accion: 'cargarPorRecibir', opt: estadoApp.optSel}),
+      postAPI({accion: 'cargarCustodia', opt: estadoApp.optSel}),
+      postAPI({accion: 'cargarHistorialEntregas', opt: estadoApp.optSel})
+    ]);
+    
+    if (rRecibir.exito) document.getElementById('statRecibir').textContent = rRecibir.total;
+    if (rCustodia.exito) document.getElementById('statCustodia').textContent = rCustodia.total;
+    
+    if (rHistorial.exito) {
+      // Contar cuántas fueron entregadas HOY
+      const hoy = new Date().toLocaleDateString();
+      const entregadasHoy = rHistorial.datos.filter(d => {
+        if (!d.fechaEntrega) return false;
+        const f = new Date(d.fechaEntrega);
+        return f.toLocaleDateString() === hoy;
+      }).length;
+      document.getElementById('statEntregados').textContent = entregadasHoy;
+      
+      // Contar incidencias (Retrasados/Extraviados)
+      const incidencias = rHistorial.datos.filter(d => ['Retrasado', 'Extraviado'].includes(d.estatus)).length;
+      document.getElementById('statRetrasados').textContent = incidencias;
+    }
+  } catch (e) { console.error("Error en KPIs:", e); }
 }
 
 function abrirModalRecepcion(codigo, piezas) {
@@ -391,31 +395,88 @@ function abrirModalRecepcion(codigo, piezas) {
 async function confirmarRecepcion() {
   const codigo = document.getElementById('recCodigo').value;
   const conforme = document.getElementById('recConforme').value;
+  const precinto = document.getElementById('recPrecinto').value;
+  const obs = document.getElementById('recObs').value;
   const foto = document.getElementById('fotoRecepcion').files[0];
+  const gps = document.getElementById('recGPS').value;
   
   if (!conforme || !foto) return Swal.fire('Atención', 'Debe indicar si es conforme y subir la foto de la valija.', 'warning');
 
-  // Simulación de envío
-  Swal.fire({title: 'Procesando foto y GPS...', allowOutsideClick: false, didOpen: () => Swal.showLoading()});
-  setTimeout(() => {
+  Swal.fire({title: 'Procesando recepción...', allowOutsideClick: false, didOpen: () => Swal.showLoading()});
+  
+  try {
+    // Nota: En un caso real, aquí subirías la foto a Drive y obtendrías la URL.
+    // Por ahora, enviamos un string simulado como URL para que guarde el registro.
+    const fotoUrl = "https://drive.google.com/foto_simulada_" + codigo; 
+
+    const r = await postAPI({
+      accion: 'guardarAccionOPT',
+      tipoAccion: 'recepcion',
+      idGuia: codigo,
+      usuario: 'Jefe Anaco',
+      precinto: precinto,
+      observaciones: obs || 'Recibido conforme',
+      gps: gps,
+      foto: fotoUrl
+    });
+
+    if (!r.exito) throw new Error(r.mensaje);
+
     modalRecepcion.hide();
     Swal.fire('✅ Recepción Confirmada', 'La valija ahora está en custodia.', 'success');
-  }, 1500);
+    
+    // Refrescar todo el panel
+    cargarEstadisticasOPT();
+    cargarPorRecibir();
+    cargarCustodia();
+    cargarHistorialEntregas();
+  } catch (e) {
+    Swal.fire('Error', 'No se pudo guardar la recepción: ' + e.message, 'error');
+  }
 }
 
 async function cargarCustodia() {
   const tbody = document.getElementById('tablaCustodia');
-  tbody.innerHTML = `
-    <tr>
-      <td><span class="codigo-5d">VAL-001</span></td>
-      <td>Ana González</td>
-      <td>50</td>
-      <td>Hoy</td>
-      <td><b>0</b></td>
-      <td><span class="badge bg-success">🟢 A tiempo</span></td>
-      <td><button class="btn btn-sm btn-primary fw-bold" onclick="abrirModalEntrega('VAL-001', 50)"><i class="bi bi-person-check"></i> Entregar</button></td>
-    </tr>
-  `;
+  tbody.innerHTML = '<tr><td colspan="7" class="text-center py-3 text-muted">Cargando...</td></tr>';
+  
+  try {
+    const r = await postAPI({accion: 'cargarCustodia', opt: estadoApp.optSel});
+    if (!r.exito) throw new Error(r.mensaje);
+
+    if (r.datos.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="7" class="text-center py-3 text-muted">No hay valijas en custodia.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = '';
+    r.datos.forEach(item => {
+      let fechaRec = item.fechaRecepcion;
+      if (fechaRec && fechaRec.includes('T')) fechaRec = fechaRec.split('T')[0].split('-').reverse().join('/');
+      
+      let badgeColor = 'bg-success';
+      if (item.semaforoColor === 'amarillo') badgeColor = 'bg-warning text-dark';
+      if (item.semaforoColor === 'rojo') badgeColor = 'bg-danger';
+      if (item.semaforoColor === 'negro') badgeColor = 'bg-dark';
+
+      const tr = document.createElement('tr');
+      // Si es semáforo rojo o negro, pintamos la fila con clases de tu CSS
+      if (item.semaforoColor === 'rojo') tr.className = 'fila-critica';
+      if (item.semaforoColor === 'amarillo') tr.className = 'fila-alerta';
+
+      tr.innerHTML = `
+        <td><span class="codigo-5d">${item.id}</span></td>
+        <td>-</td>
+        <td>${item.piezas}</td>
+        <td>${fechaRec}</td>
+        <td><b>${item.diasCustodia}</b></td>
+        <td><span class="badge ${badgeColor}">${item.semaforoTexto}</span></td>
+        <td><button class="btn btn-sm btn-primary fw-bold" onclick="abrirModalEntrega('${item.id}', ${item.piezas})"><i class="bi bi-person-check"></i> Entregar</button></td>
+      `;
+      tbody.appendChild(tr);
+    });
+  } catch (e) {
+    tbody.innerHTML = `<tr><td colspan="7" class="text-center text-danger">Error: ${e.message}</td></tr>`;
+  }
 }
 
 function abrirModalEntrega(codigo, piezas) {
@@ -451,31 +512,51 @@ async function confirmarEntregaUPAE() {
   }, 1500);
 }
 
-async function cargarHistorialEntregas() {
-  const tbody = document.getElementById('tablaHistorial');
-  tbody.innerHTML = '<tr><td colspan="7" class="text-center py-3 text-muted">No hay entregas registradas hoy.</td></tr>';
+async function confirmarEntregaUPAE() {
+  const nombre = document.getElementById('entNombreReceptor').value;
+  const cedula = document.getElementById('entCedulaReceptor').value;
+  const relacion = document.getElementById('entRelacion').value;
+  const estadoSobre = document.getElementById('entEstadoPaquete').value;
+  const foto = document.getElementById('fotoEntrega').files[0];
+  const declaracion = document.getElementById('entDeclaracion').checked;
+  const gps = document.getElementById('entGPS').value;
+  const codigo = document.getElementById('entCodigo').textContent;
+
+  if (!nombre || !cedula || !relacion || !estadoSobre || !foto || !declaracion) {
+    return Swal.fire('Datos incompletos', 'Debe completar todos los campos y subir la foto.', 'warning');
+  }
+
+  Swal.fire({title: 'Registrando Acta...', allowOutsideClick: false, didOpen: () => Swal.showLoading()});
+  
+  try {
+    const fotoUrl = "https://drive.google.com/foto_entrega_simulada_" + codigo;
+
+    const r = await postAPI({
+      accion: 'guardarAccionOPT',
+      tipoAccion: 'entrega',
+      idGuia: codigo,
+      nombreRecibe: nombre,
+      cedulaRecibe: cedula,
+      relacion: relacion,
+      estadoSobre: estadoSobre,
+      gpsEntrega: gps,
+      fotoEntrega: fotoUrl
+    });
+
+    if (!r.exito) throw new Error(r.mensaje);
+
+    modalEntrega.hide();
+    Swal.fire('✅ Entrega Registrada (Inmutable)', 'El acta ha sido guardada.', 'success');
+    
+    // Refrescar todo el panel (esto hará que baje el KPI de custodia y suba el de entregas)
+    cargarEstadisticasOPT();
+    cargarPorRecibir();
+    cargarCustodia();
+    cargarHistorialEntregas();
+  } catch (e) {
+    Swal.fire('Error', 'No se pudo registrar la entrega: ' + e.message, 'error');
+  }
 }
-
-// --- CAPTURA DE GPS Y HORA AL TOMAR FOTO ---
-document.getElementById('fotoRecepcion').addEventListener('change', function() {
-  document.getElementById('recHora').value = new Date().toLocaleString();
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-      (pos) => document.getElementById('recGPS').value = `${pos.coords.latitude.toFixed(5)}, ${pos.coords.longitude.toFixed(5)}`,
-      () => document.getElementById('recGPS').value = 'GPS Denegado'
-    );
-  }
-});
-
-document.getElementById('fotoEntrega').addEventListener('change', function() {
-  document.getElementById('entHora').value = new Date().toLocaleString();
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-      (pos) => document.getElementById('entGPS').value = `${pos.coords.latitude.toFixed(5)}, ${pos.coords.longitude.toFixed(5)}`,
-      () => document.getElementById('entGPS').value = 'GPS Denegado'
-    );
-  }
-});
 
 // --- UTILIDADES LOGIN ---
 async function cargarPendientesCNC() { document.getElementById('listaAprobaciones').innerHTML = '<p class="text-muted">Cargando...</p>'; }
