@@ -1239,7 +1239,12 @@ async function cargarCNC() {
     const r = await postAPI({ accion: 'obtenerDatosVivoCNC' });
     if (!r.exito) throw new Error(r.mensaje);
     
-    // KPIs
+    // Verificamos que el backend realmente envió las listas nuevas
+    if (!r.detalleRegion || !r.detalleOPT) {
+        throw new Error("El backend no devolvió detalleRegion o detalleOPT. Revisa que la versión en GS esté actualizada.");
+    }
+    
+    // KPIs Globales
     document.getElementById('cncKpiTiempo').textContent = r.kpis.promNacional;
     document.getElementById('cncKpiEntregadas').textContent = r.kpis.totEntregadasHoy;
     document.getElementById('cncKpiCustodia').textContent = r.kpis.totEnCustodia;
@@ -1269,17 +1274,17 @@ async function cargarCNC() {
       `;
     };
 
-    // Llenar Tabla de Estados
-    if (r.detalleEstado.length === 0) {
-      tbodyEstados.innerHTML = '<tr><td colspan="5" class="text-center py-3 text-muted">Sin datos.</td></tr>';
+    // Llenar Tabla de Regiones
+    if (r.detalleRegion.length === 0) {
+      tbodyEstados.innerHTML = '<tr><td colspan="5" class="text-center py-3 text-muted">Sin datos en regiones.</td></tr>';
     } else {
       tbodyEstados.innerHTML = '';
-      r.detalleEstado.forEach(est => { tbodyEstados.innerHTML += renderFila(est.estado, est); });
+      r.detalleRegion.forEach(reg => { tbodyEstados.innerHTML += renderFila(reg.region, reg); });
     }
 
     // Llenar Tabla de OPTs
     if (r.detalleOPT.length === 0) {
-      tbodyOPTs.innerHTML = '<tr><td colspan="5" class="text-center py-3 text-muted">Sin datos.</td></tr>';
+      tbodyOPTs.innerHTML = '<tr><td colspan="5" class="text-center py-3 text-muted">Sin datos en oficinas.</td></tr>';
     } else {
       tbodyOPTs.innerHTML = '';
       r.detalleOPT.forEach(opt => { tbodyOPTs.innerHTML += renderFila(opt.opt, opt); });
