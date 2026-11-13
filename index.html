@@ -3,391 +3,206 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>OBSERVATORIO ELECCIONES ESPAÑA 2026</title>
+<title>IPOSTEL — Elecciones España 2026</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <style>
-  :root { --ipostel-azul: #003366; --ipostel-rojo: #c8102e; --ipostel-amarillo: #ffc72c; }
-  body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: #f4f6f9; }
-  .navbar-ipostel { background: var(--ipostel-azul); color: white; }
-  .info-bar { background: linear-gradient(90deg, #003366 0%, #001a33 100%); color: white; }
-  .badge-info { background: rgba(255,255,255,0.15); padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; }
-  .nav-tabs .nav-link { color: var(--ipostel-azul); font-weight: 700; border: none; border-bottom: 3px solid transparent; }
-  .nav-tabs .nav-link.active { background: transparent; border-bottom-color: var(--ipostel-amarillo); color: var(--ipostel-azul); }
-  .card-vector { border-left: 5px solid; }
-  .vector-recepcion { border-left-color: #fd7e14; }
-  .vector-custodia { border-left-color: #0d6efd; }
-  .vector-despacho { border-left-color: #198754; }
-  .vector-historial { border-left-color: #6f42c1; }
-  .codigo-5d { font-family: 'Courier New', monospace; font-weight: 900; color: var(--ipostel-azul); background: #e7f1ff; padding: 3px 8px; border-radius: 5px; }
-  .table th { background-color: #f8f9fa; font-size: 0.8rem; text-transform: uppercase; }
-  .fila-alerta { background-color: #fff3cd !important; }
-  .fila-critica { background-color: #f8d7da !important; }
-  .btn-ipostel { background: var(--ipostel-azul); color: white; font-weight: 600; }
+  :root { --ipostel-azul: #003366; --ipostel-rojo: #c8102e; --ipostel-amarillo: #ffc72c; --ipostel-gris: #f4f6f9; }
+  body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; min-height: 100vh; background-color: var(--ipostel-gris); }
+  #pantallaBienvenida { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, var(--ipostel-azul) 0%, #001a33 100%); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; color: white; transition: opacity 0.6s ease; }
+  .logo-bienvenida { font-size: 4rem; margin-bottom: 20px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); }
+  #pantallaBienvenida h1 { font-size: 2.8rem; font-weight: 800; letter-spacing: 1px; margin-bottom: 10px; text-align: center; line-height: 1.1; }
+  #pantallaBienvenida h1 span { color: var(--ipostel-amarillo); display: block; font-size: 1.5rem; margin-top: 5px; letter-spacing: 2px; }
+  #pantallaBienvenida p { font-size: 1.1rem; color: #a0aec0; margin-bottom: 40px; letter-spacing: 2px; }
+  .btn-bienvenida { background: var(--ipostel-rojo); border: none; color: white; padding: 12px 50px; border-radius: 30px; font-weight: 700; font-size: 1.1rem; transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 15px rgba(200, 16, 46, 0.4); }
+  .btn-bienvenida:hover { background: #a00d25; color: white; transform: translateY(-2px); }
+  #pantallaLogin { display: none; min-height: 100vh; padding: 40px 20px; background: linear-gradient(135deg, var(--ipostel-azul) 0%, #001a33 100%); }
+  .card-ipostel { background: #fff; color: #222; border-radius: 12px; box-shadow: 0 8px 25px rgba(0,0,0,0.2); width: 100%; max-width: 600px; margin: auto; padding: 30px; border-top: 5px solid var(--ipostel-rojo); }
+  .titulo { color: var(--ipostel-azul); font-weight: 800; margin-bottom: 0; }
+  .subtitulo { color: #6c757d; font-size: 0.9rem; }
+  .btn-ipostel { background: var(--ipostel-azul); color: #fff; font-weight: 600; border: none; padding: 12px; border-radius: 8px; transition: 0.3s; }
   .btn-ipostel:hover { background: #002244; color: var(--ipostel-amarillo); }
-  .stat-mini { text-align: center; padding: 10px; border-radius: 10px; }
-  .stat-mini h3 { margin: 0; font-weight: 800; }
-  .stat-mini small { text-transform: uppercase; letter-spacing: 1px; }
+  .form-label { font-weight: 600; color: #444; font-size: 0.85rem; margin-bottom: 4px; }
+  .form-control, .form-select { border-radius: 8px; border: 1px solid #ced4da; font-size: 0.95rem; }
+  .form-control:focus, .form-select:focus { border-color: var(--ipostel-rojo); box-shadow: 0 0 0 0.25rem rgba(200, 16, 46, 0.25); }
   .oculto { display: none !important; }
-  .upae-disclaimer { background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 10px; font-size: 0.85rem; color: #856404; }
+  .box-clave { background: #f8f9fa; border-radius: 8px; padding: 15px; border: 1px solid #e9ecef; }
 </style>
 </head>
 <body>
 
-<!-- NAVBAR -->
-<nav class="navbar navbar-expand-lg shadow-sm navbar-ipostel px-3">
-  <a class="navbar-brand fw-bold" href="#"><i class="bi bi-shield-lock me-2"></i>Observatorio Electoral España 2026</a>
-  <div class="d-flex gap-2">
-    <button class="btn btn-outline-light btn-sm" onclick="buscarPaqueteUniversal()">
-      <i class="bi bi-search"></i> Buscar Código
-    </button>
-    <button class="btn btn-outline-light btn-sm" onclick="cerrarSesion()">
-      <i class="bi bi-box-arrow-right"></i> Salir
-    </button>
-  </div>
-</nav>
-
-<!-- BARRA DE INFORMACIÓN -->
-<div class="info-bar py-2 px-4">
-  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
-    <div class="d-flex flex-wrap gap-2">
-      <span class="badge-info"><i class="bi bi-geo-alt-fill"></i> Estado: <b id="infoEstado">—</b></span>
-      <span class="badge-info"><i class="bi bi-building-fill"></i> OPT: <b id="infoOPT">—</b></span>
-      <span class="badge-info"><i class="bi bi-person-badge-fill"></i> Rol: <b id="infoRol">—</b></span>
-    </div>
-    <div><span class="badge bg-success"><i class="bi bi-circle-fill"></i> Sesión Activa (ODP 009-2026)</span></div>
-  </div>
+<div id="pantallaBienvenida">
+  <div class="logo-bienvenida">🗳️</div> 
+  <h1>OBSERVATORIO ESTRATÉGICO POSTAL <span>ELECCIONES DE ESPAÑA 2026</span></h1>
+  <p>ODP 009-2026</p>
+  <button class="btn btn-bienvenida" onclick="entrarAlSistema()">Ingresar al Sistema</button>
 </div>
 
-<div class="container-fluid px-4 py-3">
-
-  <!-- ESTADÍSTICAS RÁPIDAS -->
-  <div class="row g-2 mb-3">
-    <div class="col-6 col-md-3">
-      <div class="stat-mini bg-warning bg-opacity-25">
-        <small class="text-warning fw-bold">Por Recibir (Tránsito)</small>
-        <h3 class="text-warning" id="statRecibir">0</h3>
-      </div>
+<div id="pantallaLogin">
+  <div class="card card-ipostel">
+    <div class="text-center mb-4">
+      <h2 class="titulo">Control Electoral</h2>
+      <span class="subtitulo">Seleccione su rol para continuar</span>
     </div>
-    <div class="col-6 col-md-3">
-      <div class="stat-mini bg-primary bg-opacity-10">
-        <small class="text-primary fw-bold">En Custodia (Bóveda)</small>
-        <h3 class="text-primary" id="statCustodia">0</h3>
-      </div>
-    </div>
-    <div class="col-6 col-md-3">
-      <div class="stat-mini bg-success bg-opacity-10">
-        <small class="text-success fw-bold">Entregados Hoy</small>
-        <h3 class="text-success" id="statEntregados">0</h3>
-      </div>
-    </div>
-    <div class="col-6 col-md-3">
-      <div class="stat-mini bg-danger bg-opacity-10">
-        <small class="text-danger fw-bold">Incidencias / Retrasos</small>
-        <h3 class="text-danger" id="statRetrasados">0</h3>
-      </div>
-    </div>
-  </div>
 
-  <!-- TABS -->
-  <ul class="nav nav-tabs mb-3" id="tabsOPT" role="tablist">
-    <li class="nav-item" role="presentation">
-      <button class="nav-link active" id="tab-recepcion-btn" data-bs-toggle="tab" data-bs-target="#tab-recepcion" type="button">
-        <i class="bi bi-inbox-fill text-warning"></i> 📥 Recibido del Estado
-      </button>
-    </li>
-    <li class="nav-item" role="presentation">
-      <button class="nav-link" id="tab-custodia-btn" data-bs-toggle="tab" data-bs-target="#tab-custodia" type="button">
-        <i class="bi bi-box-seam-fill text-primary"></i> 📦 En Custodia (Votos)
-      </button>
-    </li>
-    <li class="nav-item" role="presentation">
-      <button class="nav-link" id="tab-historial-btn" data-bs-toggle="tab" data-bs-target="#tab-historial" type="button">
-        <i class="bi bi-clock-history text-purple"></i> 📋 Historial Entregas
-      </button>
-    </li>
-  </ul>
+    <div id="pasoRol" class="mb-3">
+      <label class="form-label text-primary">Seleccione su Rol</label>
+      <select id="selRol" class="form-select fw-bold" onchange="cambiarRol()">
+        <option value="">-- Seleccione su rol --</option>
+        <option value="JEFE_OPT">Jefe de OPT</option>
+        <option value="OBSERVATORIO">Observatorio / Despacho</option>
+      </select>
+    </div>
 
-  <div class="tab-content" id="tabsOPTContent">
+    <div id="pasoEstado" class="mb-3 oculto">
+      <label class="form-label">Estado</label>
+      <select id="selEstado" class="form-select" onchange="cambiarEstado()">
+        <option value="">-- Seleccione Estado --</option>
+      </select>
+    </div>
 
-    <!-- VECTOR 1: RECEPCIÓN -->
-    <div class="tab-pane fade show active" id="tab-recepcion" role="tabpanel">
-      <div class="card shadow-sm card-vector vector-recepcion">
-        <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
-          <div>
-            <h5 class="mb-0 fw-bold text-dark"><i class="bi bi-truck me-2"></i>Votos en Tránsito hacia mi OPT</h5>
-            <small class="text-muted">Valijas que el Gerente de Estado despachó</small>
-          </div>
-          <button class="btn btn-warning btn-sm fw-bold" onclick="cargarPorRecibir()"><i class="bi bi-arrow-clockwise"></i> Actualizar</button>
-        </div>
-        <div class="card-body p-0">
-          <div class="table-responsive">
-            <table class="table table-hover mb-0 align-middle">
-              <thead>
-                <tr>
-                  <th>Guía / Valija</th>
-                  <th>Master Origen</th>
-                  <th>Destinatario</th>
-                  <th>Piezas</th>
-                  <th>Fecha Clasificación</th>
-                  <th>Días en Tránsito</th>
-                  <th>Acciones</th>
-                </tr>
-              </thead>
-              <tbody id="tablaPorRecibir">
-                <tr><td colspan="7" class="text-center py-4">Cargando paquetes...</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
+    <div id="pasoOPT" class="mb-3 oculto">
+      <label class="form-label">Oficina Postal (OPT)</label>
+      <select id="selOPT" class="form-select" onchange="verificarUsuario()">
+        <option value="">-- Seleccione OPT --</option>
+      </select>
+    </div>
+
+    <div id="pasoCredenciales" class="oculto">
+      <div id="boxLoginExistente" class="mb-3 box-clave oculto">
+        <label class="form-label">Clave de Acceso</label>
+        <input id="inpClave" type="password" class="form-control" placeholder="••••">
       </div>
     </div>
 
-    <!-- VECTOR 2: CUSTODIA -->
-    <div class="tab-pane fade" id="tab-custodia" role="tabpanel">
-      <div class="card shadow-sm card-vector vector-custodia">
-        <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
-          <div>
-            <h5 class="mb-0 fw-bold text-dark"><i class="bi bi-box-seam me-2"></i>Votos en Custodia (Bóveda)</h5>
-            <small class="text-muted">Semáforo SLA: 🟢 0-3 días | 🟡 4-7 días | 🔴 8-14 días | ⚫ +15 días (Devolver)</small>
-          </div>
-          <button class="btn btn-primary btn-sm fw-bold" onclick="cargarCustodia()"><i class="bi bi-arrow-clockwise"></i> Actualizar</button>
-        </div>
-        <div class="card-body p-0">
-          <div class="table-responsive">
-            <table class="table table-hover mb-0 align-middle">
-              <thead>
-                <tr>
-                  <th>Guía / Valija</th>
-                  <th>Destinatario</th>
-                  <th>Piezas</th>
-                  <th>Fecha Recepción</th>
-                  <th>Días</th>
-                  <th>SLA</th>
-                  <th>Acciones</th>
-                </tr>
-              </thead>
-              <tbody id="tablaCustodia">
-                <tr><td colspan="7" class="text-center py-4">Cargando inventario...</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- VECTOR 3: HISTORIAL -->
-    <div class="tab-pane fade" id="tab-historial" role="tabpanel">
-      <div class="card shadow-sm card-vector vector-historial">
-        <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
-          <div>
-            <h5 class="mb-0 fw-bold text-dark"><i class="bi bi-shield-check me-2"></i>Actas de Entrega (Inmutables)</h5>
-            <small class="text-muted">Registro de votos entregados al ciudadano</small>
-          </div>
-          <button class="btn btn-outline-success btn-sm" onclick="cargarHistorialEntregas()"><i class="bi bi-arrow-clockwise"></i> Actualizar</button>
-        </div>
-        <div class="card-body p-0">
-          <div class="table-responsive">
-            <table class="table table-sm table-hover mb-0 align-middle">
-              <thead>
-                <tr>
-                  <th>ID Acta</th>
-                  <th>Guía / Valija</th>
-                  <th>Destinatario Original</th>
-                  <th>Quien Retiró</th>
-                  <th>Cédula</th>
-                  <th>Relación</th>
-                  <th>Estado</th>
-                  <th>Fecha/Hora</th>
-                  <th>Responsable OPT</th>
-                </tr>
-              </thead>
-              <tbody id="tablaHistorial">
-                <tr><td colspan="9" class="text-center py-4">Cargando historial...</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-
-  </div>
-</div>
-
-<!-- MODAL RECEPCIÓN -->
-<div class="modal fade" id="modalRecepcion" tabindex="-1">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header bg-warning text-dark">
-        <h5 class="modal-title fw-bold"><i class="bi bi-box-arrow-in-down"></i> Confirmar Recepción de Votos</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        <div class="alert alert-info small"><i class="bi bi-info-circle"></i> Al confirmar, certifica que las valijas llegaron a la taquilla y asume la custodia electoral.</div>
-        <div class="row g-3">
-          <div class="col-md-6">
-            <label class="form-label fw-bold">Guía / Valija</label>
-            <input type="text" class="form-control" id="recCodigo" readonly>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label fw-bold">Piezas Declaradas</label>
-            <input type="text" class="form-control" id="recPiezas" readonly>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label fw-bold">¿Recibido conforme? *</label>
-            <select class="form-select" id="recConforme" required>
-              <option value="">Seleccione...</option>
-              <option value="SI">✅ Sí, todo conforme</option>
-              <option value="PARCIAL">⚠️ Recepción parcial</option>
-              <option value="NO">❌ No conforme / Faltante</option>
-            </select>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label fw-bold">N° de Precinto</label>
-            <input type="text" class="form-control" id="recPrecinto" placeholder="N° de precinto">
-          </div>
-          <div class="col-12">
-            <label class="form-label fw-bold">Observaciones</label>
-            <textarea class="form-control" id="recObs" rows="2" placeholder="Ej: Valija sin daños..."></textarea>
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-        <button class="btn btn-warning fw-bold" onclick="confirmarRecepcion()"><i class="bi bi-check-circle"></i> Confirmar Recepción</button>
-      </div>
+    <div class="mt-3">
+      <button id="btnIngresar" class="btn btn-ipostel w-100 mb-2 oculto" onclick="enviarAlBackend()">🔑 Ingresar al Sistema</button>
+      <button id="btnVolver" class="btn btn-outline-secondary w-100 oculto" onclick="volverAtras()">⬅ Volver / Cancelar</button>
     </div>
   </div>
 </div>
 
-<!-- MODAL ENTREGA -->
-<div class="modal fade" id="modalEntrega" tabindex="-1" data-bs-backdrop="static">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header bg-primary text-white">
-        <h5 class="modal-title fw-bold"><i class="bi bi-file-earmark-text me-2"></i>Acta de Entrega de Voto</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        <div class="upae-disclaimer mb-3">
-          <i class="bi bi-exclamation-triangle-fill"></i> <b>Advertencia:</b> Esta acción genera un registro inmutable de cadena de custodia. Verifique la identidad del elector.
-        </div>
-        <div class="bg-light p-2 rounded mb-3 border">
-          <small class="text-muted">Voto a entregar:</small> <b id="entCodigo" class="text-primary fs-5"></b>
-          <span class="mx-2">|</span>
-          <small class="text-muted">Piezas:</small> <b id="entPiezas"></b>
-          <span class="mx-2">|</span>
-          <small class="text-muted">Destinatario Original:</small> <b id="entDestinatarioOriginal"></b>
-        </div>
-        <form id="formEntregaUPAE">
-          <div class="row g-3">
-            <div class="col-md-8">
-              <label class="form-label fw-bold">Nombre de quien retira *</label>
-              <input type="text" class="form-control" id="entNombreReceptor" placeholder="Ej: Ana González" required>
-            </div>
-            <div class="col-md-4">
-              <label class="form-label fw-bold">Cédula *</label>
-              <input type="text" class="form-control" id="entCedulaReceptor" placeholder="V-12345678" required>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label fw-bold">Relación con el elector *</label>
-              <select class="form-select" id="entRelacion" required>
-                <option value="">Seleccione...</option>
-                <option value="Titular">👤 Titular (Es el mismo elector)</option>
-                <option value="Familiar">👨‍👩‍👧 Familiar directo</option>
-                <option value="Autorizado">✅ Autorizado (Con carta)</option>
-              </select>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label fw-bold text-danger">Estado del sobre *</label>
-              <select class="form-select border-danger" id="entEstadoPaquete" required>
-                <option value="">Seleccione...</option>
-                <option value="Intacto">✅ Intacto</option>
-                <option value="Abierto">⚠️ Abierto / Roto</option>
-                <option value="Danado">❌ Dañado</option>
-              </select>
-            </div>
-            <div class="col-12">
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="entDeclaracion" required>
-                <label class="form-check-label small fw-bold" for="entDeclaracion">
-                  Declaro bajo fe de juramento que he verificado la identidad del elector.
-                </label>
-              </div>
-            </div>
-          </div>
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-        <button class="btn btn-primary fw-bold" onclick="confirmarEntregaUPAE()"><i class="bi bi-patch-check-fill"></i> REGISTRAR ENTREGA (INMUTABLE)</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-// ⚠️ PEGA TU URL DE APPS SCRIPT AQUÍ
 const API_URL = 'https://script.google.com/macros/s/AKfycbzx_AeJRGOOXphA0N5sUFEMJbDBwsyzfElr0hH38dmzUmFt9dy1NJ7w3MjMycrWzoI2/exec';
+const estadoApp = { rol: null, requiereEstado: false, requiereOPT: false, estadoSel: null, optSel: null, subRolSel: null };
+const ROLES_CON_ESTADO = ['JEFE_OPT'];
+const ROLES_CON_OPT = ['JEFE_OPT'];
 
-const sesionOPT = { estado: '', opt: '', rol: '', usuario: '' };
-let modalRecepcion, modalEntrega;
+function ocultar(id) { document.getElementById(id).classList.add('oculto'); }
+function mostrar(id) { document.getElementById(id).classList.remove('oculto'); }
+function ocultarTodo() { ['pasoEstado', 'pasoOPT', 'pasoCredenciales', 'boxLoginExistente', 'btnIngresar', 'btnVolver'].forEach(id => ocultar(id)); }
 
-document.addEventListener('DOMContentLoaded', () => {
-  // Simulamos la sesión trayendo los datos del sessionStorage
-  sesionOPT.estado = sessionStorage.getItem('ipostel_estado') || 'Anzoátegui';
-  sesionOPT.opt = sessionStorage.getItem('ipostel_opt') || 'OPT-ORI-ANZ-003';
-  sesionOPT.rol = (sessionStorage.getItem('ipostel_rol') || 'JEFE_OPT').toUpperCase();
-  sesionOPT.usuario = sessionStorage.getItem('ipostel_usuario') || 'Jefe Anzoátegui';
-
-  // Pintamos la barra superior
-  document.getElementById('infoEstado').textContent = sesionOPT.estado;
-  document.getElementById('infoOPT').textContent = sesionOPT.opt;
-  document.getElementById('infoRol').textContent = sesionOPT.rol === 'JEFE_OPT' ? 'Jefe de OPT' : 'Analista de OPT';
-
-  modalRecepcion = new bootstrap.Modal(document.getElementById('modalRecepcion'));
-  modalEntrega = new bootstrap.Modal(document.getElementById('modalEntrega'));
-
-  // Cargar datos iniciales
-  cargarPorRecibir();
-  cargarCustodia();
-  cargarHistorialEntregas();
-  cargarEstadisticas();
-});
-
-function cerrarSesion() {
-  sessionStorage.clear();
-  window.location.href = 'index.html';
+function entrarAlSistema() {
+  document.getElementById('pantallaBienvenida').style.opacity = '0';
+  setTimeout(() => {
+    document.getElementById('pantallaBienvenida').style.display = 'none';
+    document.getElementById('pantallaLogin').style.display = 'block';
+  }, 600);
 }
 
-// Simulaciones de Carga (Para que veas la interfaz funcionando)
-async function cargarPorRecibir() {
-  const tbody = document.getElementById('tablaPorRecibir');
-  tbody.innerHTML = '<tr><td colspan="7" class="text-center py-4 text-muted">No hay paquetes en tránsito hacia esta OPT.</td></tr>';
+function cambiarRol() {
+  const rol = document.getElementById('selRol').value;
+  ocultarTodo();
+  estadoApp.rol = rol; estadoApp.estadoSel = null; estadoApp.optSel = null;
+  if (!rol) return;
+  estadoApp.requiereEstado = ROLES_CON_ESTADO.includes(rol);
+  estadoApp.requiereOPT = ROLES_CON_OPT.includes(rol);
+
+  if (estadoApp.requiereEstado) {
+    mostrar('pasoEstado'); mostrar('btnVolver'); cargarEstados();
+  } else {
+    mostrar('pasoCredenciales'); mostrar('boxLoginExistente'); mostrar('btnIngresar');
+  }
 }
 
-async function cargarCustodia() {
-  const tbody = document.getElementById('tablaCustodia');
-  tbody.innerHTML = '<tr><td colspan="7" class="text-center py-4 text-muted">No hay votos en custodia.</td></tr>';
+function cambiarEstado() {
+  estadoApp.estadoSel = document.getElementById('selEstado').value;
+  ocultarTodo();
+  if (!estadoApp.estadoSel) { mostrar('pasoEstado'); mostrar('btnVolver'); return; }
+  if (estadoApp.requiereOPT) {
+    mostrar('pasoEstado'); mostrar('pasoOPT'); mostrar('btnVolver'); cargarOPTs(estadoApp.estadoSel);
+  } else {
+    mostrar('pasoEstado'); mostrar('btnVolver'); verificarUsuario(); 
+  }
 }
 
-async function cargarHistorialEntregas() {
-  const tbody = document.getElementById('tablaHistorial');
-  tbody.innerHTML = '<tr><td colspan="9" class="text-center py-4 text-muted">No hay entregas registradas.</td></tr>';
+async function verificarUsuario() {
+  if (estadoApp.requiereOPT) {
+    estadoApp.optSel = document.getElementById('selOPT').value;
+    if (!estadoApp.optSel) { mostrar('pasoEstado'); mostrar('pasoOPT'); mostrar('btnVolver'); return; }
+  }
+  mostrar('pasoCredenciales'); mostrar('btnVolver');
 }
 
-async function cargarEstadisticas() {
-  document.getElementById('statRecibir').textContent = '0';
-  document.getElementById('statCustodia').textContent = '0';
-  document.getElementById('statEntregados').textContent = '0';
-  document.getElementById('statRetrasados').textContent = '0';
+async function enviarAlBackend() {
+  const rol = estadoApp.rol;
+  let payload = { accion: 'loginArbol', rol: rol, clave: document.getElementById('inpClave').value.trim() };
+  
+  if (estadoApp.requiereEstado) { payload.estado = estadoApp.estadoSel; }
+  if (estadoApp.requiereOPT) { payload.codigoOPT = estadoApp.optSel; }
+
+  const btn = document.getElementById('btnIngresar');
+  btn.disabled = true; btn.textContent = 'Validando...';
+
+  try {
+    const resp = await postAPI(payload);
+    if (!resp.exito) { Swal.fire('Acceso denegado', resp.mensaje || 'No autorizado', 'error'); btn.disabled = false; btn.textContent = '🔑 Ingresar al Sistema'; return; }
+    redirigir(resp);
+  } catch (err) { Swal.fire('Error de conexión', err.message, 'error'); btn.disabled = false; btn.textContent = '🔑 Ingresar al Sistema'; }
 }
 
-// Funciones de prueba
-function buscarPaqueteUniversal() {
-  Swal.fire('Buscador', 'Aquí buscarías el código del voto.', 'info');
+function redirigir(r) {
+  const rol = r.rol || estadoApp.rol;
+  sessionStorage.setItem('ipostel_rol', rol);
+  sessionStorage.setItem('ipostel_usuario', r.usuario || 'Usuario');
+  if (estadoApp.estadoSel) sessionStorage.setItem('ipostel_estado', estadoApp.estadoSel);
+  if (estadoApp.optSel) sessionStorage.setItem('ipostel_opt', estadoApp.optSel);
+
+  if (rol === 'JEFE_OPT' || rol === 'ANALISTA_OPT') {
+    window.location.replace('portal_opt.html');
+  } else {
+    window.location.replace('observatorio.html');
+  }
+}
+
+function volverAtras() {
+  if (!document.getElementById('pasoCredenciales').classList.contains('oculto')) {
+    document.getElementById('pasoCredenciales').classList.add('oculto');
+    if (estadoApp.requiereOPT) { mostrar('pasoEstado'); mostrar('pasoOPT'); }
+    else if (estadoApp.requiereEstado) { mostrar('pasoEstado'); }
+    else { document.getElementById('selRol').value = ''; cambiarRol(); }
+    return;
+  }
+  if (!document.getElementById('pasoOPT').classList.contains('oculto')) { document.getElementById('pasoOPT').classList.add('oculto'); mostrar('pasoEstado'); return; }
+  if (!document.getElementById('pasoEstado').classList.contains('oculto')) { document.getElementById('pasoEstado').classList.add('oculto'); document.getElementById('selRol').value = ''; cambiarRol(); return; }
+  document.getElementById('selRol').value = ''; cambiarRol();
+}
+
+async function cargarEstados() {
+  try {
+    const r = await postAPI({accion: 'obtenerEstados'});
+    if (r.exito) {
+      const sel = document.getElementById('selEstado');
+      sel.innerHTML = '<option value="">-- Seleccione Estado --</option>';
+      r.estados.forEach(e => sel.innerHTML += `<option value="${e}">${e}</option>`);
+    }
+  } catch(e) { console.error(e); }
+}
+
+async function cargarOPTs(estado) {
+  try {
+    const r = await postAPI({accion: 'obtenerOPTsPorEstado', estado: estado});
+    if (r.exito) {
+      const sel = document.getElementById('selOPT');
+      sel.innerHTML = '<option value="">-- Seleccione OPT --</option>';
+      r.opts.forEach(o => sel.innerHTML += `<option value="${o.codigo}">${o.nombre}</option>`);
+      mostrar('pasoOPT');
+    }
+  } catch(e) { console.error(e); }
+}
+
+function postAPI(payload) {
+  return fetch(API_URL, { method: 'POST', body: JSON.stringify(payload), headers: { 'Content-Type': 'text/plain;charset=utf-8' } }).then(r => r.json());
 }
 </script>
 </body>
