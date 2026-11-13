@@ -130,6 +130,48 @@
     // Carga inicial y auto-refresh cada 30 segundos
     loadReports();
     setInterval(loadReports, 30000);
+    <script>
+  const userEmail = '<?= userEmail ?>';
+
+  function loadPending() {
+    google.script.run.withSuccessHandler(function(reports) {
+      const container = document.getElementById('pendingContainer');
+      if(reports.length === 0) {
+        container.innerHTML = '<p class="empty">✅ No hay reportes pendientes.</p>';
+        return;
+      }
+      
+      let html = '';
+      reports.forEach(r => {
+        html += `
+          <div class="card ${r.alerta ? 'priority' : ''}">
+            <h3>${r.opt} - ${r.estado}</h3>
+            <p><strong>Jefe:</strong> ${r.jefe} | <strong>Piezas:</strong> ${r.piezas} | <strong>Entregas:</strong> ${r.entregas}</p>
+            ${r.alerta ? `<p class="alert">${r.alerta}</p>` : ''}
+            <button onclick="approve('${r.id}')">✅ APROBAR</button>
+          </div>
+        `;
+      });
+      container.innerHTML = html;
+    }).getPendingReports();
+  }
+
+  function approve(id) {
+    if(!confirm('¿Aprobar este reporte?')) return;
+    google.script.run.withSuccessHandler(function(res) {
+      if(res.success) {
+        alert('✅ Aprobado correctamente');
+        loadPending();
+      } else {
+        alert('❌ Error: ' + res.msg);
+      }
+    }).approveOptReport(id, userEmail);
+  }
+
+  // Cargar al iniciar y refrescar cada 60 seg
+  loadPending();
+  setInterval(loadPending, 60000);
+</script>
   </script>
 </body>
 </html>
