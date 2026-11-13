@@ -1,236 +1,327 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>IPOSTEL - Elecciones España 2026</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <style>
-    body { background: #f4f6f9; padding-bottom: 50px; }
-    .header { background: #003366; color: white; padding: 15px; text-align: center; font-weight: bold; }
-    .card { margin-top: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IPOSTEL Móvil — Bienvenido</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<style>
+  :root { 
+    --azul-oscuro: #0b1a4a; 
+    --azul-claro: #1a3b8c;
+    --plateado: #d1d5db;
+    --cyan: #00d2ff; 
+  }
+  body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; min-height: 100vh; background-color: #f4f6f9; }
+  #pantallaBienvenida { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, var(--azul-oscuro) 0%, var(--azul-claro) 100%); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; color: white; transition: opacity 0.6s ease; }
+  .logo-bienvenida { font-size: 4rem; margin-bottom: 20px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); }
+  #pantallaBienvenida h1 { font-size: 2.8rem; font-weight: 700; letter-spacing: 1px; margin-bottom: 10px; color: var(--plateado); text-shadow: 2px 2px 4px rgba(0,0,0,0.4); }
+  #pantallaBienvenida p { font-size: 1.1rem; color: #a0aec0; margin-bottom: 40px; letter-spacing: 2px; }
+  .btn-bienvenida { background: transparent; border: 2px solid var(--plateado); color: var(--plateado); padding: 12px 50px; border-radius: 30px; font-weight: 600; font-size: 1.1rem; transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 1px; }
+  .btn-bienvenida:hover { background: var(--plateado); color: var(--azul-oscuro); box-shadow: 0 0 15px rgba(209, 213, 219, 0.5); }
+  #pantallaLogin { display: none; min-height: 100vh; padding: 40px 20px; background: linear-gradient(135deg, var(--azul-oscuro) 0%, var(--azul-claro) 100%); }
+  .card-ipostel { background: #fff; color: #222; border-radius: 12px; box-shadow: 0 8px 25px rgba(0,0,0,0.2); width: 100%; max-width: 500px; margin: auto; padding: 30px; }
+  .titulo { color: var(--azul-oscuro); font-weight: 700; margin-bottom: 0; }
+  .subtitulo { color: #6c757d; font-size: 0.9rem; }
+  .btn-ipostel { background: var(--azul-oscuro); color: #fff; font-weight: 600; border: none; padding: 12px; border-radius: 8px; transition: 0.3s; }
+  .btn-ipostel:hover { background: #061133; color: var(--cyan); }
+  .form-label { font-weight: 600; color: #444; font-size: 0.85rem; margin-bottom: 4px; }
+  .form-control, .form-select { border-radius: 8px; border: 1px solid #ced4da; font-size: 0.95rem; }
+  .form-control:focus, .form-select:focus { border-color: var(--cyan); box-shadow: 0 0 0 0.25rem rgba(0, 210, 255, 0.25); }
+  .oculto { display: none !important; }
+  .box-clave { background: #f8f9fa; border-radius: 8px; padding: 15px; border: 1px solid #e9ecef; }
+</style>
 </head>
 <body>
-  <div class="header">IPOSTEL - Elecciones España 2026</div>
-  <div class="container">
-    
-    <!-- LOGIN -->
-    <div id="loginScreen" class="card p-4 mt-4">
-      <h5 class="mb-3">Acceso al Sistema</h5>
-      
-      <div class="mb-3">
-        <label>Tipo de Usuario</label>
-        <select id="loginRol" class="form-select" onchange="actualizarCamposLogin()">
-          <option value="DIR_CNC">Director CNC</option>
-          <option value="COORD_CNC">Coordinador CNC</option>
-          <option value="JEFE_OPT">Jefe de OPT</option>
-          <option value="DESPACHO">Despacho / Observatorio</option>
-        </select>
-      </div>
-      
-      <div class="mb-3" id="divEstado" style="display:none;">
-        <label>Estado</label>
-        <select id="loginEstado" class="form-select" onchange="cargarOPTs()">
-          <option value="">Cargando estados...</option>
-        </select>
-      </div>
-      
-      <div class="mb-3" id="divOpt" style="display:none;">
-        <label>Oficina (OPT)</label>
-        <select id="loginOpt" class="form-select">
-          <option value="">Seleccione un estado primero</option>
-        </select>
-      </div>
 
-      <div class="mb-3">
-        <label>Clave (4 dígitos)</label>
-        <input type="password" id="loginClave" class="form-control" placeholder="****">
-      </div>
+<div id="pantallaBienvenida">
+  <div class="logo-bienvenida">📮</div> 
+  <h1>IPOSTEL Móvil</h1>
+  <p>Control y tracking vectorial de despachos</p>
+  <button class="btn btn-bienvenida" onclick="entrarAlSistema()">Ingresar</button>
+</div>
 
-      <button class="btn btn-primary w-100" onclick="ejecutarLogin()">Ingresar</button>
-      <div id="loginAlert" class="alert alert-danger mt-3 d-none"></div>
+<div id="pantallaLogin">
+  <div class="card card-ipostel">
+    <div class="text-center mb-4">
+      <h2 class="titulo">Acceso al Sistema</h2>
+      <span class="subtitulo">Seleccione su rol para continuar</span>
     </div>
 
-    <!-- APP -->
-    <div id="appScreen" style="display:none;">
-      <div class="d-flex justify-content-between align-items-center mt-3 mb-2">
-        <h5 id="lblBienvenida" class="m-0"></h5>
-        <button class="btn btn-sm btn-outline-danger" onclick="location.reload()">Salir</button>
+    <div id="pasoRol" class="mb-3">
+      <label class="form-label text-primary">Seleccione su Rol</label>
+      <select id="selRol" class="form-select fw-bold" onchange="cambiarRol()">
+        <option value="">-- Seleccione su rol --</option>
+        <option value="PRESIDENCIA">Presidencia</option>
+        <option value="DESPACHO">Despacho</option>
+        <option value="OBSERVATORIO">Observatorio</option>
+        <option value="DIRECCION">Dirección</option>
+        <option value="GERENCIA_ESTADO">Gerencia de Estado</option>
+        <option value="COORDINADOR">Coordinador</option>
+        <option value="JEFE_OPT">Jefe de OPT</option>
+        <option value="ANALISTA_OPT">Analista de OPT</option>
+      </select>
+    </div>
+
+    <div id="pasoSubRol" class="mb-3 oculto">
+      <label class="form-label">Seleccione opción</label>
+      <select id="selSubRol" class="form-select" onchange="verificarUsuario()">
+        <option value="">-- Seleccione --</option>
+      </select>
+    </div>
+
+    <div id="pasoEstado" class="mb-3 oculto">
+      <label class="form-label">Estado</label>
+      <select id="selEstado" class="form-select" onchange="cambiarEstado()">
+        <option value="">-- Seleccione Estado --</option>
+      </select>
+    </div>
+
+    <div id="pasoOPT" class="mb-3 oculto">
+      <label class="form-label">OPT</label>
+      <select id="selOPT" class="form-select" onchange="verificarUsuario()">
+        <option value="">-- Seleccione OPT --</option>
+      </select>
+    </div>
+
+    <div id="pasoCredenciales" class="oculto">
+      <div id="boxLoginExistente" class="mb-3 box-clave oculto">
+        <label class="form-label">Clave de Acceso</label>
+        <input id="inpClave" type="password" class="form-control" placeholder="••••">
       </div>
 
-      <div class="card p-4" id="formulario">
-        <form id="reporteForm">
-          <div id="camposOPT" style="display:none;">
-            <h5>Fase III: Reporte Diario (OPT)</h5>
-            <div class="mb-3"><label>Piezas Recibidas</label><input type="number" class="form-control" name="piezasRecibidas" required></div>
-            <div class="mb-3"><label>Entregas</label><input type="number" class="form-control" name="entregas" required></div>
-            <div class="mb-3"><label>Pendientes</label><input type="number" class="form-control" name="pendientes" required></div>
-            <div class="mb-3"><label>Incidencias</label><input type="number" class="form-control" name="incidencias" required></div>
-            <div class="mb-3"><label>URL Foto</label><input type="url" class="form-control" name="evidencia" required></div>
-            <button type="submit" class="btn btn-success w-100 mt-3">Enviar Reporte a CNC</button>
-          </div>
-        </form>
+      <div id="boxRegistroNuevo" class="mb-3 p-3 bg-light rounded border oculto">
+        <h6 class="text-primary mb-3 fw-bold">Datos de Registro</h6>
+        <div class="mb-2">
+          <label class="form-label small mb-1">Correo Electrónico</label>
+          <input id="inpCorreo" type="email" class="form-control form-control-sm" placeholder="correo@ipostel.gob.ve">
+        </div>
+        <div class="mb-2">
+          <label class="form-label small mb-1">Nombres y Apellidos</label>
+          <input id="inpNombre" type="text" class="form-control form-control-sm" placeholder="Ej: Juan Pérez">
+        </div>
+        <div class="mb-2">
+          <label class="form-label small mb-1">Cédula de Identidad</label>
+          <input id="inpCedula" type="text" class="form-control form-control-sm" placeholder="Ej: V-12345678">
+        </div>
+        <div class="mb-0">
+          <label class="form-label small mb-1">Clave de 4 dígitos</label>
+          <input id="inpClaveNueva" type="password" maxlength="4" inputmode="numeric" class="form-control form-control-sm" placeholder="••••">
+        </div>
       </div>
+    </div>
 
-      <div class="card p-4 mt-4" id="panelCNC" style="display:none;">
-        <h5>Aprobación de Reportes OPT</h5>
-        <div id="listaAprobaciones" class="mt-3">Cargando...</div>
-      </div>
+    <div class="mt-3">
+      <button id="btnRegistrar" class="btn btn-success w-100 mb-2 oculto" onclick="registrarUsuario()">📝 Registrarse</button>
+      <button id="btnIngresar" class="btn btn-ipostel w-100 mb-2 oculto" onclick="enviarAlBackend()">🔑 Ingresar al Sistema</button>
+      <button id="btnVolver" class="btn btn-outline-secondary w-100 oculto" onclick="volverAtras()">⬅ Volver / Cancelar</button>
+    </div>
+
+    <div class="text-center mt-3">
+      <a href="#" onclick="recuperar()" class="small text-decoration-none text-muted">¿Olvidó su clave?</a>
     </div>
   </div>
+</div>
 
-  <script>
-    const API_URL = 'https://script.google.com/macros/s/AKfycbzx_AeJRGOOXphA0N5sUFEMJbDBwsyzfElr0hH38dmzUmFt9dy1NJ7w3MjMycrWzoI2/exec'; 
-    let userActual = {};
+<script>
+// ⚠️ PEGA TU NUEVA URL DE APPS SCRIPT AQUÍ
+const API_URL = 'https://script.google.com/macros/s/AKfycbzx_AeJRGOOXphA0N5sUFEMJbDBwsyzfElr0hH38dmzUmFt9dy1NJ7w3MjMycrWzoI2/exec';
 
-    // Cargar estados al inicio si eligen Jefe de OPT
-    function actualizarCamposLogin() {
-      const rol = document.getElementById('loginRol').value;
-      const isOpt = (rol === 'JEFE_OPT');
-      document.getElementById('divEstado').style.display = isOpt ? 'block' : 'none';
-      document.getElementById('divOpt').style.display = isOpt ? 'block' : 'none';
-      
-      if (isOpt && document.getElementById('loginEstado').options.length <= 1) {
-        cargarEstados();
+const estadoApp = { rol: null, requiereEstado: false, requiereOPT: false, usuarioExiste: null, estadoSel: null, optSel: null, subRolSel: null };
+const ROLES_CON_ESTADO = ['GERENCIA_ESTADO', 'JEFE_OPT', 'ANALISTA_OPT'];
+const ROLES_CON_OPT = ['JEFE_OPT', 'ANALISTA_OPT'];
+
+function ocultar(id) { document.getElementById(id).classList.add('oculto'); }
+function mostrar(id) { document.getElementById(id).classList.remove('oculto'); }
+function ocultarTodo() { ['pasoSubRol', 'pasoEstado', 'pasoOPT', 'pasoCredenciales', 'boxLoginExistente', 'boxRegistroNuevo', 'btnIngresar', 'btnRegistrar', 'btnVolver'].forEach(id => ocultar(id)); }
+
+function entrarAlSistema() {
+  document.getElementById('pantallaBienvenida').style.opacity = '0';
+  setTimeout(() => {
+    document.getElementById('pantallaBienvenida').style.display = 'none';
+    document.getElementById('pantallaLogin').style.display = 'block';
+  }, 600);
+}
+
+function cambiarRol() {
+  const rol = document.getElementById('selRol').value;
+  ocultarTodo();
+  estadoApp.rol = rol; estadoApp.usuarioExiste = null; estadoApp.estadoSel = null; estadoApp.optSel = null; estadoApp.subRolSel = null;
+
+  if (!rol) return;
+
+  estadoApp.requiereEstado = ROLES_CON_ESTADO.includes(rol);
+  estadoApp.requiereOPT = ROLES_CON_OPT.includes(rol);
+
+  if (rol === 'DIRECCION') {
+    mostrar('pasoSubRol'); mostrar('btnVolver');
+    const sel = document.getElementById('selSubRol');
+    sel.innerHTML = `<option value="">-- Seleccione --</option><option value="CNC">Dirección CNC</option><option value="OPERACIONES">Dirección de Operaciones</option>`;
+  } 
+  else if (rol === 'COORDINADOR') {
+    mostrar('pasoSubRol'); mostrar('btnVolver');
+    const sel = document.getElementById('selSubRol');
+    sel.innerHTML = `<option value="">-- Seleccione --</option><option value="ENCAMINAMIENTO">Encaminamiento</option><option value="ALIANZA">Control del Aliado</option><option value="CNC_MICRO">CNC-Micro Entrega</option>`;
+  }
+  else if (estadoApp.requiereEstado) {
+    mostrar('pasoEstado'); mostrar('btnVolver'); cargarEstados();
+  } 
+  else {
+    mostrar('pasoCredenciales'); mostrar('boxLoginExistente'); mostrar('btnIngresar');
+    document.getElementById('btnIngresar').textContent = '🔑 Ingresar al Sistema';
+  }
+}
+
+function cambiarEstado() {
+  estadoApp.estadoSel = document.getElementById('selEstado').value;
+  ocultarTodo();
+  if (!estadoApp.estadoSel) { mostrar('pasoEstado'); mostrar('btnVolver'); return; }
+
+  if (estadoApp.requiereOPT) {
+    mostrar('pasoEstado'); mostrar('pasoOPT'); mostrar('btnVolver'); cargarOPTs(estadoApp.estadoSel);
+  } else {
+    mostrar('pasoEstado'); mostrar('btnVolver'); verificarUsuario(); 
+  }
+}
+
+async function verificarUsuario() {
+  if (estadoApp.rol === 'DIRECCION' || estadoApp.rol === 'COORDINADOR') {
+    estadoApp.subRolSel = document.getElementById('selSubRol').value;
+    if (!estadoApp.subRolSel) return;
+  }
+  if (estadoApp.requiereOPT) {
+    estadoApp.optSel = document.getElementById('selOPT').value;
+    if (!estadoApp.optSel) { mostrar('pasoEstado'); mostrar('pasoOPT'); mostrar('btnVolver'); return; }
+  }
+
+  mostrar('pasoCredenciales'); mostrar('btnVolver');
+  const payload = { accion: 'verificarExistencia', rol: estadoApp.rol, estado: estadoApp.estadoSel, opt: estadoApp.optSel, subRol: estadoApp.subRolSel };
+
+  try {
+    const resp = await postAPI(payload);
+    if (resp.exito) {
+      estadoApp.usuarioExiste = resp.existe;
+      if (resp.existe) {
+        ocultar('boxRegistroNuevo'); mostrar('boxLoginExistente'); ocultar('btnRegistrar'); mostrar('btnIngresar');
+      } else {
+        ocultar('boxLoginExistente'); mostrar('boxRegistroNuevo'); mostrar('btnRegistrar'); ocultar('btnIngresar');
       }
-    }
+    } else { Swal.fire('Error', resp.mensaje, 'error'); }
+  } catch (e) { Swal.fire('Error de red', 'No se pudo verificar el usuario.', 'error'); }
+}
 
-    async function cargarEstados() {
-      const select = document.getElementById('loginEstado');
-      select.innerHTML = '<option value="">Cargando...</option>';
-      try {
-        const res = await fetch(API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify({ accion: 'obtenerEstados' })
-        });
-        const json = await res.json();
-        if (json.exito) {
-          select.innerHTML = '<option value="">Seleccione estado</option>';
-          json.estados.forEach(est => {
-            select.innerHTML += `<option value="${est}">${est}</option>`;
-          });
-        }
-      } catch(e) { select.innerHTML = '<option value="">Error al cargar</option>'; }
-    }
+async function registrarUsuario() {
+  const rol = estadoApp.rol;
+  const correo = document.getElementById('inpCorreo').value.trim();
+  const nombre = document.getElementById('inpNombre').value.trim();
+  const cedula = document.getElementById('inpCedula').value.trim();
+  const clave = document.getElementById('inpClaveNueva').value.trim();
 
-    async function cargarOPTs() {
-      const estado = document.getElementById('loginEstado').value;
-      const selectOpt = document.getElementById('loginOpt');
-      if (!estado) { selectOpt.innerHTML = '<option value="">Seleccione un estado primero</option>'; return; }
-      
-      selectOpt.innerHTML = '<option value="">Cargando...</option>';
-      try {
-        const res = await fetch(API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify({ accion: 'obtenerOPTsPorEstado', estado: estado })
-        });
-        const json = await res.json();
-        if (json.exito) {
-          selectOpt.innerHTML = '<option value="">Seleccione OPT</option>';
-          json.opts.forEach(opt => {
-            selectOpt.innerHTML += `<option value="${opt.codigo}">${opt.nombre}</option>`;
-          });
-        }
-      } catch(e) { selectOpt.innerHTML = '<option value="">Error al cargar</option>'; }
-    }
+  if (!correo || !nombre || !cedula || !clave) { Swal.fire('Atención', 'Complete todos los datos.', 'warning'); return; }
+  if (!/^\d{4}$/.test(clave)) { Swal.fire('Atención', 'La clave debe tener 4 dígitos.', 'warning'); return; }
 
-    async function ejecutarLogin() {
-      const rolSelect = document.getElementById('loginRol').value;
-      const estado = document.getElementById('loginEstado').value;
-      const opt = document.getElementById('loginOpt').value;
-      const clave = document.getElementById('loginClave').value;
-      
-      const btn = document.querySelector('#loginScreen button');
-      btn.innerText = 'Validando...';
-      document.getElementById('loginAlert').classList.add('d-none');
-      
-      let payload = { accion: 'loginArbol', clave: clave };
-      
-      if (rolSelect === 'DIR_CNC') {
-        payload.rol = 'DIRECCION'; payload.subRol = 'CNC';
-      } else if (rolSelect === 'COORD_CNC') {
-        payload.rol = 'COORDINADOR'; payload.subRol = 'CNC_MICRO';
-      } else if (rolSelect === 'JEFE_OPT') {
-        payload.rol = 'JEFE_OPT'; payload.estado = estado; payload.codigoOPT = opt;
-      } else if (rolSelect === 'DESPACHO') {
-        payload.rol = 'DESPACHO';
-      }
+  let payload = { accion: 'registrarUsuario', rol: rol, correo, nombre, cedula, clave };
+  if (rol === 'DIRECCION' || rol === 'COORDINADOR') {
+    payload.subRol = estadoApp.subRolSel;
+    if (rol === 'DIRECCION') payload.usuario = (estadoApp.subRolSel === 'CNC') ? 'Director_CNC' : 'Director_Operaciones';
+  } else if (estadoApp.requiereEstado) { payload.estado = estadoApp.estadoSel; }
+  if (estadoApp.requiereOPT) { payload.codigoOPT = estadoApp.optSel; }
 
-      try {
-        const res = await fetch(API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify(payload)
-        });
-        const json = await res.json();
-        
-        if (json.exito) {
-          userActual = json;
-          document.getElementById('loginScreen').style.display = 'none';
-          document.getElementById('appScreen').style.display = 'block';
-          document.getElementById('lblBienvenida').innerText = 'Rol: ' + json.rol + ' - Usuario: ' + (json.usuario || '');
-          cargarInterfaz();
-        } else {
-          document.getElementById('loginAlert').innerText = json.mensaje;
-          document.getElementById('loginAlert').classList.remove('d-none');
-        }
-      } catch(e) { 
-        document.getElementById('loginAlert').innerText = 'Error de conexión: ' + e;
-        document.getElementById('loginAlert').classList.remove('d-none');
-      }
-      btn.innerText = 'Ingresar';
-    }
+  const btn = document.getElementById('btnRegistrar');
+  btn.disabled = true; btn.textContent = 'Registrando...';
 
-    function cargarInterfaz() {
-      if (userActual.rol === 'JEFE_OPT' || userActual.rol === 'ANALISTA_OPT') {
-        document.getElementById('camposOPT').style.display = 'block';
-      } else if (userActual.rol === 'DIR_CNC' || userActual.rol === 'COORD_CNC') {
-        document.getElementById('panelCNC').style.display = 'block';
-        cargarPendientesCNC();
-      } else if (userActual.rol === 'DESPACHO' || userActual.rol === 'OBSERVATORIO') {
-        window.location.href = 'observatorio.html';
-      }
-    }
+  try {
+    const resp = await postAPI(payload);
+    if (!resp.exito) { Swal.fire('Error', resp.mensaje, 'error'); }
+    else { Swal.fire('✅ Registrado', 'Usuario creado exitosamente.', 'success'); verificarUsuario(); }
+  } catch (err) { Swal.fire('Error de conexión', err.message, 'error'); } 
+  finally { btn.disabled = false; btn.textContent = '📝 Registrarse'; }
+}
 
-    async function cargarPendientesCNC() {
-      try {
-        const res = await fetch(API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify({ accion: 'obtenerPendientesOPT' })
-        });
-        const json = await res.json();
-        const div = document.getElementById('listaAprobaciones');
-        
-        if (!json.exito || !json.pendientes || json.pendientes.length === 0) {
-          div.innerHTML = '<p class="text-muted">No hay reportes pendientes.</p>'; return; 
-        }
-        
-        let html = '<table class="table table-sm"><thead><tr><th>OPT</th><th>Recib.</th><th>Entreg.</th><th>Pend.</th><th>Acción</th></tr></thead><tbody>';
-        json.pendientes.forEach(item => {
-          html += `<tr><td>${item.opt}</td><td>${item.recibidas}</td><td>${item.entregadas}</td><td>${item.pendientes}</td><td><button class="btn btn-sm btn-success" onclick="aprobar(${item.fila})">Aprobar</button></td></tr>`;
-        });
-        html += '</tbody></table>';
-        div.innerHTML = html;
-      } catch(e) { console.error(e); }
-    }
+async function enviarAlBackend() {
+  const rol = estadoApp.rol;
+  let payload = { accion: 'loginArbol', rol: rol, clave: document.getElementById('inpClave').value.trim() };
 
-    async function aprobar(fila) {
-      if(!confirm('¿Aprobar este reporte?')) return;
-      try {
-        const res = await fetch(API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify({ accion: 'aprobarReporteOPT', fila: fila })
-        });
-        const json = await res.json();
-        alert(json.mensaje);
-        if(json.exito) cargarPendientesCNC();
-      } catch(e) { alert('Error: ' + e); }
+  if (['PRESIDENCIA', 'DESPACHO', 'OBSERVATORIO'].includes(rol)) {
+    if (rol === 'PRESIDENCIA') payload.usuario = 'Presidencia';
+    if (rol === 'DESPACHO') payload.usuario = 'Despacho';
+    if (rol === 'OBSERVATORIO') payload.usuario = 'Observatorio';
+  } else if (rol === 'DIRECCION' || rol === 'COORDINADOR') {
+    payload.subRol = estadoApp.subRolSel;
+    if (rol === 'DIRECCION') payload.usuario = (estadoApp.subRolSel === 'CNC') ? 'Director_CNC' : 'Director_Operaciones';
+  } else if (estadoApp.requiereEstado) { payload.estado = estadoApp.estadoSel; }
+  if (estadoApp.requiereOPT) { payload.codigoOPT = estadoApp.optSel; }
+
+  const btn = document.getElementById('btnIngresar');
+  btn.disabled = true; btn.textContent = 'Validando...';
+
+  try {
+    const resp = await postAPI(payload);
+    if (!resp.exito) { Swal.fire('Acceso denegado', resp.mensaje || 'No autorizado', 'error'); btn.disabled = false; btn.textContent = '🔑 Ingresar al Sistema'; return; }
+    redirigir(resp);
+  } catch (err) { Swal.fire('Error de conexión', err.message, 'error'); btn.disabled = false; btn.textContent = '🔑 Ingresar al Sistema'; }
+}
+
+function redirigir(r) {
+  const rol = r.rol || estadoApp.rol;
+  sessionStorage.setItem('ipostel_rol', rol);
+  if (estadoApp.estadoSel) sessionStorage.setItem('ipostel_estado', estadoApp.estadoSel);
+  if (estadoApp.optSel) sessionStorage.setItem('ipostel_opt', estadoApp.optSel);
+
+  // Si es un rol que va al observatorio o formulario, lo mandamos a donde corresponde
+  if (['PRESIDENCIA', 'DESPACHO', 'OBSERVATORIO', 'DIR_OPER'].includes(rol)) {
+    window.location.replace('observatorio.html');
+  } else if (['JEFE_OPT', 'ANALISTA_OPT'].includes(rol)) {
+    window.location.replace('formulario_reporte.html'); // Si tienes un HTML aparte para reportar
+  } else {
+    window.location.replace('observatorio.html'); // Fallback
+  }
+}
+
+function volverAtras() {
+  if (!document.getElementById('pasoCredenciales').classList.contains('oculto')) {
+    document.getElementById('pasoCredenciales').classList.add('oculto');
+    if (estadoApp.requiereOPT) { mostrar('pasoEstado'); mostrar('pasoOPT'); }
+    else if (estadoApp.requiereEstado) { mostrar('pasoEstado'); }
+    else { document.getElementById('selRol').value = ''; cambiarRol(); }
+    return;
+  }
+  if (!document.getElementById('pasoOPT').classList.contains('oculto')) { document.getElementById('pasoOPT').classList.add('oculto'); mostrar('pasoEstado'); return; }
+  if (!document.getElementById('pasoEstado').classList.contains('oculto')) { document.getElementById('pasoEstado').classList.add('oculto'); document.getElementById('selRol').value = ''; cambiarRol(); return; }
+  document.getElementById('selRol').value = ''; cambiarRol();
+}
+
+async function cargarEstados() {
+  try {
+    const r = await postAPI({accion: 'obtenerEstados'});
+    if (r.exito) {
+      const sel = document.getElementById('selEstado');
+      sel.innerHTML = '<option value="">-- Seleccione Estado --</option>';
+      r.estados.forEach(e => sel.innerHTML += `<option value="${e}">${e}</option>`);
     }
-  </script>
+  } catch(e) { console.error(e); }
+}
+
+async function cargarOPTs(estado) {
+  try {
+    const r = await postAPI({accion: 'obtenerOPTsPorEstado', estado: estado});
+    if (r.exito) {
+      const sel = document.getElementById('selOPT');
+      sel.innerHTML = '<option value="">-- Seleccione OPT --</option>';
+      r.opts.forEach(o => sel.innerHTML += `<option value="${o.codigo}">${o.nombre}</option>`);
+      mostrar('pasoOPT');
+    }
+  } catch(e) { console.error(e); }
+}
+
+function postAPI(payload) {
+  return fetch(API_URL, { 
+    method: 'POST', 
+    body: JSON.stringify(payload),
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+  }).then(r => r.json());
+}
+</script>
 </body>
 </html>
