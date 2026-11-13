@@ -19,6 +19,7 @@
   #pantallaLogin, #pantallaApp { display: none; min-height: 100vh; padding: 40px 20px; background: linear-gradient(135deg, var(--ipostel-azul) 0%, #001a33 100%); }
   .card-ipostel { background: #fff; color: #222; border-radius: 12px; box-shadow: 0 8px 25px rgba(0,0,0,0.2); width: 100%; max-width: 600px; margin: auto; padding: 30px; border-top: 5px solid var(--ipostel-rojo); }
   .titulo { color: var(--ipostel-azul); font-weight: 800; margin-bottom: 0; }
+  .subtitulo { color: #6c757d; font-size: 0.9rem; }
   .btn-ipostel { background: var(--ipostel-azul); color: #fff; font-weight: 600; border: none; padding: 12px; border-radius: 8px; transition: 0.3s; }
   .btn-ipostel:hover { background: #002244; color: var(--ipostel-amarillo); }
   .form-label { font-weight: 600; color: #444; font-size: 0.85rem; margin-bottom: 4px; }
@@ -130,7 +131,7 @@
 
 <script>
 const API_URL = 'https://script.google.com/macros/s/AKfycbzx_AeJRGOOXphA0N5sUFEMJbDBwsyzfElr0hH38dmzUmFt9dy1NJ7w3MjMycrWzoI2/exec';
-const estadoApp = { rol: null, requiereEstado: false, requiereOPT: false, usuarioExiste: null, estadoSel: null, optSel: null, subRolSel: null };
+const estadoApp = { rol: null, requiereEstado: false, requiereOPT: false, estadoSel: null, optSel: null, subRolSel: null };
 const ROLES_CON_ESTADO = ['GERENCIA_ESTADO', 'JEFE_OPT', 'ANALISTA_OPT'];
 const ROLES_CON_OPT = ['JEFE_OPT', 'ANALISTA_OPT'];
 
@@ -149,7 +150,7 @@ function entrarAlSistema() {
 function cambiarRol() {
   const rol = document.getElementById('selRol').value;
   ocultarTodo();
-  estadoApp.rol = rol; estadoApp.usuarioExiste = null; estadoApp.estadoSel = null; estadoApp.optSel = null; estadoApp.subRolSel = null;
+  estadoApp.rol = rol; estadoApp.estadoSel = null; estadoApp.optSel = null; estadoApp.subRolSel = null;
   if (!rol) return;
   estadoApp.requiereEstado = ROLES_CON_ESTADO.includes(rol);
   estadoApp.requiereOPT = ROLES_CON_OPT.includes(rol);
@@ -193,6 +194,7 @@ async function verificarUsuario() {
 async function enviarAlBackend() {
   const rol = estadoApp.rol;
   let payload = { accion: 'loginArbol', rol: rol, clave: document.getElementById('inpClave').value.trim() };
+
   if (['PRESIDENCIA', 'DESPACHO', 'OBSERVATORIO'].includes(rol)) {
     if (rol === 'PRESIDENCIA') payload.usuario = 'Presidencia';
     if (rol === 'DESPACHO') payload.usuario = 'Despacho';
