@@ -16,7 +16,10 @@
 <body>
   <nav class="navbar p-3 mb-4 d-flex justify-content-between">
     <h4 class="m-0">Observatorio Estratégico Postal</h4>
-    <button class="btn btn-light btn-sm" onclick="cargarDatos()">Actualizar Datos</button>
+    <div>
+      <button class="btn btn-light btn-sm me-2" onclick="cargarDatos()">Actualizar Datos</button>
+      <a href="index.html" class="btn btn-outline-light btn-sm">Volver al Login</a>
+    </div>
   </nav>
 
   <div class="container">
@@ -27,7 +30,7 @@
     </div>
 
     <div class="card p-4">
-      <h5>Reportes Oficiales de OPT</h5>
+      <h5>Reportes Oficiales de OPT (Validados por CNC)</h5>
       <table class="table table-hover mt-3">
         <thead><tr><th>Fecha</th><th>OPT</th><th>Recibidas</th><th>Entregadas</th><th>Pendientes</th><th>Incidencias</th><th>Evidencia</th></tr></thead>
         <tbody id="tablaDatos"><tr><td colspan="7" class="text-center">Cargando...</td></tr></tbody>
@@ -43,10 +46,14 @@
       tabla.innerHTML = '<tr><td colspan="7" class="text-center text-muted">Cargando datos...</td></tr>';
       
       try {
-        const res = await fetch(API_URL + '?accion=obtenerDatosObservatorio');
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ accion: 'obtenerDatosObservatorio' })
+        });
         const json = await res.json();
         
-        if (!json.success || !json.data || json.data.length === 0) {
+        if (!json.exito || !json.datos || json.datos.length === 0) {
           tabla.innerHTML = '<tr><td colspan="7" class="text-center text-muted">No hay reportes aprobados.</td></tr>';
           return;
         }
@@ -54,7 +61,7 @@
         let totalEntregas = 0; let totalIncidencias = 0;
         tabla.innerHTML = '';
         
-        json.data.forEach(row => {
+        json.datos.forEach(row => {
           totalEntregas += Number(row[4]) || 0; 
           totalIncidencias += Number(row[6]) || 0;
           let fechaStr = new Date(row[0]).toLocaleString();
@@ -70,7 +77,7 @@
           </tr>`;
         });
 
-        document.getElementById('kpiOpt').innerText = json.data.length;
+        document.getElementById('kpiOpt').innerText = json.datos.length;
         document.getElementById('kpiEntregas').innerText = totalEntregas;
         document.getElementById('kpiIncidencias').innerText = totalIncidencias;
       } catch(e) {
