@@ -674,7 +674,6 @@ async function generarInforme() {
 
     modalInforme.hide();
     
-    // Generar el HTML del informe para imprimir
     let filasDetalle = '';
     if (r.detalle.length === 0) {
       filasDetalle = '<tr><td colspan="7" class="text-center">No hubo entregas en este período.</td></tr>';
@@ -693,15 +692,20 @@ async function generarInforme() {
     }
 
     const k = r.kpis;
+    const info = r.infoOPT;
+
+    // Aquí construimos el subtítulo con los datos geográficos
+    const subtituloGeografico = `Estado: ${info.estado} | Municipio: ${info.municipio} | Parroquia: ${info.parroquia}`;
 
     const htmlInforme = `
       <html>
       <head>
-        <title>Informe OPT - ${estadoApp.optSel}</title>
+        <title>Informe OPT - ${info.nombre}</title>
         <style>
           body { font-family: 'Segoe UI', Arial, sans-serif; padding: 30px; color: #333; }
-          h1 { text-align: center; color: #003366; margin-bottom: 5px; }
-          h2 { text-align: center; font-size: 14px; color: #666; margin-top: 0; margin-bottom: 30px; }
+          h1 { text-align: center; color: #003366; margin-bottom: 5px; font-size: 26px; }
+          h2 { text-align: center; font-size: 16px; color: #444; margin-top: 0; margin-bottom: 5px; }
+          .geo-info { text-align: center; font-size: 12px; color: #666; margin-bottom: 25px; text-transform: uppercase; letter-spacing: 1px; }
           
           /* Cuadro de KPIs */
           .kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 30px; }
@@ -726,18 +730,12 @@ async function generarInforme() {
           .text-success { color: #198754; font-weight: bold; }
           .text-danger { color: #dc3545; font-weight: bold; }
           .text-center { text-align: center; }
-          
-          @media print {
-            body { padding: 0; }
-            .kpi-box { break-inside: avoid; }
-            table { break-inside: auto; }
-            tr { break-inside: avoid; break-after: auto; }
-          }
         </style>
       </head>
       <body>
         <h1>IPOSTEL - Cierre Diario / Informe de OPT</h1>
-        <h2>Oficina: ${estadoApp.optSel} | Período: ${fInicio.split('-').reverse().join('/')} al ${fFin.split('-').reverse().join('/')}</h2>
+        <h2>Oficina: ${info.nombre} (${info.codigo})</h2>
+        <div class="geo-info">${subtituloGeografico} | Período: ${fInicio.split('-').reverse().join('/')} al ${fFin.split('-').reverse().join('/')}</div>
         
         <div class="kpi-grid">
           <div class="kpi-box">
