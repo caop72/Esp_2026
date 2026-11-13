@@ -857,7 +857,7 @@ async function cargarGerenteDespachar() {
       tr.innerHTML = `
         <td><span class="codigo-5d">${item.id}</span></td>
         <td>${item.optDestino}</td>
-        <td>${item.tipoEnvio} (${item.piezas})</td>
+        <td>Cert: <b>${item.certificados}</b> | Ord: <b>${item.ordinarios}</b></td>
         <td>Origen: ${item.origen}</td>
         <td><button class="btn btn-sm btn-success fw-bold" onclick="abrirDespachar('${item.id}')"><i class="bi bi-send"></i> Despachar</button></td>
       `;
@@ -870,8 +870,8 @@ function abrirClasificar(id) {
   document.getElementById('clasificarGuia').value = id;
   document.getElementById('paqueteId').value = 'PKT-' + Math.floor(Math.random() * 10000);
   document.getElementById('paqueteDestino').value = '';
-  document.getElementById('paqueteTipo').value = 'Certificado';
-  document.getElementById('paquetePiezas').value = '';
+  document.getElementById('paqueteCertificados').value = '0';
+  document.getElementById('paqueteOrdinarios').value = '0';
   modalClasificar.show();
 }
 
@@ -879,10 +879,11 @@ async function confirmarClasificacion() {
   const valijaOrigen = document.getElementById('clasificarGuia').value;
   const idPaquete = document.getElementById('paqueteId').value;
   const destino = document.getElementById('paqueteDestino').value;
-  const tipo = document.getElementById('paqueteTipo').value;
-  const piezas = document.getElementById('paquetePiezas').value;
+  const certificados = document.getElementById('paqueteCertificados').value;
+  const ordinarios = document.getElementById('paqueteOrdinarios').value;
 
-  if (!idPaquete || !destino || !piezas) return Swal.fire('Atención', 'Complete todos los campos.', 'warning');
+  if (!idPaquete || !destino) return Swal.fire('Atención', 'Complete los campos obligatorios.', 'warning');
+  if (Number(certificados) === 0 && Number(ordinarios) === 0) return Swal.fire('Atención', 'Debe incluir al menos una pieza (Certificada u Ordinaria).', 'warning');
   
   Swal.fire({ title: 'Creando Paquete...', didOpen: () => Swal.showLoading() });
   const r = await postAPI({ 
@@ -890,14 +891,15 @@ async function confirmarClasificacion() {
     idPaquete: idPaquete, 
     valijaOrigen: valijaOrigen, 
     optDestino: destino, 
-    tipoEnvio: tipo, 
-    piezas: piezas 
+    certificados: certificados,
+    ordinarios: ordinarios
   });
   
   if (r.exito) {
     modalClasificar.hide();
-    Swal.fire('Paquete Creado', 'Ahora puede crear otro paquete de la misma valija o verlo en la pestaña de despacho.', 'success');
-    cargarGerenteDespachar();
+    Swal.fire('Paquete Creado', 'El paquete se ha añadido a la lista de despacho.', 'success');
+    cargarGerenteClasificar(); // Refresca la tabla de pendientes
+    cargarGerenteDespachar();  // Refresca la tabla de paquetes listos
   } else Swal.fire('Error', r.mensaje, 'error');
 }
 
