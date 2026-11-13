@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel CNC - Validación OPT</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #f4f6f9; padding: 20px; max-width: 700px; margin: 0 auto; }
+        .header { background: #70ad47; color: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; text-align: center; }
+        .report-card { background: white; padding: 20px; border-radius: 10px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border-left: 5px solid #ffc107; }
+        .report-card.approved { border-left-color: #28a745; opacity: 0.8; }
+        .btn-approve { background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .loading { text-align: center; padding: 40px; color: #666; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2>🛡️ Panel CNC - Validación de Reportes</h2>
+        <p>Audite y apruebe los reportes diarios de las OPT</p>
+    </div>
+    
+    <div id="container" class="loading">⏳ Cargando reportes pendientes...</div>
+
+    <script>
+        // Conexión pendiente a la función getPendingReports() de Apps Script
+        window.onload = function() {
+            setTimeout(() => {
+                document.getElementById('container').innerHTML = `
+                    <div class="report-card">
+                        <h3>OPT Anaco - Anzoátegui</h3>
+                        <p>Jefe: Carlos Pérez | Piezas: 150 | Entregas: 120 | Pendientes: 30</p>
+                        <button class="btn-approve" onclick="this.parentElement.classList.add('approved'); this.remove()">✅ APROBAR Y CONSOLIDAR</button>
+                    </div>
+                    <div class="report-card">
+                        <h3>OPT Puerto La Cruz - Anzoátegui</h3>
+                        <p>Jefe: María López | Piezas: 200 | Entregas: 200 | Pendientes: 0</p>
+                        <button class="btn-approve" onclick="this.parentElement.classList.add('approved'); this.remove()">✅ APROBAR Y CONSOLIDAR</button>
+                    </div>
+                `;
+            }, 1000);
+        };
+    </script>
+</body>
+</html>
