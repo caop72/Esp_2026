@@ -176,7 +176,7 @@
       </div>
     </div>
 
-    <!-- PANEL GERENTE DE ESTADO (FLUJO OPERATIVO) -->
+    <!-- PANEL GERENTE DE ESTADO -->
     <div id="appGerente" class="oculto">
       <h4 class="text-primary mb-3 fw-bold"><i class="bi bi-building"></i> Gerencia de Estado: Clasificación y Despacho</h4>
       <div class="alert alert-warning py-2 small">
@@ -206,12 +206,12 @@
         <div class="tab-pane fade" id="tab-despachar">
           <div class="card shadow-sm card-vector vector-custodia">
             <div class="card-header bg-white d-flex justify-content-between py-3">
-              <h6 class="mb-0 fw-bold">Valijas Clasificadas (Listas para enviar a OPT)</h6>
+              <h6 class="mb-0 fw-bold">Paquetes Creados (Listos para enviar a OPT)</h6>
               <button class="btn btn-success btn-sm fw-bold" onclick="cargarGerenteDespachar()"><i class="bi bi-arrow-clockwise"></i> Actualizar</button>
             </div>
             <div class="card-body p-0 table-responsive">
               <table class="table table-hover mb-0 align-middle">
-                <thead><tr><th>Guía</th><th>Destino</th><th>Piezas</th><th>Límite 24h</th><th>Acción</th></tr></thead>
+                <thead><tr><th>ID Paquete</th><th>Destino</th><th>Tipo/Piezas</th><th>Origen</th><th>Acción</th></tr></thead>
                 <tbody id="tablaGerenteDespachar"><tr><td colspan="5" class="text-center py-3">Cargando...</td></tr></tbody>
               </table>
             </div>
@@ -220,7 +220,7 @@
       </div>
     </div>
 
-    <!-- OTROS PANELES (Intactos para no romper nada) -->
+    <!-- OTROS PANELES -->
     <div id="appCNC" class="oculto">
       <h5 class="text-primary mb-3">Fase II: Aprobación de Reportes (CNC)</h5>
       <div id="listaAprobaciones">Cargando reportes pendientes...</div>
@@ -232,7 +232,7 @@
   </div>
 </div>
 
-<!-- MODAL RECEPCIÓN -->
+<!-- MODAL RECEPCIÓN (OPT) -->
 <div class="modal fade" id="modalRecepcion" tabindex="-1">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
@@ -260,7 +260,7 @@
   </div>
 </div>
 
-<!-- MODAL ENTREGA (ACTA) -->
+<!-- MODAL ENTREGA (OPT) -->
 <div class="modal fade" id="modalEntrega" tabindex="-1" data-bs-backdrop="static">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
@@ -322,7 +322,7 @@
   </div>
 </div>
 
-<!-- MODAL CREAR PAQUETE (Reemplaza al de clasificar) -->
+<!-- MODAL CREAR PAQUETE (GERENTE) -->
 <div class="modal fade" id="modalClasificar" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -368,8 +368,8 @@
     </div>
   </div>
 </div>
-<!-- MODAL DESPACHAR GERENTE -->
-<!-- MODAL DESPACHAR PAQUETE -->
+
+<!-- MODAL DESPACHAR (GERENTE) -->
 <div class="modal fade" id="modalDespachar" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -813,7 +813,7 @@ async function generarInforme() {
 }
 
 // ==========================================
-// LÓGICA GERENTE DE ESTADO
+// LÓGICA GERENTE DE ESTADO (PAQUETES)
 // ==========================================
 function iniciarGerente() {
   modalClasificar = new bootstrap.Modal(document.getElementById('modalClasificar'));
@@ -841,7 +841,7 @@ async function cargarGerenteClasificar() {
       const tr = document.createElement('tr');
       if (item.semaforoColor === 'rojo') tr.className = 'fila-critica';
       else if (item.semaforoColor === 'amarillo') tr.className = 'fila-alerta';
-      tr.innerHTML = `<td><span class="codigo-5d">${item.id}</span></td><td>${item.origen}</td><td>${item.piezas}</td><td>${item.peso} kg</td><td><span class="badge ${badge}">${item.semaforoTexto} (${item.horasRestantes}h)</span></td><td><button class="btn btn-sm btn-warning fw-bold" onclick="abrirClasificar('${item.id}')"><i class="bi bi-tags"></i> Clasificar</button></td>`;
+      tr.innerHTML = `<td><span class="codigo-5d">${item.id}</span></td><td>${item.origen}</td><td>${item.piezas}</td><td>${item.peso} kg</td><td><span class="badge ${badge}">${item.semaforoTexto} (${item.horasRestantes}h)</span></td><td><button class="btn btn-sm btn-warning fw-bold" onclick="abrirClasificar('${item.id}')"><i class="bi bi-box-seam"></i> Crear Paquete</button></td>`;
       tbody.appendChild(tr);
     });
   } catch (e) { tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">${e.message}</td></tr>`; }
@@ -851,15 +851,19 @@ async function cargarGerenteDespachar() {
   const tbody = document.getElementById('tablaGerenteDespachar');
   tbody.innerHTML = '<tr><td colspan="5" class="text-center py-3 text-muted">Cargando...</td></tr>';
   try {
-    const r = await postAPI({ accion: 'cargarPendientesDespachar', estado: estadoApp.estadoSel });
+    const r = await postAPI({ accion: 'cargarPaquetesPendientes', estado: estadoApp.estadoSel });
     if (!r.exito) throw new Error(r.mensaje);
-    if (r.datos.length === 0) { tbody.innerHTML = '<tr><td colspan="5" class="text-center py-3 text-muted">No hay valijas clasificadas listas para despacho.</td></tr>'; return; }
+    if (r.datos.length === 0) { tbody.innerHTML = '<tr><td colspan="5" class="text-center py-3 text-muted">No hay paquetes listos para despacho.</td></tr>'; return; }
     tbody.innerHTML = '';
     r.datos.forEach(item => {
-      let badge = item.semaforoColor === 'negro' ? 'bg-dark' : (item.semaforoColor === 'rojo' ? 'bg-danger' : (item.semaforoColor === 'amarillo' ? 'bg-warning text-dark' : 'bg-success'));
       const tr = document.createElement('tr');
-      if (item.semaforoColor === 'rojo') tr.className = 'fila-critica';
-      tr.innerHTML = `<td><span class="codigo-5d">${item.id}</span></td><td>${item.destino}</td><td>${item.piezas}</td><td><span class="badge ${badge}">${item.semaforoTexto} (${item.horasRestantes}h)</span></td><td><button class="btn btn-sm btn-success fw-bold" onclick="abrirDespachar('${item.id}')"><i class="bi bi-send"></i> Despachar</button></td>`;
+      tr.innerHTML = `
+        <td><span class="codigo-5d">${item.id}</span></td>
+        <td>${item.optDestino}</td>
+        <td>${item.tipoEnvio} (${item.piezas})</td>
+        <td>Origen: ${item.origen}</td>
+        <td><button class="btn btn-sm btn-success fw-bold" onclick="abrirDespachar('${item.id}')"><i class="bi bi-send"></i> Despachar</button></td>
+      `;
       tbody.appendChild(tr);
     });
   } catch (e) { tbody.innerHTML = `<tr><td colspan="5" class="text-center text-danger">${e.message}</td></tr>`; }
@@ -867,21 +871,36 @@ async function cargarGerenteDespachar() {
 
 function abrirClasificar(id) {
   document.getElementById('clasificarGuia').value = id;
-  document.getElementById('clasificarDestino').value = '';
-  document.getElementById('clasificarObs').value = '';
+  document.getElementById('paqueteId').value = 'PKT-' + Math.floor(Math.random() * 10000);
+  document.getElementById('paqueteDestino').value = '';
+  document.getElementById('paqueteTipo').value = 'Certificado';
+  document.getElementById('paquetePiezas').value = '';
   modalClasificar.show();
 }
 
 async function confirmarClasificacion() {
-  const id = document.getElementById('clasificarGuia').value;
-  const destino = document.getElementById('clasificarDestino').value;
-  if (!destino) return Swal.fire('Atención', 'Debe seleccionar un destino.', 'warning');
-  Swal.fire({ title: 'Guardando...', didOpen: () => Swal.showLoading() });
-  const r = await postAPI({ accion: 'guardarAccionGerente', tipoAccion: 'clasificar', idGuia: id, optDestino: destino, observaciones: document.getElementById('clasificarObs').value });
+  const valijaOrigen = document.getElementById('clasificarGuia').value;
+  const idPaquete = document.getElementById('paqueteId').value;
+  const destino = document.getElementById('paqueteDestino').value;
+  const tipo = document.getElementById('paqueteTipo').value;
+  const piezas = document.getElementById('paquetePiezas').value;
+
+  if (!idPaquete || !destino || !piezas) return Swal.fire('Atención', 'Complete todos los campos.', 'warning');
+  
+  Swal.fire({ title: 'Creando Paquete...', didOpen: () => Swal.showLoading() });
+  const r = await postAPI({ 
+    accion: 'crearPaquete', 
+    idPaquete: idPaquete, 
+    valijaOrigen: valijaOrigen, 
+    optDestino: destino, 
+    tipoEnvio: tipo, 
+    piezas: piezas 
+  });
+  
   if (r.exito) {
     modalClasificar.hide();
-    Swal.fire('Clasificada', 'Ahora aparece en la lista de despacho.', 'success');
-    cargarGerenteClasificar(); cargarGerenteDespachar();
+    Swal.fire('Paquete Creado', 'Ahora puede crear otro paquete de la misma valija o verlo en la pestaña de despacho.', 'success');
+    cargarGerenteDespachar();
   } else Swal.fire('Error', r.mensaje, 'error');
 }
 
@@ -898,12 +917,21 @@ async function confirmarDespacho() {
   const recibe = document.getElementById('despacharRecibe').value;
   const foto = document.getElementById('despacharFoto').files[0];
   const gps = document.getElementById('despacharGPS').value;
+  
   if (!recibe || !foto) return Swal.fire('Atención', 'Debe indicar quién recibe y tomar la foto.', 'warning');
+  
   Swal.fire({ title: 'Despachando...', didOpen: () => Swal.showLoading() });
-  const r = await postAPI({ accion: 'guardarAccionGerente', tipoAccion: 'despachar', idGuia: id, recibeNombre: recibe, gpsDespacho: gps, fotoDespacho: "https://drive.google.com/foto_simulada" });
+  const r = await postAPI({ 
+    accion: 'despacharPaquete', 
+    idPaquete: id, 
+    recibeOPT: recibe, 
+    gps: gps, 
+    foto: "https://drive.google.com/foto_simulada" 
+  });
+  
   if (r.exito) {
     modalDespachar.hide();
-    Swal.fire('Despachada', 'La valija ha sido entregada a la OPT y el tiempo de custodia ha iniciado.', 'success');
+    Swal.fire('Despachado', 'El paquete ha sido entregado a la OPT.', 'success');
     cargarGerenteDespachar();
   } else Swal.fire('Error', r.mensaje, 'error');
 }
