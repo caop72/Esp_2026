@@ -177,6 +177,64 @@
         })
         .submitOptReport(payload);
     }
+    <script>
+  // Cargar datos del usuario y OPTs al abrir
+  window.onload = function() {
+    const userData = <?= JSON.stringify(userData) ?>;
+    document.getElementById('userName').textContent = userData.name;
+    
+    google.script.run.withSuccessHandler(function(opts) {
+      let select = document.getElementById('optSelect');
+      opts.forEach(o => {
+        let option = document.createElement('option');
+        option.value = o.code + '|' + o.name;
+        option.textContent = o.name;
+        select.appendChild(option);
+      });
+    }).getActiveOptsForState(userData.state);
+  };
+
+  // Manejar envío del formulario
+  document.getElementById('optForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const btn = document.getElementById('btnSubmit');
+    btn.disabled = true;
+    btn.textContent = '⏳ Enviando...';
+
+    const optVal = document.getElementById('optSelect').value.split('|');
+    const payload = {
+      userEmail: '<?= userEmail ?>',
+      jefeNombre: '<?= userData.name ?>',
+      estado: '<?= userData.state ?>',
+      optCodigo: optVal[0],
+      optNombre: optVal[1],
+      horaLlegada: document.getElementById('horaLlegada').value,
+      piezasRecibidas: document.getElementById('piezasRecibidas').value,
+      entregasEfectivas: document.getElementById('entregasEfectivas').value,
+      enRuta: document.getElementById('enRuta').value,
+      reencaminamientos: document.getElementById('reencaminamientos').value,
+      incidNoEncontrado: document.getElementById('incidNoEncontrado').value,
+      incidDirErrada: document.getElementById('incidDirErrada').value,
+      incidOtros: document.getElementById('incidOtros').value,
+      nudosCriticos: document.getElementById('nudosCriticos').value,
+      tiempoEntrega: document.getElementById('tiempoEntrega').value,
+      cantFotos: document.getElementById('cantFotos').value,
+      urlFotos: document.getElementById('urlFotos').value,
+      rptAsignado: document.getElementById('rptAsignado').value,
+      observaciones: document.getElementById('observaciones').value
+    };
+
+    google.script.run.withSuccessHandler(function(res) {
+      if(res.alerta) alert(res.alerta);
+      alert('✅ Reporte enviado exitosamente. ID: ' + res.id);
+      location.reload();
+    }).withFailureHandler(function(err) {
+      alert('❌ Error: ' + err);
+      btn.disabled = false;
+      btn.textContent = '📨 ENVIAR REPORTE AL CNC';
+    }).submitOptReport(payload);
+  });
+</script>
   </script>
 </body>
 </html>
