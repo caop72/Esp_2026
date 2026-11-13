@@ -988,15 +988,34 @@ async function generarInformeGerente() {
   const fFin = document.getElementById('infoGerFechaFin').value;
   if (!fInicio || !fFin) return Swal.fire('Atención', 'Seleccione ambas fechas.', 'warning');
   if (fInicio > fFin) return Swal.fire('Error', 'La fecha "Desde" no puede ser mayor que "Hasta".', 'error');
+  
   Swal.fire({ title: 'Generando informe...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+  
   try {
     const r = await postAPI({ accion: 'obtenerResumenGerente', estado: estadoApp.estadoSel, fechaInicio: fInicio, fechaFin: fFin });
     if (!r.exito) throw new Error(r.mensaje);
+    
     modalInformeGerente.hide();
+    
     let filasDetalle = '';
-    if (r.detalle.length === 0) { filasDetalle = '<tr><td colspan="6" class="text-center">No hubo despachos en este período.</td></tr>'; } 
-    else { r.detalle.forEach(d => { filasDetalle += `<tr><td>${d.id}</td><td>${d.origen}</td><td>${d.destino}</td><td>${d.piezas}</td><td>${d.fechaDespacho}</td><td>${d.recibe}</td></tr>`; }); }
-    const k = r.kpis; const info = r.infoGerencia;
+    if (r.detalle.length === 0) {
+      filasDetalle = '<tr><td colspan="6" class="text-center">No hubo despachos en este período.</td></tr>';
+    } else {
+      r.detalle.forEach(d => {
+        filasDetalle += `<tr>
+          <td>${d.id}</td>
+          <td>MRW</td>
+          <td>${d.destino}</td>
+          <td>${d.totalPiezas}</td>
+          <td>${d.fechaDespacho}</td>
+          <td>${d.recibe}</td>
+        </tr>`;
+      });
+    }
+
+    const k = r.kpis;
+    const info = r.infoGerencia;
+
     const htmlInforme = `
       <html>
       <head>
@@ -1006,20 +1025,27 @@ async function generarInformeGerente() {
           h1 { text-align: center; color: #003366; margin-bottom: 5px; font-size: 26px; }
           h2 { text-align: center; font-size: 16px; color: #444; margin-top: 0; margin-bottom: 5px; }
           .geo-info { text-align: center; font-size: 12px; color: #666; margin-bottom: 25px; text-transform: uppercase; letter-spacing: 1px; }
-          .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 30px; }
+          
+          .kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 30px; }
           .kpi-box { border: 1px solid #ddd; border-radius: 8px; padding: 15px; text-align: center; background: #f8f9fa; border-top: 4px solid #003366; }
           .kpi-box.success { border-top-color: #198754; }
           .kpi-box.warning { border-top-color: #ffc107; }
+          .kpi-box.info { border-top-color: #0dcaf0; }
           .kpi-box.danger { border-top-color: #dc3545; }
+          
           .kpi-value { font-size: 28px; font-weight: bold; color: #003366; margin-bottom: 5px; }
           .kpi-box.success .kpi-value { color: #198754; }
           .kpi-box.warning .kpi-value { color: #d39e00; }
+          .kpi-box.info .kpi-value { color: #0dcaf0; }
           .kpi-box.danger .kpi-value { color: #dc3545; }
+          
           .kpi-label { font-size: 11px; text-transform: uppercase; color: #666; font-weight: bold; letter-spacing: 1px; }
+          
           table { width: 100%; border-collapse: collapse; margin-top: 20px; }
           th, td { border: 1px solid #ddd; padding: 10px; text-align: left; font-size: 12px; }
           th { background-color: #003366; color: white; font-weight: 600; }
           tr:nth-child(even) { background-color: #f9f9f9; }
+          
           .footer { margin-top: 40px; text-align: center; font-size: 10px; color: #888; border-top: 1px solid #ddd; padding-top: 10px; }
         </style>
       </head>
@@ -1030,27 +1056,41 @@ async function generarInformeGerente() {
         
         <div class="kpi-grid">
           <div class="kpi-box">
-            <div class="kpi-value">${k.totRecibidasAliado}</div>
-            <div class="kpi-label">Recibidas (Aliado)</div>
+            <div class="kpi-value">${k.totValijasRecibidas}</div>
+            <div class="kpi-label">Valijas Recibidas</div>
+            <div style="font-size: 10px; color: #666; margin-top: 5px;">${k.totPiezasRecibidas} piezas totales</div>
           </div>
-          <div class="kpi-box warning">
-            <div class="kpi-value">${k.totClasificadas}</div>
-            <div class="kpi-label">Por Despachar</div>
+          <div class="kpi-box info">
+            <div class="kpi-value">${k.totPaquetesCreados}</div>
+            <div class="kpi-label">Paquetes Creados</div>
+            <div style="font-size: 10px; color: #666; margin-top: 5px;">Clasificados para OPT</div>
           </div>
           <div class="kpi-box success">
-            <div class="kpi-value">${k.totDespachadas}</div>
-            <div class="kpi-label">Despachadas a OPT</div>
-          </div>
-          <div class="kpi-box danger">
-            <div class="kpi-value">${k.incidencias}</div>
-            <div class="kpi-label">Devoluciones</div>
+            <div class="kpi-value">${k.totPaquetesDespachados}</div>
+            <div class="kpi-label">Paquetes Despachados</div>
+            <div style="font-size: 10px; color: #666; margin-top: 5px;">${k.piezasDespachadas} piezas enviadas</div>
           </div>
         </div>
 
-        <h3>Detalle de Despachos</h3>
+        <div style="text-align: center; margin-bottom: 30px;">
+            <div style="display: inline-block; padding: 15px 40px; border-radius: 8px; background-color: ${k.operatividad >= 80 ? '#d1e7dd' : '#fff3cd'}; border: 1px solid ${k.operatividad >= 80 ? '#badbcc' : '#ffecb5'};">
+                <div style="font-size: 32px; font-weight: bold; color: ${k.operatividad >= 80 ? '#0f5132' : '#664d03'};">${k.operatividad}%</div>
+                <div style="font-size: 12px; font-weight: bold; color: ${k.operatividad >= 80 ? '#0f5132' : '#664d03'}; text-transform: uppercase;">Porcentaje de Operatividad</div>
+                <div style="font-size: 10px; color: #666; margin-top: 5px;">(Despachados / Creados)</div>
+            </div>
+        </div>
+
+        <h3>Detalle de Paquetes Despachados</h3>
         <table>
           <thead>
-            <tr><th>Guía</th><th>Origen</th><th>Destino (OPT)</th><th>Piezas</th><th>Fecha/Hora Despacho</th><th>Recibido Por</th></tr>
+            <tr>
+              <th>Guía / Paquete</th>
+              <th>Origen</th>
+              <th>Destino (OPT)</th>
+              <th>Piezas</th>
+              <th>Fecha/Hora Despacho</th>
+              <th>Recibido Por</th>
+            </tr>
           </thead>
           <tbody>${filasDetalle}</tbody>
         </table>
@@ -1059,10 +1099,13 @@ async function generarInformeGerente() {
       </body>
       </html>
     `;
+    
     const ventana = window.open('', '_blank');
     ventana.document.write(htmlInforme);
     ventana.document.close();
-  } catch (e) { Swal.fire('Error', 'No se pudo generar el informe: ' + e.message, 'error'); }
+  } catch (e) {
+    Swal.fire('Error', 'No se pudo generar el informe: ' + e.message, 'error');
+  }
 }
 
 // ==========================================
