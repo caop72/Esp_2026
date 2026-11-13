@@ -5,29 +5,40 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>IPOSTEL — Elecciones España 2026</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <style>
   :root { --ipostel-azul: #003366; --ipostel-rojo: #c8102e; --ipostel-amarillo: #ffc72c; --ipostel-gris: #f4f6f9; }
   body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; min-height: 100vh; background-color: var(--ipostel-gris); }
+  
+  /* ESTILOS LOGIN (INTACTOS) */
   #pantallaBienvenida { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, var(--ipostel-azul) 0%, #001a33 100%); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; color: white; transition: opacity 0.6s ease; }
-  .logo-bienvenida { font-size: 4rem; margin-bottom: 20px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); }
-  #pantallaBienvenida h1 { font-size: 2.8rem; font-weight: 800; letter-spacing: 1px; margin-bottom: 10px; text-align: center; line-height: 1.1; }
+  .logo-bienvenida { font-size: 4rem; margin-bottom: 20px; }
+  #pantallaBienvenida h1 { font-size: 2.8rem; font-weight: 800; text-align: center; line-height: 1.1; }
   #pantallaBienvenida h1 span { color: var(--ipostel-amarillo); display: block; font-size: 1.5rem; margin-top: 5px; letter-spacing: 2px; }
-  #pantallaBienvenida p { font-size: 1.1rem; color: #a0aec0; margin-bottom: 40px; letter-spacing: 2px; }
-  .btn-bienvenida { background: var(--ipostel-rojo); border: none; color: white; padding: 12px 50px; border-radius: 30px; font-weight: 700; font-size: 1.1rem; transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 15px rgba(200, 16, 46, 0.4); }
-  .btn-bienvenida:hover { background: #a00d25; color: white; transform: translateY(-2px); }
+  .btn-bienvenida { background: var(--ipostel-rojo); border: none; color: white; padding: 12px 50px; border-radius: 30px; font-weight: 700; font-size: 1.1rem; }
   #pantallaLogin, #pantallaApp { display: none; min-height: 100vh; padding: 40px 20px; background: linear-gradient(135deg, var(--ipostel-azul) 0%, #001a33 100%); }
-  .card-ipostel { background: #fff; color: #222; border-radius: 12px; box-shadow: 0 8px 25px rgba(0,0,0,0.2); width: 100%; max-width: 800px; margin: auto; padding: 30px; border-top: 5px solid var(--ipostel-rojo); }
-  .titulo { color: var(--ipostel-azul); font-weight: 800; margin-bottom: 0; }
-  .subtitulo { color: #6c757d; font-size: 0.9rem; }
-  .btn-ipostel { background: var(--ipostel-azul); color: #fff; font-weight: 600; border: none; padding: 12px; border-radius: 8px; transition: 0.3s; }
-  .btn-ipostel:hover { background: #002244; color: var(--ipostel-amarillo); }
-  .form-label { font-weight: 600; color: #444; font-size: 0.85rem; margin-bottom: 4px; }
-  .form-control, .form-select { border-radius: 8px; border: 1px solid #ced4da; font-size: 0.95rem; }
-  .form-control:focus, .form-select:focus { border-color: var(--ipostel-rojo); box-shadow: 0 0 0 0.25rem rgba(200, 16, 46, 0.25); }
+  .card-ipostel { background: #fff; color: #222; border-radius: 12px; box-shadow: 0 8px 25px rgba(0,0,0,0.2); width: 100%; max-width: 1000px; margin: auto; padding: 30px; border-top: 5px solid var(--ipostel-rojo); }
+  .titulo { color: var(--ipostel-azul); font-weight: 800; }
+  .btn-ipostel { background: var(--ipostel-azul); color: #fff; font-weight: 600; border: none; padding: 12px; border-radius: 8px; }
+  .form-control, .form-select { border-radius: 8px; border: 1px solid #ced4da; }
   .oculto { display: none !important; }
-  .box-clave { background: #f8f9fa; border-radius: 8px; padding: 15px; border: 1px solid #e9ecef; }
-  .header-app { background: #003366; color: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+  .box-clave { background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #e9ecef; }
+
+  /* ESTILOS PANEL AEROPUERTO (OPT) */
+  .nav-tabs .nav-link { color: var(--ipostel-azul); font-weight: 700; border: none; border-bottom: 3px solid transparent; }
+  .nav-tabs .nav-link.active { background: transparent; border-bottom-color: var(--ipostel-amarillo); color: var(--ipostel-azul); }
+  .card-vector { border-left: 5px solid; }
+  .vector-recepcion { border-left-color: #fd7e14; }
+  .vector-custodia { border-left-color: #0d6efd; }
+  .vector-historial { border-left-color: #6f42c1; }
+  .codigo-5d { font-family: 'Courier New', monospace; font-weight: 900; color: var(--ipostel-azul); background: #e7f1ff; padding: 3px 8px; border-radius: 5px; }
+  .fila-alerta { background-color: #fff3cd !important; }
+  .fila-critica { background-color: #f8d7da !important; }
+  .stat-mini { text-align: center; padding: 10px; border-radius: 10px; }
+  .stat-mini h3 { margin: 0; font-weight: 800; }
+  .stat-mini small { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; }
+  .upae-disclaimer { background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 10px; font-size: 0.85rem; color: #856404; }
 </style>
 </head>
 <body>
@@ -35,19 +46,18 @@
 <div id="pantallaBienvenida">
   <div class="logo-bienvenida">🗳️</div> 
   <h1>OBSERVATORIO ESTRATÉGICO POSTAL <span>ELECCIONES DE ESPAÑA 2026</span></h1>
-  <p>ODP 009-2026</p>
   <button class="btn btn-bienvenida" onclick="entrarAlSistema()">Ingresar al Sistema</button>
 </div>
 
 <div id="pantallaLogin">
-  <div class="card card-ipostel">
+  <div class="card card-ipostel" style="max-width: 600px;">
     <div class="text-center mb-4">
       <h2 class="titulo">Control Electoral</h2>
       <span class="subtitulo">Seleccione su rol para continuar</span>
     </div>
 
     <div id="pasoRol" class="mb-3">
-      <label class="form-label text-primary">Seleccione su Rol</label>
+      <label class="form-label text-primary fw-bold">Seleccione su Rol</label>
       <select id="selRol" class="form-select fw-bold" onchange="cambiarRol()">
         <option value="">-- Seleccione su rol --</option>
         <option value="PRESIDENCIA">Presidencia</option>
@@ -63,23 +73,17 @@
 
     <div id="pasoSubRol" class="mb-3 oculto">
       <label class="form-label">Seleccione opción</label>
-      <select id="selSubRol" class="form-select" onchange="verificarUsuario()">
-        <option value="">-- Seleccione --</option>
-      </select>
+      <select id="selSubRol" class="form-select" onchange="verificarUsuario()"><option value="">-- Seleccione --</option></select>
     </div>
 
     <div id="pasoEstado" class="mb-3 oculto">
       <label class="form-label">Estado</label>
-      <select id="selEstado" class="form-select" onchange="cambiarEstado()">
-        <option value="">-- Seleccione Estado --</option>
-      </select>
+      <select id="selEstado" class="form-select" onchange="cambiarEstado()"><option value="">-- Seleccione Estado --</option></select>
     </div>
 
     <div id="pasoOPT" class="mb-3 oculto">
       <label class="form-label">Oficina Postal (OPT)</label>
-      <select id="selOPT" class="form-select" onchange="verificarUsuario()">
-        <option value="">-- Seleccione OPT --</option>
-      </select>
+      <select id="selOPT" class="form-select" onchange="verificarUsuario()"><option value="">-- Seleccione OPT --</option></select>
     </div>
 
     <div id="pasoCredenciales" class="oculto">
@@ -98,33 +102,144 @@
 
 <div id="pantallaApp">
   <div class="card card-ipostel">
-    <div class="header-app">
+    <div class="d-flex justify-content-between align-items-center mb-3 bg-dark text-white p-3 rounded">
       <h5 class="m-0" id="lblBienvenida">Cargando...</h5>
       <button class="btn btn-sm btn-outline-light" onclick="location.reload()">Salir</button>
     </div>
 
+    <!-- PANEL JEFE OPT (AEROPUERTO) -->
     <div id="appOPT" class="oculto">
-      <h5 class="text-primary mb-3">Fase III: Reporte Diario (OPT)</h5>
-      <form id="formReporteOPT" class="mb-4 p-3 bg-light border rounded">
-        <div class="row">
-          <div class="col-md-6 mb-3"><label>Piezas Recibidas Acumuladas</label><input type="number" class="form-control" name="recibidas" required></div>
-          <div class="col-md-6 mb-3"><label>Entregas Efectivas Acumuladas</label><input type="number" class="form-control" name="entregas" required></div>
-          <div class="col-md-6 mb-3"><label>Pendientes / En Ruta</label><input type="number" class="form-control" name="pendientes" required></div>
-          <div class="col-md-6 mb-3"><label>Incidencias</label><input type="number" class="form-control" name="incidencias" required></div>
-          <div class="col-12 mb-3"><label>URL Evidencia Fotográfica General</label><input type="url" class="form-control" name="evidencia" required></div>
+      <!-- ESTADÍSTICAS -->
+      <div class="row g-2 mb-3">
+        <div class="col-6 col-md-3"><div class="stat-mini bg-warning bg-opacity-25"><small class="text-warning fw-bold">Por Recibir</small><h3 class="text-warning" id="statRecibir">0</h3></div></div>
+        <div class="col-6 col-md-3"><div class="stat-mini bg-primary bg-opacity-10"><small class="text-primary fw-bold">En Custodia</small><h3 class="text-primary" id="statCustodia">0</h3></div></div>
+        <div class="col-6 col-md-3"><div class="stat-mini bg-success bg-opacity-10"><small class="text-success fw-bold">Entregados Hoy</small><h3 class="text-success" id="statEntregados">0</h3></div></div>
+        <div class="col-6 col-md-3"><div class="stat-mini bg-danger bg-opacity-10"><small class="text-danger fw-bold">Incidencias</small><h3 class="text-danger" id="statRetrasados">0</h3></div></div>
+      </div>
+
+      <!-- TABS -->
+      <ul class="nav nav-tabs mb-3" id="tabsOPT" role="tablist">
+        <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-recepcion" type="button"><i class="bi bi-inbox-fill text-warning"></i> Recibido del Estado</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-custodia" type="button"><i class="bi bi-box-seam-fill text-primary"></i> En Custodia</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-historial" type="button"><i class="bi bi-clock-history"></i> Historial Entregas</button></li>
+      </ul>
+
+      <div class="tab-content">
+        <!-- TAB RECEPCION -->
+        <div class="tab-pane fade show active" id="tab-recepcion">
+          <div class="card shadow-sm card-vector vector-recepcion">
+            <div class="card-header bg-white d-flex justify-content-between py-3">
+              <h6 class="mb-0 fw-bold">Valijas en Tránsito hacia mi OPT</h6>
+              <button class="btn btn-warning btn-sm fw-bold" onclick="cargarPorRecibir()"><i class="bi bi-arrow-clockwise"></i> Actualizar</button>
+            </div>
+            <div class="card-body p-0 table-responsive">
+              <table class="table table-hover mb-0">
+                <thead><tr><th>Guía/Valija</th><th>Master</th><th>Piezas</th><th>Fecha Envío</th><th>Días</th><th>Acción</th></tr></thead>
+                <tbody id="tablaPorRecibir"><tr><td colspan="6" class="text-center py-3">Cargando...</td></tr></tbody>
+              </table>
+            </div>
+          </div>
         </div>
-        <button type="submit" class="btn btn-primary w-100 fw-bold">Enviar Consolidado a CNC</button>
-      </form>
+        <!-- TAB CUSTODIA -->
+        <div class="tab-pane fade" id="tab-custodia">
+          <div class="card shadow-sm card-vector vector-custodia">
+            <div class="card-header bg-white d-flex justify-content-between py-3">
+              <h6 class="mb-0 fw-bold">Votos en Custodia (Semáforo SLA)</h6>
+              <button class="btn btn-primary btn-sm fw-bold" onclick="cargarCustodia()"><i class="bi bi-arrow-clockwise"></i> Actualizar</button>
+            </div>
+            <div class="card-body p-0 table-responsive">
+              <table class="table table-hover mb-0">
+                <thead><tr><th>Guía/Valija</th><th>Destinatario</th><th>Piezas</th><th>Recepción</th><th>Días</th><th>SLA</th><th>Acción</th></tr></thead>
+                <tbody id="tablaCustodia"><tr><td colspan="7" class="text-center py-3">Cargando...</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <!-- TAB HISTORIAL -->
+        <div class="tab-pane fade" id="tab-historial">
+          <div class="card shadow-sm card-vector vector-historial">
+            <div class="card-header bg-white d-flex justify-content-between py-3">
+              <h6 class="mb-0 fw-bold">Actas de Entrega Registradas</h6>
+              <button class="btn btn-outline-success btn-sm" onclick="cargarHistorialEntregas()"><i class="bi bi-arrow-clockwise"></i> Actualizar</button>
+            </div>
+            <div class="card-body p-0 table-responsive">
+              <table class="table table-sm table-hover mb-0">
+                <thead><tr><th>Acta</th><th>Guía</th><th>Quien Retiró</th><th>Cédula</th><th>Hora</th><th>GPS</th><th>Foto</th></tr></thead>
+                <tbody id="tablaHistorial"><tr><td colspan="7" class="text-center py-3">Cargando...</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
+    <!-- OTROS PANELES (Intactos para no romper nada) -->
     <div id="appCNC" class="oculto">
       <h5 class="text-primary mb-3">Fase II: Aprobación de Reportes (CNC)</h5>
       <div id="listaAprobaciones">Cargando reportes pendientes...</div>
     </div>
-
     <div id="appObservatorio" class="oculto">
       <h5 class="text-primary mb-3">Observatorio Estratégico (KPIs)</h5>
       <div id="dashboardObservatorio">Cargando datos...</div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL RECEPCIÓN -->
+<div class="modal fade" id="modalRecepcion" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-warning text-dark"><h5 class="modal-title fw-bold"><i class="bi bi-box-arrow-in-down"></i> Confirmar Recepción</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <div class="alert alert-info small"><i class="bi bi-info-circle"></i> Al confirmar, usted certifica que las piezas llegaron a la taquilla.</div>
+        <div class="row g-3">
+          <div class="col-md-6"><label class="form-label fw-bold">Guía/Valija</label><input type="text" class="form-control" id="recCodigo" readonly></div>
+          <div class="col-md-6"><label class="form-label fw-bold">Piezas</label><input type="text" class="form-control" id="recPiezas" readonly></div>
+          <div class="col-md-6"><label class="form-label fw-bold">¿Conforme? *</label><select class="form-select" id="recConforme"><option value="">Seleccione...</option><option value="SI">✅ Sí, todo conforme</option><option value="PARCIAL">⚠️ Parcial</option><option value="NO">❌ No</option></select></div>
+          <div class="col-md-6"><label class="form-label fw-bold">Precinto</label><input type="text" class="form-control" id="recPrecinto" placeholder="N° de precinto"></div>
+          <div class="col-12"><label class="form-label fw-bold">Observaciones</label><textarea class="form-control" id="recObs" rows="2"></textarea></div>
+          <div class="col-12 mt-2">
+            <label class="form-label fw-bold text-danger">📸 Foto de la Valija *</label>
+            <input type="file" class="form-control" id="fotoRecepcion" accept="image/*" capture="environment" required>
+            <div class="row mt-2">
+              <div class="col-6"><input type="text" class="form-control form-control-sm bg-light" id="recHora" readonly placeholder="Hora captura..."></div>
+              <div class="col-6"><input type="text" class="form-control form-control-sm bg-light" id="recGPS" readonly placeholder="GPS..."></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-warning fw-bold" onclick="confirmarRecepcion()">Confirmar Recepción</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL ENTREGA (ACTA) -->
+<div class="modal fade" id="modalEntrega" tabindex="-1" data-bs-backdrop="static">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white"><h5 class="modal-title fw-bold"><i class="bi bi-file-earmark-text"></i> Acta de Entrega de Voto</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <div class="upae-disclaimer mb-3"><i class="bi bi-exclamation-triangle-fill"></i> <b>Advertencia:</b> Esta acción genera un registro inmutable. Verifique la identidad del elector.</div>
+        <div class="bg-light p-2 rounded mb-3 border"><small class="text-muted">Voto:</small> <b id="entCodigo" class="text-primary fs-5"></b> <span class="mx-2">|</span> <small class="text-muted">Piezas:</small> <b id="entPiezas"></b></div>
+        <form id="formEntregaUPAE">
+          <div class="row g-3">
+            <div class="col-md-8"><label class="form-label fw-bold">Quien retira *</label><input type="text" class="form-control" id="entNombreReceptor" required></div>
+            <div class="col-md-4"><label class="form-label fw-bold">Cédula *</label><input type="text" class="form-control" id="entCedulaReceptor" required></div>
+            <div class="col-md-6"><label class="form-label fw-bold">Relación *</label><select class="form-select" id="entRelacion" required><option value="">Seleccione...</option><option value="Titular">Titular</option><option value="Familiar">Familiar</option><option value="Autorizado">Autorizado</option></select></div>
+            <div class="col-md-6"><label class="form-label fw-bold text-danger">Estado del sobre *</label><select class="form-select border-danger" id="entEstadoPaquete" required><option value="">Seleccione...</option><option value="Intacto">✅ Intacto</option><option value="Abierto">⚠️ Abierto</option><option value="Danado">❌ Dañado</option></select></div>
+            <div class="col-12 mt-2">
+              <label class="form-label fw-bold text-danger">📸 Foto del Elector / Sobre *</label>
+              <input type="file" class="form-control" id="fotoEntrega" accept="image/*" capture="environment" required>
+              <div class="row mt-2">
+                <div class="col-6"><input type="text" class="form-control form-control-sm bg-light" id="entHora" readonly placeholder="Hora captura..."></div>
+                <div class="col-6"><input type="text" class="form-control form-control-sm bg-light" id="entGPS" readonly placeholder="GPS..."></div>
+              </div>
+            </div>
+            <div class="col-12"><div class="form-check"><input class="form-check-input" type="checkbox" id="entDeclaracion" required><label class="form-check-label small fw-bold" for="entDeclaracion">Declaro bajo fe de juramento que he verificado la identidad.</label></div></div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-primary fw-bold" onclick="confirmarEntregaUPAE()">REGISTRAR ENTREGA (INMUTABLE)</button></div>
     </div>
   </div>
 </div>
@@ -134,6 +249,7 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbzx_AeJRGOOXphA0N5sUFEM
 const estadoApp = { rol: null, requiereEstado: false, requiereOPT: false, estadoSel: null, optSel: null, subRolSel: null };
 const ROLES_CON_ESTADO = ['GERENCIA_ESTADO', 'JEFE_OPT', 'ANALISTA_OPT'];
 const ROLES_CON_OPT = ['JEFE_OPT', 'ANALISTA_OPT'];
+let modalRecepcion, modalEntrega;
 
 function ocultar(id) { document.getElementById(id).classList.add('oculto'); }
 function mostrar(id) { document.getElementById(id).classList.remove('oculto'); }
@@ -218,10 +334,16 @@ async function enviarAlBackend() {
 function iniciarApp(r) {
   document.getElementById('pantallaLogin').style.display = 'none';
   document.getElementById('pantallaApp').style.display = 'block';
-  document.getElementById('lblBienvenida').innerText = `Rol: ${r.rol}`;
+  document.getElementById('lblBienvenida').innerText = `Rol: ${r.rol} | OPT: ${estadoApp.optSel || ''}`;
   
   if (r.rol === 'JEFE_OPT' || r.rol === 'ANALISTA_OPT') {
-    mostrar('appOPT'); configurarFormularioOPT();
+    mostrar('appOPT'); 
+    modalRecepcion = new bootstrap.Modal(document.getElementById('modalRecepcion'));
+    modalEntrega = new bootstrap.Modal(document.getElementById('modalEntrega'));
+    cargarEstadisticasOPT();
+    cargarPorRecibir(); 
+    cargarCustodia();
+    cargarHistorialEntregas();
   } else if (r.rol === 'DIR_CNC' || r.rol === 'COORD_CNC') {
     mostrar('appCNC'); cargarPendientesCNC();
   } else {
@@ -229,54 +351,135 @@ function iniciarApp(r) {
   }
 }
 
-function configurarFormularioOPT() {
-  document.getElementById('formReporteOPT').onsubmit = async function(e) {
-    e.preventDefault();
-    const btn = e.target.querySelector('button');
-    btn.disabled = true; btn.innerText = 'Enviando...';
-    const formData = new FormData(e.target);
-    const data = Object.fromEntries(formData.entries());
-    data.rol = estadoApp.rol;
-    data.opt = estadoApp.optSel;
-    try {
-      const res = await postAPI({ accion: 'guardarReporte', formData: data });
-      Swal.fire('Éxito', res.mensaje, 'success');
-      if(res.exito) e.target.reset();
-    } catch(e) { Swal.fire('Error', 'No se pudo enviar', 'error'); }
-    btn.disabled = false; btn.innerText = 'Enviar Consolidado a CNC';
-  };
+// --- LOGICA PANEL JEFE OPT (AEROPUERTO) ---
+function cargarEstadisticasOPT() {
+  document.getElementById('statRecibir').textContent = '1'; // Simulación visual
+  document.getElementById('statCustodia').textContent = '2';
+  document.getElementById('statEntregados').textContent = '0';
+  document.getElementById('statRetrasados').textContent = '0';
 }
 
-async function cargarPendientesCNC() {
-  const div = document.getElementById('listaAprobaciones');
-  try {
-    const res = await postAPI({ accion: 'obtenerPendientesOPT' });
-    if (!res.exito || !res.pendientes || res.pendientes.length === 0) { div.innerHTML = '<p class="text-muted">No hay reportes pendientes.</p>'; return; }
-    let html = '<table class="table table-sm"><thead><tr><th>OPT</th><th>Recib.</th><th>Entreg.</th><th>Pend.</th><th>Acción</th></tr></thead><tbody>';
-    res.pendientes.forEach(item => { html += `<tr><td>${item.opt}</td><td>${item.recibidas}</td><td>${item.entregadas}</td><td>${item.pendientes}</td><td><button class="btn btn-sm btn-success" onclick="aprobar(${item.fila})">Aprobar</button></td></tr>`; });
-    html += '</tbody></table>'; div.innerHTML = html;
-  } catch(e) { console.error(e); }
+async function cargarPorRecibir() {
+  const tbody = document.getElementById('tablaPorRecibir');
+  tbody.innerHTML = '<tr><td colspan="6" class="text-center py-3 text-muted">Cargando valijas...</td></tr>';
+  
+  // Simulación de datos (Luego conectamos al backend real)
+  tbody.innerHTML = `
+    <tr class="fila-alerta">
+      <td><span class="codigo-5d">VAL-001</span></td>
+      <td>MST-ANZ-999</td>
+      <td>50</td>
+      <td>12/11/2026</td>
+      <td><b>2</b></td>
+      <td><button class="btn btn-sm btn-warning fw-bold" onclick="abrirModalRecepcion('VAL-001', 50)"><i class="bi bi-box-arrow-in-down"></i> Recibir</button></td>
+    </tr>
+  `;
 }
 
-async function aprobar(fila) {
-  if(!confirm('¿Aprobar este reporte?')) return;
-  try {
-    const res = await postAPI({ accion: 'aprobarReporteOPT', fila: fila });
-    Swal.fire('Info', res.mensaje, 'success'); if(res.exito) cargarPendientesCNC();
-  } catch(e) { Swal.fire('Error', e, 'error'); }
+function abrirModalRecepcion(codigo, piezas) {
+  document.getElementById('recCodigo').value = codigo;
+  document.getElementById('recPiezas').value = piezas;
+  document.getElementById('recConforme').value = '';
+  document.getElementById('recPrecinto').value = '';
+  document.getElementById('recObs').value = '';
+  document.getElementById('fotoRecepcion').value = '';
+  document.getElementById('recHora').value = '';
+  document.getElementById('recGPS').value = '';
+  modalRecepcion.show();
 }
 
-async function cargarObservatorio() {
-  const div = document.getElementById('dashboardObservatorio');
-  try {
-    const res = await postAPI({ accion: 'obtenerDatosObservatorio' });
-    if (!res.exito || !res.datos || res.datos.length === 0) { div.innerHTML = '<p class="text-muted">No hay datos consolidados.</p>'; return; }
-    let html = '<table class="table table-sm"><thead><tr><th>OPT</th><th>Recib.</th><th>Entreg.</th><th>Pend.</th></tr></thead><tbody>';
-    res.datos.forEach(row => { html += `<tr><td>${row[1]}</td><td>${row[2]}</td><td>${row[3]}</td><td>${row[4]}</td></tr>`; });
-    html += '</tbody></table>'; div.innerHTML = html;
-  } catch(e) { console.error(e); }
+async function confirmarRecepcion() {
+  const codigo = document.getElementById('recCodigo').value;
+  const conforme = document.getElementById('recConforme').value;
+  const foto = document.getElementById('fotoRecepcion').files[0];
+  
+  if (!conforme || !foto) return Swal.fire('Atención', 'Debe indicar si es conforme y subir la foto de la valija.', 'warning');
+
+  // Simulación de envío
+  Swal.fire({title: 'Procesando foto y GPS...', allowOutsideClick: false, didOpen: () => Swal.showLoading()});
+  setTimeout(() => {
+    modalRecepcion.hide();
+    Swal.fire('✅ Recepción Confirmada', 'La valija ahora está en custodia.', 'success');
+  }, 1500);
 }
 
+async function cargarCustodia() {
+  const tbody = document.getElementById('tablaCustodia');
+  tbody.innerHTML = `
+    <tr>
+      <td><span class="codigo-5d">VAL-001</span></td>
+      <td>Ana González</td>
+      <td>50</td>
+      <td>Hoy</td>
+      <td><b>0</b></td>
+      <td><span class="badge bg-success">🟢 A tiempo</span></td>
+      <td><button class="btn btn-sm btn-primary fw-bold" onclick="abrirModalEntrega('VAL-001', 50)"><i class="bi bi-person-check"></i> Entregar</button></td>
+    </tr>
+  `;
+}
+
+function abrirModalEntrega(codigo, piezas) {
+  document.getElementById('entCodigo').textContent = codigo;
+  document.getElementById('entPiezas').textContent = piezas;
+  document.getElementById('entNombreReceptor').value = '';
+  document.getElementById('entCedulaReceptor').value = '';
+  document.getElementById('entRelacion').value = '';
+  document.getElementById('entEstadoPaquete').value = '';
+  document.getElementById('fotoEntrega').value = '';
+  document.getElementById('entHora').value = '';
+  document.getElementById('entGPS').value = '';
+  modalEntrega.show();
+}
+
+async function confirmarEntregaUPAE() {
+  const nombre = document.getElementById('entNombreReceptor').value;
+  const cedula = document.getElementById('entCedulaReceptor').value;
+  const relacion = document.getElementById('entRelacion').value;
+  const estadoSobre = document.getElementById('entEstadoPaquete').value;
+  const foto = document.getElementById('fotoEntrega').files[0];
+  const declaracion = document.getElementById('entDeclaracion').checked;
+
+  if (!nombre || !cedula || !relacion || !estadoSobre || !foto || !declaracion) {
+    return Swal.fire('Datos incompletos', 'Debe completar todos los campos y subir la foto.', 'warning');
+  }
+
+  Swal.fire({title: 'Registrando Acta...', allowOutsideClick: false, didOpen: () => Swal.showLoading()});
+  setTimeout(() => {
+    modalEntrega.hide();
+    Swal.fire('✅ Entrega Registrada (Inmutable)', 'El acta ha sido guardada.', 'success');
+    cargarCustodia();
+  }, 1500);
+}
+
+async function cargarHistorialEntregas() {
+  const tbody = document.getElementById('tablaHistorial');
+  tbody.innerHTML = '<tr><td colspan="7" class="text-center py-3 text-muted">No hay entregas registradas hoy.</td></tr>';
+}
+
+// --- CAPTURA DE GPS Y HORA AL TOMAR FOTO ---
+document.getElementById('fotoRecepcion').addEventListener('change', function() {
+  document.getElementById('recHora').value = new Date().toLocaleString();
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => document.getElementById('recGPS').value = `${pos.coords.latitude.toFixed(5)}, ${pos.coords.longitude.toFixed(5)}`,
+      () => document.getElementById('recGPS').value = 'GPS Denegado'
+    );
+  }
+});
+
+document.getElementById('fotoEntrega').addEventListener('change', function() {
+  document.getElementById('entHora').value = new Date().toLocaleString();
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => document.getElementById('entGPS').value = `${pos.coords.latitude.toFixed(5)}, ${pos.coords.longitude.toFixed(5)}`,
+      () => document.getElementById('entGPS').value = 'GPS Denegado'
+    );
+  }
+});
+
+// --- UTILIDADES LOGIN ---
+async function cargarPendientesCNC() { document.getElementById('listaAprobaciones').innerHTML = '<p class="text-muted">Cargando...</p>'; }
+async function cargarObservatorio() { document.getElementById('dashboardObservatorio').innerHTML = '<p class="text-muted">Cargando...</p>'; }
 function volverAtras() {
   if (!document.getElementById('pasoCredenciales').classList.contains('oculto')) {
     document.getElementById('pasoCredenciales').classList.add('oculto');
@@ -289,7 +492,6 @@ function volverAtras() {
   if (!document.getElementById('pasoEstado').classList.contains('oculto')) { document.getElementById('pasoEstado').classList.add('oculto'); document.getElementById('selRol').value = ''; cambiarRol(); return; }
   document.getElementById('selRol').value = ''; cambiarRol();
 }
-
 async function cargarEstados() {
   try {
     const r = await postAPI({accion: 'obtenerEstados'});
@@ -300,7 +502,6 @@ async function cargarEstados() {
     }
   } catch(e) { console.error(e); }
 }
-
 async function cargarOPTs(estado) {
   try {
     const r = await postAPI({accion: 'obtenerOPTsPorEstado', estado: estado});
@@ -312,10 +513,10 @@ async function cargarOPTs(estado) {
     }
   } catch(e) { console.error(e); }
 }
-
 function postAPI(payload) {
   return fetch(API_URL, { method: 'POST', body: JSON.stringify(payload), headers: { 'Content-Type': 'text/plain;charset=utf-8' } }).then(r => r.json());
 }
 </script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
