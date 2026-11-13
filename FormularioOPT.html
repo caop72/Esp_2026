@@ -1,104 +1,182 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reporte Diario OPT - Elecciones España</title>
-    <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #f4f6f9; padding: 20px; max-width: 500px; margin: 0 auto; }
-        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        h2 { color: #1f4e79; text-align: center; margin-bottom: 20px; font-size: 1.4rem; }
-        label { display: block; margin-top: 15px; font-weight: 600; color: #333; font-size: 0.9rem; }
-        input, select, textarea { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; box-sizing: border-box; }
-        button { width: 100%; padding: 15px; background: #1f4e79; color: white; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; margin-top: 25px; cursor: pointer; }
-        button:hover { background: #163a5c; }
-        .note { font-size: 0.8rem; color: #666; margin-top: 15px; text-align: center; }
-    </style>
+  <base target="_top">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reporte Diario OPT</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    body { background: #f4f6f9; padding: 16px; max-width: 500px; margin: 0 auto; color: #333; }
+    .header { background: linear-gradient(135deg, #1f4e79 0%, #2c6aa0 100%); color: white; padding: 24px; border-radius: 16px; margin-bottom: 20px; text-align: center; }
+    .header h1 { font-size: 1.4rem; margin-bottom: 4px; }
+    .header p { font-size: 0.85rem; opacity: 0.9; }
+    .card { background: white; border-radius: 12px; padding: 20px; margin-bottom: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+    label { display: block; font-weight: 600; margin-bottom: 6px; color: #1f4e79; font-size: 0.85rem; }
+    select, input, textarea { width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1rem; margin-bottom: 14px; transition: all 0.3s; background: #fafafa; }
+    select:focus, input:focus, textarea:focus { border-color: #1f4e79; outline: none; background: white; }
+    button { width: 100%; padding: 16px; background: #1f4e79; color: white; border: none; border-radius: 10px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: all 0.3s; }
+    button:hover { background: #163a5c; transform: translateY(-1px); }
+    button:disabled { background: #aaa; cursor: not-allowed; transform: none; }
+    .alert-priority { background: #fff3cd; border-left: 4px solid #ffc107; padding: 14px; border-radius: 8px; margin-bottom: 16px; font-size: 0.85rem; font-weight: 600; }
+    .success-msg { background: #d4edda; border-left: 4px solid #28a745; padding: 24px; border-radius: 12px; text-align: center; }
+    .loading { text-align: center; padding: 40px; color: #666; }
+    .spinner { display: inline-block; width: 32px; height: 32px; border: 3px solid #ddd; border-top-color: #1f4e79; border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 12px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .row { display: flex; gap: 10px; }
+    .row > div { flex: 1; }
+  </style>
 </head>
 <body>
-    <div class="card">
-        <h2>📍 Reporte Diario OPT</h2>
-        <p style="text-align:center; color:#666; font-size:0.9rem;">Elecciones España 2026 | Corte 06:00 PM</p>
-        
-        <form id="optForm">
-            <label>Estado</label>
-            <select id="estado" required><option value="">Seleccione...</option></select>
-            
-            <label>Oficina Postal Telegráfica (OPT)</label>
-            <select id="opt" required><option value="">Seleccione estado primero</option></select>
-            
-            <label>Hora Llegada a OPT</label>
+  <div class="header">
+    <h1>🇪🇸 Reporte Diario OPT</h1>
+    <p id="userInfo">Cargando...</p>
+  </div>
+
+  <div id="content">
+    <div class="loading"><div class="spinner"></div><p>Cargando oficinas...</p></div>
+  </div>
+
+  <script>
+    const userData = <?= JSON.stringify(userData) ?>;
+    document.getElementById('userInfo').textContent = `${userData.name} | ${userData.state}`;
+
+    window.onload = function() {
+      google.script.run.withSuccessHandler(renderForm).getActiveOptsForState(userData.state);
+    };
+
+    function renderForm(opts) {
+      if (!opts || opts.length === 0) {
+        document.getElementById('content').innerHTML = '<div class="card"><p style="text-align:center;color:#dc3545;">No hay OPT activas registradas para tu estado.</p></div>';
+        return;
+      }
+
+      let optOptions = opts.map(o => `<option value="${o.code}|${o.name}">${o.name}</option>`).join('');
+
+      document.getElementById('content').innerHTML = `
+        <form id="optForm" onsubmit="handleSubmit(event)">
+          <div class="card">
+            <label>📍 Oficina Postal Telegráfica</label>
+            <select id="optSelect" required>${optOptions}</select>
+
+            <label>⏰ Hora Llegada a OPT</label>
             <input type="time" id="horaLlegada" required>
-            
-            <label>Piezas Recibidas</label>
-            <input type="number" id="piezasRecibidas" min="0" required>
-            
-            <label>Entregas Efectivas</label>
-            <input type="number" id="entregasEfectivas" min="0" required>
-            
-            <label>En Ruta / Pendientes</label>
-            <input type="number" id="enRuta" min="0" value="0">
-            
-            <label>Incidencias (No encontrado/Errada/Otros)</label>
-            <input type="number" id="incidencias" min="0" value="0">
-            
-            <label>Nudos Críticos</label>
+
+            <div class="row">
+              <div>
+                <label>📦 Piezas Recibidas</label>
+                <input type="number" id="piezasRecibidas" min="0" required>
+              </div>
+              <div>
+                <label>✅ Entregas Efectivas</label>
+                <input type="number" id="entregasEfectivas" min="0" required>
+              </div>
+            </div>
+
+            <div class="row">
+              <div>
+                <label>🚚 En Ruta/Pendientes</label>
+                <input type="number" id="enRuta" min="0" value="0">
+              </div>
+              <div>
+                <label>🔄 Reencaminamientos</label>
+                <input type="number" id="reencaminamientos" min="0" value="0">
+              </div>
+            </div>
+
+            <div class="row">
+              <div>
+                <label>❌ No Encontrado</label>
+                <input type="number" id="incidNoEncontrado" min="0" value="0">
+              </div>
+              <div>
+                <label>📮 Dir. Errada</label>
+                <input type="number" id="incidDirErrada" min="0" value="0">
+              </div>
+            </div>
+
+            <label>⚠️ Otras Incidencias</label>
+            <input type="number" id="incidOtros" min="0" value="0">
+
+            <label>🔴 Nudos Críticos</label>
             <input type="text" id="nudosCriticos" placeholder="Sin novedad">
-            
-            <label>Tiempo Entrega (minutos)</label>
-            <input type="number" id="tiempoEntrega" min="0">
-            
-            <label>URL Álbum Fotos (Drive/Telegram)</label>
-            <input type="url" id="urlFotos" placeholder="https://...">
-            
-            <button type="submit">✅ ENVIAR REPORTE AL CNC</button>
+
+            <div class="row">
+              <div>
+                <label>⏱️ Tiempo Entrega (min)</label>
+                <input type="number" id="tiempoEntrega" min="0">
+              </div>
+              <div>
+                <label>📸 Cant. Fotos</label>
+                <input type="number" id="cantFotos" min="0">
+              </div>
+            </div>
+
+            <label>🔗 URL Álbum Fotos</label>
+            <input type="url" id="urlFotos" placeholder="https://drive.google.com/...">
+
+            <label>👤 RPT Asignado</label>
+            <input type="text" id="rptAsignado" required>
+
+            <label>📝 Observaciones</label>
+            <textarea id="observaciones" rows="3" placeholder="Material resguardado en bóveda / Sin novedad"></textarea>
+
+            <button type="submit" id="btnSubmit">📨 ENVIAR REPORTE AL CNC</button>
+          </div>
         </form>
-        <p class="note">Este reporte será auditado por su Gerente Estadal antes del corte.</p>
-    </div>
+      `;
+    }
 
-    <script>
-        // NOTA: Este formulario está diseñado para conectarse a tu Web App de Apps Script.
-        // Una vez despliegues la Web App, reemplaza la URL abajo y activa el fetch.
-        const WEB_APP_URL = "TU_URL_DE_APPS_SCRIPT_AQUI"; 
-        
-        document.getElementById('estado').addEventListener('change', function() {
-            // Lógica para cargar OPTs según estado (se conecta a doGet de Apps Script)
-            console.log("Estado seleccionado: " + this.value);
-        });
+    function handleSubmit(e) {
+      e.preventDefault();
+      const btn = document.getElementById('btnSubmit');
+      btn.disabled = true;
+      btn.textContent = '⏳ Enviando...';
 
-        document.getElementById('optForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const btn = this.querySelector('button');
-            btn.textContent = "⏳ Enviando...";
-            btn.disabled = true;
-            
-            // Simulación de envío hasta que conectes la Web App
-            setTimeout(() => {
-                alert("✅ Reporte enviado exitosamente a la bandeja de validación CNC.");
-                btn.textContent = "✅ ENVIAR REPORTE AL CNC";
-                btn.disabled = false;
-                this.reset();
-            }, 1500);
-            
-            /* DESCOMENTAR CUANDO TENGAS LA URL DE APPS SCRIPT:
-            const data = {
-                action: 'submitReport',
-                payload: {
-                    estado: document.getElementById('estado').value,
-                    opt: document.getElementById('opt').value,
-                    horaLlegada: document.getElementById('horaLlegada').value,
-                    piezasRecibidas: document.getElementById('piezasRecibidas').value,
-                    entregasEfectivas: document.getElementById('entregasEfectivas').value,
-                    enRuta: document.getElementById('enRuta').value,
-                    incidencias: document.getElementById('incidencias').value,
-                    nudosCriticos: document.getElementById('nudosCriticos').value,
-                    tiempoEntrega: document.getElementById('tiempoEntrega').value,
-                    urlFotos: document.getElementById('urlFotos').value
-                }
-            };
-            await fetch(WEB_APP_URL, { method: 'POST', body: JSON.stringify(data) });
-            */
-        });
-    </script>
+      const optVal = document.getElementById('optSelect').value.split('|');
+
+      const payload = {
+        userEmail: '<?= userEmail ?>',
+        jefeNombre: userData.name,
+        estado: userData.state,
+        optCodigo: optVal[0],
+        optNombre: optVal[1],
+        horaLlegada: document.getElementById('horaLlegada').value,
+        piezasRecibidas: document.getElementById('piezasRecibidas').value,
+        entregasEfectivas: document.getElementById('entregasEfectivas').value,
+        enRuta: document.getElementById('enRuta').value,
+        reencaminamientos: document.getElementById('reencaminamientos').value,
+        incidNoEncontrado: document.getElementById('incidNoEncontrado').value,
+        incidDirErrada: document.getElementById('incidDirErrada').value,
+        incidOtros: document.getElementById('incidOtros').value,
+        nudosCriticos: document.getElementById('nudosCriticos').value,
+        tiempoEntrega: document.getElementById('tiempoEntrega').value,
+        cantFotos: document.getElementById('cantFotos').value,
+        urlFotos: document.getElementById('urlFotos').value,
+        rptAsignado: document.getElementById('rptAsignado').value,
+        observaciones: document.getElementById('observaciones').value
+      };
+
+      google.script.run
+        .withSuccessHandler(function(res) {
+          let alertHtml = res.alerta ? `<div class="alert-priority">${res.alerta}</div>` : '';
+          document.getElementById('content').innerHTML = `
+            ${alertHtml}
+            <div class="success-msg">
+              <h2 style="color:#28a745;margin-bottom:8px;">✅ ¡Reporte Enviado!</h2>
+              <p>ID: <strong>${res.id}</strong></p>
+              <p style="margin-top:8px;font-size:0.9rem;">Tu Gerente/CNC debe aprobarlo antes del corte de las 06:00 PM.</p>
+              <br>
+              <button onclick="location.reload()" style="background:#28a745;">📝 Nuevo Reporte</button>
+            </div>
+          `;
+        })
+        .withFailureHandler(function(err) {
+          alert('Error: ' + err);
+          btn.disabled = false;
+          btn.textContent = '📨 ENVIAR REPORTE AL CNC';
+        })
+        .submitOptReport(payload);
+    }
+  </script>
 </body>
 </html>
