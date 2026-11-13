@@ -104,7 +104,13 @@
   <div class="card card-ipostel">
     <div class="d-flex justify-content-between align-items-center mb-3 bg-dark text-white p-3 rounded">
       <h5 class="m-0" id="lblBienvenida">Cargando...</h5>
-      <button class="btn btn-sm btn-outline-light" onclick="location.reload()">Salir</button>
+      <div>
+        <!-- Botón nuevo para el informe (solo se verá en el panel OPT) -->
+        <button id="btnInformeOPT" class="btn btn-sm btn-outline-warning me-2 oculto" onclick="abrirModalInforme()">
+            <i class="bi bi-file-earmark-bar-graph"></i> Generar Informe
+        </button>
+        <button class="btn btn-sm btn-outline-light" onclick="location.reload()">Salir</button>
+      </div>
     </div>
 
     <!-- PANEL JEFE OPT (AEROPUERTO) -->
@@ -244,12 +250,43 @@
   </div>
 </div>
 
+<!-- MODAL INFORME OPT -->
+<div class="modal fade" id="modalInforme" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-dark text-white">
+        <h5 class="modal-title fw-bold"><i class="bi bi-file-earmark-text"></i> Cierre Diario / Informe</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p class="text-muted small">Seleccione el período a reportar. Por defecto se selecciona el día de hoy.</p>
+        <div class="row g-3">
+          <div class="col-6">
+            <label class="form-label fw-bold">Desde</label>
+            <input type="date" class="form-control" id="infoFechaInicio">
+          </div>
+          <div class="col-6">
+            <label class="form-label fw-bold">Hasta</label>
+            <input type="date" class="form-control" id="infoFechaFin">
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button class="btn btn-warning fw-bold" onclick="generarInforme()">
+            <i class="bi bi-printer"></i> Generar e Imprimir
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 const API_URL = 'https://script.google.com/macros/s/AKfycbzx_AeJRGOOXphA0N5sUFEMJbDBwsyzfElr0hH38dmzUmFt9dy1NJ7w3MjMycrWzoI2/exec';
 const estadoApp = { rol: null, requiereEstado: false, requiereOPT: false, estadoSel: null, optSel: null, subRolSel: null };
 const ROLES_CON_ESTADO = ['GERENCIA_ESTADO', 'JEFE_OPT', 'ANALISTA_OPT'];
 const ROLES_CON_OPT = ['JEFE_OPT', 'ANALISTA_OPT'];
-let modalRecepcion, modalEntrega;
+let modalRecepcion, modalEntrega, modalInforme;
 
 function ocultar(id) { document.getElementById(id).classList.add('oculto'); }
 function mostrar(id) { document.getElementById(id).classList.remove('oculto'); }
@@ -338,8 +375,10 @@ function iniciarApp(r) {
   
   if (r.rol === 'JEFE_OPT' || r.rol === 'ANALISTA_OPT') {
     mostrar('appOPT'); 
+    mostrar('btnInformeOPT'); // <--- Muestra el botón del informe
     modalRecepcion = new bootstrap.Modal(document.getElementById('modalRecepcion'));
     modalEntrega = new bootstrap.Modal(document.getElementById('modalEntrega'));
+    modalInforme = new bootstrap.Modal(document.getElementById('modalInforme'));
     cargarEstadisticasOPT();
     cargarPorRecibir(); 
     cargarCustodia();
@@ -602,6 +641,108 @@ async function cargarHistorialEntregas() {
     });
   } catch (e) {
     tbody.innerHTML = `<tr><td colspan="7" class="text-center text-danger">Error: ${e.message}</td></tr>`;
+  }
+}
+
+// --- LÓGICA DEL INFORME ---
+function abrirModalInforme() {
+  // Poner fechas de hoy por defecto
+  const hoy = new Date().toISOString().split('T')[0];
+  document.getElementById('infoFechaInicio').value = hoy;
+  document.getElementById('infoFechaFin').value = hoy;
+  modalInforme.show();
+}
+
+async function generarInforme() {
+  const fInicio = document.getElementById('infoFechaInicio').value;
+  const fFin = document.getElementById('infoFechaFin').value;
+
+  if (!fInicio || !fFin) return Swal.fire('Atención', 'Seleccione ambas fechas.', 'warning');
+  if (fInicio > fFin) return Swal.fire('Error', 'La fecha "Desde" no puede ser mayor que "Hasta".', 'error');
+
+  Swal.fire({ title: 'Generando informe...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+  try {
+    const r = await postAPI({
+      accion: 'obtenerResumenInforme',
+      opt: estadoApp.optSel,
+      fechaInicio: fInicio,
+      fechaFin: fFin
+    });
+
+    if (!r.exito) throw new Error(r.mensaje);
+
+    modalInforme.hide();
+    
+    // Generar el HTML del informe para imprimir
+    let filasDetalle = '';
+    if (r.detalle.length === 0) {
+      filasDetalle = '<tr><td colspan="4" class="text-center">No hubo entregas en este período.</td></tr>';
+    } else {
+      r.detalle.forEach(d => {
+        filasDetalle += `<tr>
+          <td>${d.id}</td>
+          <td>${d.fecha}</td>
+          <td>${d.nombre} (${d.cedula})</td>
+          <td>${d.piezas}</td>
+        </tr>`;
+      });
+    }
+
+    const htmlInforme = `
+      <html>
+      <head>
+        <title>Informe OPT - ${estadoApp.optSel}</title>
+        <style>
+          body { font-family: Arial, sans-serif; padding: 20px; color: #333; }
+          h1 { text-align: center; color: #003366; }
+          h2 { text-align: center; font-size: 16px; color: #666; margin-top: -10px; }
+          .resumen { display: flex; justify-content: space-around; margin: 20px 0; border: 1px solid #ddd; padding: 15px; border-radius: 8px; background: #f9f9f9;}
+          .resumen div { text-align: center; }
+          .resumen span { display: block; font-size: 24px; font-weight: bold; color: #003366; }
+          table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+          th, td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 12px; }
+          th { background-color: #003366; color: white; }
+          .footer { margin-top: 40px; text-align: center; font-size: 10px; color: #888; }
+        </style>
+      </head>
+      <body>
+        <h1>IPOSTEL - Cierre Diario / Informe de OPT</h1>
+        <h2>Oficina: ${estadoApp.optSel} | Período: ${fInicio.split('-').reverse().join('/')} al ${fFin.split('-').reverse().join('/')}</h2>
+        
+        <div class="resumen">
+          <div><span>${r.entregadas}</span>Valijas Entregadas</div>
+          <div><span>${r.piezasEntregadas}</span>Piezas Entregadas</div>
+          <div><span>${r.incidencias}</span>Incidencias</div>
+        </div>
+
+        <h3>Detalle de Entregas</h3>
+        <table>
+          <thead>
+            <tr><th>Guía</th><th>Fecha/Hora</th><th>Quien Retiró</th><th>Piezas</th></tr>
+          </thead>
+          <tbody>${filasDetalle}</tbody>
+        </table>
+
+        <div class="footer">
+          Generado el ${new Date().toLocaleString()} por el sistema de Observatorio Estratégico Postal.
+        </div>
+        
+        <script>
+          // Lanzar la impresión automáticamente al abrir
+          window.onload = function() { window.print(); }
+        <\/script>
+      </body>
+      </html>
+    `;
+
+    // Abrir en una ventana nueva e imprimir
+    const ventana = window.open('', '_blank');
+    ventana.document.write(htmlInforme);
+    ventana.document.close();
+
+  } catch (e) {
+    Swal.fire('Error', 'No se pudo generar el informe: ' + e.message, 'error');
   }
 }
 
