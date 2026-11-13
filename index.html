@@ -49,8 +49,21 @@
       <label class="form-label text-primary">Seleccione su Rol</label>
       <select id="selRol" class="form-select fw-bold" onchange="cambiarRol()">
         <option value="">-- Seleccione su rol --</option>
+        <option value="PRESIDENCIA">Presidencia</option>
+        <option value="DESPACHO">Despacho</option>
+        <option value="OBSERVATORIO">Observatorio</option>
+        <option value="DIRECCION">Dirección (CNC / Operaciones)</option>
+        <option value="GERENCIA_ESTADO">Gerencia de Estado</option>
+        <option value="COORDINADOR">Coordinador</option>
         <option value="JEFE_OPT">Jefe de OPT</option>
-        <option value="OBSERVATORIO">Observatorio / Despacho</option>
+        <option value="ANALISTA_OPT">Analista de OPT</option>
+      </select>
+    </div>
+
+    <div id="pasoSubRol" class="mb-3 oculto">
+      <label class="form-label">Seleccione opción</label>
+      <select id="selSubRol" class="form-select" onchange="verificarUsuario()">
+        <option value="">-- Seleccione --</option>
       </select>
     </div>
 
@@ -85,12 +98,12 @@
 <script>
 const API_URL = 'https://script.google.com/macros/s/AKfycbzx_AeJRGOOXphA0N5sUFEMJbDBwsyzfElr0hH38dmzUmFt9dy1NJ7w3MjMycrWzoI2/exec';
 const estadoApp = { rol: null, requiereEstado: false, requiereOPT: false, estadoSel: null, optSel: null, subRolSel: null };
-const ROLES_CON_ESTADO = ['JEFE_OPT'];
-const ROLES_CON_OPT = ['JEFE_OPT'];
+const ROLES_CON_ESTADO = ['GERENCIA_ESTADO', 'JEFE_OPT', 'ANALISTA_OPT'];
+const ROLES_CON_OPT = ['JEFE_OPT', 'ANALISTA_OPT'];
 
 function ocultar(id) { document.getElementById(id).classList.add('oculto'); }
 function mostrar(id) { document.getElementById(id).classList.remove('oculto'); }
-function ocultarTodo() { ['pasoEstado', 'pasoOPT', 'pasoCredenciales', 'boxLoginExistente', 'btnIngresar', 'btnVolver'].forEach(id => ocultar(id)); }
+function ocultarTodo() { ['pasoSubRol', 'pasoEstado', 'pasoOPT', 'pasoCredenciales', 'boxLoginExistente', 'btnIngresar', 'btnVolver'].forEach(id => ocultar(id)); }
 
 function entrarAlSistema() {
   document.getElementById('pantallaBienvenida').style.opacity = '0';
@@ -103,12 +116,18 @@ function entrarAlSistema() {
 function cambiarRol() {
   const rol = document.getElementById('selRol').value;
   ocultarTodo();
-  estadoApp.rol = rol; estadoApp.estadoSel = null; estadoApp.optSel = null;
+  estadoApp.rol = rol; estadoApp.estadoSel = null; estadoApp.optSel = null; estadoApp.subRolSel = null;
   if (!rol) return;
   estadoApp.requiereEstado = ROLES_CON_ESTADO.includes(rol);
   estadoApp.requiereOPT = ROLES_CON_OPT.includes(rol);
 
-  if (estadoApp.requiereEstado) {
+  if (rol === 'DIRECCION') {
+    mostrar('pasoSubRol'); mostrar('btnVolver');
+    document.getElementById('selSubRol').innerHTML = `<option value="">-- Seleccione --</option><option value="CNC">Dirección CNC</option><option value="OPERACIONES">Dirección de Operaciones</option>`;
+  } else if (rol === 'COORDINADOR') {
+    mostrar('pasoSubRol'); mostrar('btnVolver');
+    document.getElementById('selSubRol').innerHTML = `<option value="">-- Seleccione --</option><option value="ENCAMINAMIENTO">Encaminamiento</option><option value="ALIANZA">Control del Aliado</option><option value="CNC_MICRO">CNC-Micro Entrega</option>`;
+  } else if (estadoApp.requiereEstado) {
     mostrar('pasoEstado'); mostrar('btnVolver'); cargarEstados();
   } else {
     mostrar('pasoCredenciales'); mostrar('boxLoginExistente'); mostrar('btnIngresar');
@@ -127,6 +146,10 @@ function cambiarEstado() {
 }
 
 async function verificarUsuario() {
+  if (estadoApp.rol === 'DIRECCION' || estadoApp.rol === 'COORDINADOR') {
+    estadoApp.subRolSel = document.getElementById('selSubRol').value;
+    if (!estadoApp.subRolSel) return;
+  }
   if (estadoApp.requiereOPT) {
     estadoApp.optSel = document.getElementById('selOPT').value;
     if (!estadoApp.optSel) { mostrar('pasoEstado'); mostrar('pasoOPT'); mostrar('btnVolver'); return; }
@@ -138,7 +161,14 @@ async function enviarAlBackend() {
   const rol = estadoApp.rol;
   let payload = { accion: 'loginArbol', rol: rol, clave: document.getElementById('inpClave').value.trim() };
   
-  if (estadoApp.requiereEstado) { payload.estado = estadoApp.estadoSel; }
+  if (['PRESIDENCIA', 'DESPACHO', 'OBSERVATORIO'].includes(rol)) {
+    if (rol === 'PRESIDENCIA') payload.usuario = 'Presidencia';
+    if (rol === 'DESPACHO') payload.usuario = 'Despacho';
+    if (rol === 'OBSERVATORIO') payload.usuario = 'Observatorio';
+  } else if (rol === 'DIRECCION' || rol === 'COORDINADOR') {
+    payload.subRol = estadoApp.subRolSel;
+    if (rol === 'DIRECCION') payload.usuario = (estadoApp.subRolSel === 'CNC') ? 'Director_CNC' : 'Director_Operaciones';
+  } else if (estadoApp.requiereEstado) { payload.estado = estadoApp.estadoSel; }
   if (estadoApp.requiereOPT) { payload.codigoOPT = estadoApp.optSel; }
 
   const btn = document.getElementById('btnIngresar');
@@ -158,8 +188,11 @@ function redirigir(r) {
   if (estadoApp.estadoSel) sessionStorage.setItem('ipostel_estado', estadoApp.estadoSel);
   if (estadoApp.optSel) sessionStorage.setItem('ipostel_opt', estadoApp.optSel);
 
+  // Redirección a los paneles de Aeropuerto según el rol
   if (rol === 'JEFE_OPT' || rol === 'ANALISTA_OPT') {
     window.location.replace('portal_opt.html');
+  } else if (rol === 'GERENTE_ESTADO') {
+    window.location.replace('estados.html');
   } else {
     window.location.replace('observatorio.html');
   }
