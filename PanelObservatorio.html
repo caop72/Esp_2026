@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IPOSTEL Movilidad - Observatorio Estratégico</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+<style>
+  :root { --ipostel-blue:#003366; --ipostel-red:#c8102e; --ipostel-yellow:#ffc72c; }
+  body { background:#f4f6f9; font-family:'Segoe UI',sans-serif; }
+  .navbar-ipostel { background:var(--ipostel-blue); }
+  .navbar-ipostel .navbar-brand { color:#fff; font-weight:700; }
+  .kpi-card { border-left:6px solid var(--ipostel-blue); border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,.08); }
+  .kpi-card.alerta { border-left-color:var(--ipostel-red); }
+  .kpi-card.ok { border-left-color:#198754; }
+  .kpi-valor { font-size:2rem; font-weight:800; line-height:1; }
+  .badge-alerta { background:var(--ipostel-red); color:#fff; }
+  .badge-ok { background:#198754; color:#fff; }
+  .badge-pend { background:#6c757d; color:#fff; }
+  table thead { background:var(--ipostel-blue); color:#fff; }
+  .fila-alerta { background:#fde8ea !important; }
+  .refresh-dot { width:10px;height:10px;border-radius:50%;background:#28a745;display:inline-block;animation:pulse 1.5s infinite; }
+  @keyframes pulse { 0%{opacity:1}50%{opacity:.3}100%{opacity:1} }
+</style>
+</head>
+<body>
+
+<nav class="navbar navbar-ipostel px-3 py-2">
+  <span class="navbar-brand"><i class="bi bi-broadcast"></i> IPOSTEL Movilidad · Observatorio Estratégico</span>
+  <span class="text-white-50 small"><span class="refresh-dot"></span> Auto-refresh 60s</span>
+</nav>
+
+<div class="container-fluid py-3">
+
+  <!-- KPIs -->
+  <div class="row g-3 mb-3">
+    <div class="col-6 col-md-3">
+      <div class="card kpi-card p-3">
+        <div class="text-muted small">Total Reportes</div>
+        <div class="kpi-valor" id="kpiTotal">--</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card kpi-card ok p-3">
+        <div class="text-muted small">Entregas Efectivas</div>
+        <div class="kpi-valor text-success" id="kpiEntregas">--</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card kpi-card alerta p-3">
+        <div class="text-muted small">Prioridad Absoluta Violada</div>
+        <div class="kpi-valor text-danger" id="kpiAlerta">--</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card kpi-card p-3">
+        <div class="text-muted small">Cumplimiento SLA</div>
+        <div class="kpi-valor" id="kpiSLA">--%</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filtros -->
+  <div class="row g-2 mb-3">
+    <div class="col-md-3">
+      <input id="filtroBusqueda" class="form-control form-control-sm" placeholder="🔍 Buscar OPT, destino, jefe...">
+    </div>
+    <div class="col-md-3">
+      <select id="filtroEstado" class="form-select form-select-sm">
+        <option value="">Todos los estados</option>
+      </select>
+    </div>
+    <div class="col-md-3">
+      <select id="filtroAlerta" class="form-select form-select-sm">
+        <option value="">Todas las alertas</option>
+        <option value="PRIORIDAD ABSOLUTA VIOLADA">Prioridad Absoluta Violada</option>
+        <option value="SLA EXCEDIDO">SLA Excedido</option>
+        <option value="OK">Sin alertas</option>
+      </select>
+    </div>
+    <div class="col-md-3 text-end">
+      <button class="btn btn-sm btn-primary" onclick="cargarDatos()"><i class="bi bi-arrow-clockwise"></i> Actualizar</button>
+    </div>
+  </div>
+
+  <!-- Ranking por estado -->
+  <div class="row g-3 mb-3">
+    <div class="col-md-5">
+      <div class="card p-3">
+        <h6 class="fw-bold"><i class="bi bi-bar-chart"></i> Ranking por Estado</h6>
+        <div id="rankingEstados" class="small">Cargando...</div>
+      </div>
+    </div>
+    <div class="col-md-7">
+      <div class="card p-3">
+        <h6 class="fw-bold"><i class="bi bi-exclamation-triangle"></i> Alertas Activas</h6>
+        <div id="alertasActivas" class="small">Cargando...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabla principal -->
+  <div class="card p-3">
+    <h6 class="fw-bold mb-2"><i class="bi bi-table"></i> Detalle de Reportes</h6>
+    <div class="table-responsive">
+      <table class="table table-sm table-hover align-middle">
+        <thead>
+          <tr>
+            <th>#</th><th>OPT</th><th>Estado</th><th>Destino</th>
+            <th>Jefe OPT</th><th>Fecha</th><th>SLA</th>
+            <th>Alerta</th><th>Evidencia</th>
+          </tr>
+        </thead>
+        <tbody id="tablaReportes">
+          <tr><td colspan="9" class="text-center text-muted py-4">Cargando datos...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="text-center text-muted small mt-3">
+    Última actualización: <span id="ultimaActualizacion">--</span>
+  </div>
+</div>
+
+<script>
+let datosGlobal = [];
+
+function cargarDatos() {
+  google.script.run
+    .withSuccessHandler(renderDatos)
+    .withFailureHandler(err => {
+      console.error(err);
+      document.getElementById('tablaReportes').innerHTML =
+        '<tr><td colspan="9" class="text-center text-danger py-4">Error al cargar: ' + err.message + '</td></tr>';
+    })
+    .obtenerDatosDashboard();
+}
+
+function renderDatos(resp) {
+  if (!resp || !resp.ok) {
+    document.getElementById('tablaReportes').innerHTML =
+      '<tr><td colspan="9" class="text-center text-danger py-4">' + (resp?.error || 'Sin datos') + '</td></tr>';
+    return;
+  }
+  datosGlobal = resp.data || [];
+  document.getElementById('ultimaActualizacion').textContent = new Date().toLocaleString('es-VE');
+
+  // KPIs
+  const total = datosGlobal.length;
+  const entregas = datosGlobal.filter(d => (d.entregasEfectivas || 0) > 0).length;
+  const alerta = datosGlobal.filter(d => (d.alerta || '').toUpperCase().includes('PRIORIDAD ABSOLUTA')).length;
+  const slaOk = datosGlobal.filter(d => (d.sla || '').toUpperCase().includes('DENTRO')).length;
+  document.getElementById('kpiTotal').textContent = total;
+  document.getElementById('kpiEntregas').textContent = entregas;
+  document.getElementById('kpiAlerta').textContent = alerta;
+  document.getElementById('kpiSLA').textContent = total ? Math.round((slaOk/total)*100) + '%' : '--%';
+
+  // Poblar filtro estado
+  const estados = [...new Set(datosGlobal.map(d => d.estado).filter(Boolean))].sort();
+  const sel = document.getElementById('filtroEstado');
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">Todos los estados</option>' +
+    estados.map(e => `<option value="${e}">${e}</option>`).join('');
+  sel.value = cur;
+
+  // Ranking
+  const cont = {};
+  datosGlobal.forEach(d => { const k = d.estado || 'N/D'; cont[k] = (cont[k]||0)+1; });
+  const rankArr = Object.entries(cont).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  const max = rankArr[0]?.[1] || 1;
+  document.getElementById('rankingEstados').innerHTML = rankArr.map(([k,v]) =>
+    `<div class="mb-2"><div class="d-flex justify-content-between"><span>${k}</span><strong>${v}</strong></div>
+     <div class="progress" style="height:8px"><div class="progress-bar bg-primary" style="width:${(v/max)*100}%"></div></div></div>`
+  ).join('') || '<span class="text-muted">Sin datos</span>';
+
+  // Alertas activas
+  const alertas = datosGlobal.filter(d => (d.alerta || '').toUpperCase().includes('VIOLADA') || (d.alerta||'').toUpperCase().includes('SLA'));
+  document.getElementById('alertasActivas').innerHTML = alertas.length
+    ? alertas.slice(0,10).map(a => `<div class="d-flex justify-content-between border-bottom py-1">
+        <span><i class="bi bi-exclamation-circle text-danger"></i> <strong>${a.opt||'?'}</strong> - ${a.estado||''}</span>
+        <span class="badge badge-alerta">${a.alerta}</span></div>`).join('')
+    : '<span class="text-success"><i class="bi bi-check-circle"></i> Sin alertas activas</span>';
+
+  aplicarFiltros();
+}
+
+function aplicarFiltros() {
+  const q = document.getElementById('filtroBusqueda').value.toLowerCase();
+  const fe = document.getElementById('filtroEstado').value;
+  const fa = document.getElementById('filtroAlerta').value;
+
+  const filtrados = datosGlobal.filter(d => {
+    if (fe && d.estado !== fe) return false;
+    if (fa === 'OK' && (d.alerta || '').trim() !== '' && (d.alerta||'').toUpperCase() !== 'OK') return false;
+    if (fa && fa !== 'OK' && !(d.alerta||'').toUpperCase().includes(fa.toUpperCase())) return false;
+    if (q) {
+      const blob = JSON.stringify(d).toLowerCase();
+      if (!blob.includes(q)) return false;
+    }
+    return true;
+  });
+
+  const tb = document.getElementById('tablaReportes');
+  if (!filtrados.length) {
+    tb.innerHTML = '<tr><td colspan="9" class="text-center text-muted py-4">Sin resultados</td></tr>';
+    return;
+  }
+  tb.innerHTML = filtrados.map((d,i) => {
+    const alertaTxt = (d.alerta||'').toUpperCase();
+    const esAlerta = alertaTxt.includes('VIOLADA') || alertaTxt.includes('EXCEDIDO');
+    const badge = esAlerta
+      ? `<span class="badge badge-alerta">${d.alerta}</span>`
+      : (alertaTxt && alertaTxt !== 'OK' ? `<span class="badge badge-pend">${d.alerta}</span>` : '<span class="badge badge-ok">OK</span>');
+    const slaBadge = (d.sla||'').toUpperCase().includes('DENTRO')
+      ? '<span class="badge badge-ok">Dentro</span>'
+      : '<span class="badge badge-alerta">'+(d.sla||'--')+'</span>';
+    const foto = d.foto ? `<a href="${d.foto}" target="_blank" class="btn btn-sm btn-outline-primary py-0"><i class="bi bi-image"></i></a>` : '--';
+    return `<tr class="${esAlerta?'fila-alerta':''}">
+      <td>${i+1}</td>
+      <td><strong>${d.opt||'--'}</strong></td>
+      <td>${d.estado||'--'}</td>
+      <td>${d.destino||'--'}</td>
+      <td>${d.jefe||'--'}</td>
+      <td>${d.fecha||'--'}</td>
+      <td>${slaBadge}</td>
+      <td>${badge}</td>
+      <td>${foto}</td>
+    </tr>`;
+  }).join('');
+}
+
+document.getElementById('filtroBusqueda').addEventListener('input', aplicarFiltros);
+document.getElementById('filtroEstado').addEventListener('change', aplicarFiltros);
+document.getElementById('filtroAlerta').addEventListener('change', aplicarFiltros);
+
+cargarDatos();
+setInterval(cargarDatos, 60000);
+</script>
+</body>
+</html>
