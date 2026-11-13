@@ -427,12 +427,20 @@ async function cargarPendientesCNC() {
     
     let html = '<table class="table table-sm"><thead><tr><th>OPT</th><th>Recib.</th><th>Entreg.</th><th>Pend.</th><th>T. Prom.</th><th>Acción</th></tr></thead><tbody>';
     res.pendientes.forEach(item => { 
+      // Convertir horas decimales a texto (ej: 2.5 -> 2h 30m)
+      let tiempoStr = '--';
+      if (item.tiempoPromedio && item.tiempoPromedio > 0) {
+        const h = Math.floor(item.tiempoPromedio);
+        const m = Math.round((item.tiempoPromedio - h) * 60);
+        tiempoStr = `${h}h ${m}m`;
+      }
+
       html += `<tr>
         <td>${item.opt}</td>
         <td>${item.recibidas}</td>
         <td>${item.entregadas}</td>
         <td>${item.pendientes}</td>
-        <td>${item.tiempoPromedio || '--'}</td>
+        <td><strong>${tiempoStr}</strong></td>
         <td><button class="btn btn-sm btn-success" onclick="aprobar(${item.fila})">Aprobar</button></td>
       </tr>`; 
     });
