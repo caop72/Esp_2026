@@ -466,12 +466,20 @@ async function cargarObservatorio() {
     
     let html = '<table class="table table-sm"><thead><tr><th>OPT</th><th>Recib.</th><th>Entreg.</th><th>Pend.</th><th>T. Prom.</th></tr></thead><tbody>';
     res.datos.forEach(row => { 
+      // row[8] contiene las horas decimales
+      let tiempoStr = '--';
+      if (row[8] && row[8] > 0) {
+        const h = Math.floor(row[8]);
+        const m = Math.round((row[8] - h) * 60);
+        tiempoStr = `${h}h ${m}m`;
+      }
+
       html += `<tr>
         <td>${row[1]}</td>
         <td>${row[2]}</td>
         <td>${row[3]}</td>
         <td>${row[4]}</td>
-        <td><strong>${row[8] || '--'}</strong></td>
+        <td><strong>${tiempoStr}</strong></td>
       </tr>`; 
     });
     html += '</tbody></table>'; 
