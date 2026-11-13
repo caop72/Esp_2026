@@ -213,4 +213,43 @@ document.addEventListener('DOMContentLoaded', () => {
   sesionOPT.usuario = urlParams.get('u') || sessionStorage.getItem('ipostel_usuario') || '';
 
   if (!sesionOPT.estado || !sesionOPT.opt) {
-    Swal.fire('Sesión inválida', 'Debe ingresar desde el login.',
+    Swal.fire('Sesión inválida', 'Debe ingresar desde el login.', 'warning').then(() => window.location.href = 'index.html');
+    return;
+  }
+
+  document.getElementById('infoEstado').textContent = sesionOPT.estado;
+  document.getElementById('infoOPT').textContent = sesionOPT.opt;
+  document.getElementById('infoRol').textContent = sesionOPT.rol === 'JEFE_OPT' ? 'Jefe de OPT' : 'Analista';
+
+  modalRecepcion = new bootstrap.Modal(document.getElementById('modalRecepcion'));
+  modalEntrega = new bootstrap.Modal(document.getElementById('modalEntrega'));
+
+  // Carga inicial
+  cargarPorRecibir();
+  cargarCustodia();
+  cargarHistorialEntregas();
+  cargarEstadisticas();
+});
+
+function cerrarSesion() { sessionStorage.clear(); window.location.href = 'index.html'; }
+
+// Funciones de carga simuladas por ahora
+async function cargarPorRecibir() {
+  document.getElementById('tablaPorRecibir').innerHTML = '<tr><td colspan="7" class="text-center py-4 text-muted">No hay votos en tránsito hacia esta OPT.</td></tr>';
+}
+async function cargarCustodia() {
+  document.getElementById('tablaCustodia').innerHTML = '<tr><td colspan="7" class="text-center py-4 text-muted">No hay votos en custodia.</td></tr>';
+}
+async function cargarHistorialEntregas() {
+  document.getElementById('tablaHistorial').innerHTML = '<tr><td colspan="9" class="text-center py-4 text-muted">No hay entregas registradas.</td></tr>';
+}
+async function cargarEstadisticas() {
+  document.getElementById('statRecibir').textContent = '0';
+  document.getElementById('statCustodia').textContent = '0';
+  document.getElementById('statEntregados').textContent = '0';
+  document.getElementById('statRetrasados').textContent = '0';
+}
+function buscarPaqueteUniversal() { Swal.fire('Buscador', 'Aquí buscarías el código del voto.', 'info'); }
+</script>
+</body>
+</html>
