@@ -15,27 +15,32 @@
   <div class="header">IPOSTEL - Elecciones España 2026</div>
   <div class="container">
     
-    <!-- PANTALLA DE LOGIN -->
+    <!-- LOGIN -->
     <div id="loginScreen" class="card p-4 mt-4">
       <h5 class="mb-3">Acceso al Sistema</h5>
+      
       <div class="mb-3">
         <label>Tipo de Usuario</label>
         <select id="loginRol" class="form-select" onchange="actualizarCamposLogin()">
-          <option value="JEFE_OPT">Jefe de OPT</option>
           <option value="DIR_CNC">Director CNC</option>
           <option value="COORD_CNC">Coordinador CNC</option>
+          <option value="JEFE_OPT">Jefe de OPT</option>
           <option value="DESPACHO">Despacho / Observatorio</option>
         </select>
       </div>
       
       <div class="mb-3" id="divEstado" style="display:none;">
         <label>Estado</label>
-        <input type="text" id="loginEstado" class="form-control" placeholder="Ej: Anzoátegui">
+        <select id="loginEstado" class="form-select" onchange="cargarOPTs()">
+          <option value="">Cargando estados...</option>
+        </select>
       </div>
       
       <div class="mb-3" id="divOpt" style="display:none;">
         <label>Oficina (OPT)</label>
-        <input type="text" id="loginOpt" class="form-control" placeholder="Ej: OPT-ORI-ANZ-003">
+        <select id="loginOpt" class="form-select">
+          <option value="">Seleccione un estado primero</option>
+        </select>
       </div>
 
       <div class="mb-3">
@@ -47,7 +52,7 @@
       <div id="loginAlert" class="alert alert-danger mt-3 d-none"></div>
     </div>
 
-    <!-- PANTALLA DE APLICACIÓN -->
+    <!-- APP -->
     <div id="appScreen" style="display:none;">
       <div class="d-flex justify-content-between align-items-center mt-3 mb-2">
         <h5 id="lblBienvenida" class="m-0"></h5>
@@ -56,52 +61,84 @@
 
       <div class="card p-4" id="formulario">
         <form id="reporteForm">
-          
-          <!-- FASE III: JEFE OPT -->
           <div id="camposOPT" style="display:none;">
             <h5>Fase III: Reporte Diario (OPT)</h5>
-            <div class="mb-3"><label>Piezas Recibidas en OPT</label><input type="number" class="form-control" name="piezasRecibidas" required></div>
-            <div class="mb-3"><label>Entregas Efectivas</label><input type="number" class="form-control" name="entregas" required></div>
-            <div class="mb-3"><label>En Ruta / Pendientes</label><input type="number" class="form-control" name="pendientes" required></div>
-            <div class="mb-3"><label>Incidencias</label><input type="number" class="form-control" name="incidencias" required></div>
-            <div class="mb-3"><label>URL Evidencia Fotográfica</label><input type="url" class="form-control" name="evidencia" required></div>
-            <button type="submit" class="btn btn-success w-100 mt-3">Enviar Reporte a CNC</button>
-          </div>
-
-          <!-- FASE II: CNC -->
-          <div id="camposCNC" style="display:none;">
-            <h5>Fase II: Control y Auditoría (CNC)</h5>
-            <div class="mb-3"><label>Estado a Reportar</label><input type="text" class="form-control" name="estadoReporte" required></div>
-            <div class="mb-3"><label>Piezas Recibidas</label><input type="number" class="form-control" name="recibidas" required></div>
-            <div class="mb-3"><label>Piezas Entregadas</label><input type="number" class="form-control" name="entregadas" required></div>
+            <div class="mb-3"><label>Piezas Recibidas</label><input type="number" class="form-control" name="piezasRecibidas" required></div>
+            <div class="mb-3"><label>Entregas</label><input type="number" class="form-control" name="entregas" required></div>
             <div class="mb-3"><label>Pendientes</label><input type="number" class="form-control" name="pendientes" required></div>
-            <div class="mb-3"><label>Nudos Críticos</label><textarea class="form-control" name="nudos" rows="2"></textarea></div>
-            <button type="submit" class="btn btn-primary w-100 mt-3">Enviar Consolidado CNC</button>
+            <div class="mb-3"><label>Incidencias</label><input type="number" class="form-control" name="incidencias" required></div>
+            <div class="mb-3"><label>URL Foto</label><input type="url" class="form-control" name="evidencia" required></div>
+            <button type="submit" class="btn btn-success w-100 mt-3">Enviar Reporte a CNC</button>
           </div>
         </form>
       </div>
 
-      <!-- PANEL DE APROBACIONES (Solo CNC) -->
       <div class="card p-4 mt-4" id="panelCNC" style="display:none;">
         <h5>Aprobación de Reportes OPT</h5>
-        <div id="listaAprobaciones" class="mt-3">Cargando reportes...</div>
+        <div id="listaAprobaciones" class="mt-3">Cargando...</div>
       </div>
     </div>
   </div>
 
   <script>
-    // AQUÍ VA TU URL DE APPS SCRIPT
     const API_URL = 'https://script.google.com/macros/s/AKfycbzx_AeJRGOOXphA0N5sUFEMJbDBwsyzfElr0hH38dmzUmFt9dy1NJ7w3MjMycrWzoI2/exec'; 
     let userActual = {};
 
+    // Cargar estados al inicio si eligen Jefe de OPT
     function actualizarCamposLogin() {
       const rol = document.getElementById('loginRol').value;
-      document.getElementById('divEstado').style.display = (rol === 'JEFE_OPT') ? 'block' : 'none';
-      document.getElementById('divOpt').style.display = (rol === 'JEFE_OPT') ? 'block' : 'none';
+      const isOpt = (rol === 'JEFE_OPT');
+      document.getElementById('divEstado').style.display = isOpt ? 'block' : 'none';
+      document.getElementById('divOpt').style.display = isOpt ? 'block' : 'none';
+      
+      if (isOpt && document.getElementById('loginEstado').options.length <= 1) {
+        cargarEstados();
+      }
+    }
+
+    async function cargarEstados() {
+      const select = document.getElementById('loginEstado');
+      select.innerHTML = '<option value="">Cargando...</option>';
+      try {
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ accion: 'obtenerEstados' })
+        });
+        const json = await res.json();
+        if (json.exito) {
+          select.innerHTML = '<option value="">Seleccione estado</option>';
+          json.estados.forEach(est => {
+            select.innerHTML += `<option value="${est}">${est}</option>`;
+          });
+        }
+      } catch(e) { select.innerHTML = '<option value="">Error al cargar</option>'; }
+    }
+
+    async function cargarOPTs() {
+      const estado = document.getElementById('loginEstado').value;
+      const selectOpt = document.getElementById('loginOpt');
+      if (!estado) { selectOpt.innerHTML = '<option value="">Seleccione un estado primero</option>'; return; }
+      
+      selectOpt.innerHTML = '<option value="">Cargando...</option>';
+      try {
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ accion: 'obtenerOPTsPorEstado', estado: estado })
+        });
+        const json = await res.json();
+        if (json.exito) {
+          selectOpt.innerHTML = '<option value="">Seleccione OPT</option>';
+          json.opts.forEach(opt => {
+            selectOpt.innerHTML += `<option value="${opt.codigo}">${opt.nombre}</option>`;
+          });
+        }
+      } catch(e) { selectOpt.innerHTML = '<option value="">Error al cargar</option>'; }
     }
 
     async function ejecutarLogin() {
-      const rol = document.getElementById('loginRol').value;
+      const rolSelect = document.getElementById('loginRol').value;
       const estado = document.getElementById('loginEstado').value;
       const opt = document.getElementById('loginOpt').value;
       const clave = document.getElementById('loginClave').value;
@@ -110,12 +147,23 @@
       btn.innerText = 'Validando...';
       document.getElementById('loginAlert').classList.add('d-none');
       
+      let payload = { accion: 'loginArbol', clave: clave };
+      
+      if (rolSelect === 'DIR_CNC') {
+        payload.rol = 'DIRECCION'; payload.subRol = 'CNC';
+      } else if (rolSelect === 'COORD_CNC') {
+        payload.rol = 'COORDINADOR'; payload.subRol = 'CNC_MICRO';
+      } else if (rolSelect === 'JEFE_OPT') {
+        payload.rol = 'JEFE_OPT'; payload.estado = estado; payload.codigoOPT = opt;
+      } else if (rolSelect === 'DESPACHO') {
+        payload.rol = 'DESPACHO';
+      }
+
       try {
-        // Usamos el loginArbol de tu Code.gs
         const res = await fetch(API_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify({ accion: 'loginArbol', rol: rol, estado: estado, codigoOPT: opt, clave: clave })
+          body: JSON.stringify(payload)
         });
         const json = await res.json();
         
@@ -123,7 +171,7 @@
           userActual = json;
           document.getElementById('loginScreen').style.display = 'none';
           document.getElementById('appScreen').style.display = 'block';
-          document.getElementById('lblBienvenida').innerText = 'Usuario: ' + (json.usuario || json.rol);
+          document.getElementById('lblBienvenida').innerText = 'Rol: ' + json.rol + ' - Usuario: ' + (json.usuario || '');
           cargarInterfaz();
         } else {
           document.getElementById('loginAlert').innerText = json.mensaje;
@@ -140,39 +188,12 @@
       if (userActual.rol === 'JEFE_OPT' || userActual.rol === 'ANALISTA_OPT') {
         document.getElementById('camposOPT').style.display = 'block';
       } else if (userActual.rol === 'DIR_CNC' || userActual.rol === 'COORD_CNC') {
-        document.getElementById('camposCNC').style.display = 'block';
         document.getElementById('panelCNC').style.display = 'block';
         cargarPendientesCNC();
       } else if (userActual.rol === 'DESPACHO' || userActual.rol === 'OBSERVATORIO') {
         window.location.href = 'observatorio.html';
       }
     }
-
-    document.getElementById('reporteForm').onsubmit = async function(e) {
-      e.preventDefault();
-      const btn = e.target.querySelector('button');
-      btn.disabled = true; btn.innerText = 'Enviando...';
-      
-      const formData = new FormData(e.target);
-      const data = Object.fromEntries(formData.entries());
-      data.rol = userActual.rol;
-      data.opt = userActual.codigoOPT || '';
-
-      try {
-        // Aquí llamamos a la función guardarReporte que me pasaste
-        const res = await fetch(API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify({ accion: 'guardarReporte', formData: data })
-        });
-        const json = await res.json();
-        alert(json.mensaje || json.message);
-        if(json.exito || json.success) e.target.reset();
-      } catch(e) { alert('Error al enviar: ' + e); }
-      
-      btn.disabled = false; 
-      btn.innerText = (userActual.rol === 'JEFE_OPT') ? 'Enviar Reporte a CNC' : 'Enviar Consolidado CNC';
-    };
 
     async function cargarPendientesCNC() {
       try {
@@ -206,8 +227,8 @@
           body: JSON.stringify({ accion: 'aprobarReporteOPT', fila: fila })
         });
         const json = await res.json();
-        alert(json.mensaje || json.message);
-        if(json.exito || json.success) cargarPendientesCNC();
+        alert(json.mensaje);
+        if(json.exito) cargarPendientesCNC();
       } catch(e) { alert('Error: ' + e); }
     }
   </script>
