@@ -645,12 +645,12 @@ async function cargarCustodia() {
       if (item.semaforoColor === 'rojo') tr.className = 'fila-critica';
       if (item.semaforoColor === 'amarillo') tr.className = 'fila-alerta';
 
-      // MAGIA AQUÍ: Mostramos el desglose si es un Paquete (tiene cert/ord > 0)
+      // Verificamos si la observación trae el desglose
       let detallePiezas = item.piezas;
-      if (item.certificados > 0 || item.ordinarios > 0) {
+      if (item.observaciones && item.observaciones.includes('Cert')) {
         detallePiezas = `<div style="font-size: 0.8rem;">
-          <span class="badge bg-primary">Cert: ${item.certificados}</span><br>
-          <span class="badge bg-info text-dark">Ord: ${item.ordinarios}</span>
+          <span class="badge bg-primary">${item.observaciones.split('|')[0].trim()}</span><br>
+          <span class="badge bg-info text-dark">${item.observaciones.split('|')[1].trim()}</span>
         </div>`;
       }
 
