@@ -185,6 +185,39 @@
 
     // Auto-refresh cada 60 segundos
     setInterval(loadAll, 60000);
+    <script>
+  function loadDashboard() {
+    google.script.run.withSuccessHandler(function(data) {
+      // Actualizar KPIs
+      document.getElementById('kpiPiezas').textContent = data.stats.fase1Piezas || 0;
+      document.getElementById('kpiEntregas').textContent = data.stats.fase3Entregas || 0;
+      document.getElementById('kpiEficiencia').textContent = data.stats.eficiencia || '0%';
+      
+      // Actualizar tabla
+      const tbody = document.getElementById('reportsTableBody');
+      let html = '';
+      data.reports.forEach(r => {
+        html += `
+          <tr>
+            <td>${new Date(r.fecha).toLocaleDateString()}</td>
+            <td>${r.estado} / ${r.opt}</td>
+            <td>${r.jefe}</td>
+            <td>${r.piezas}</td>
+            <td>${r.entregas}</td>
+            <td>${r.incidencias}</td>
+            <td>${r.tiempoEntrega || '--'} min</td>
+            <td>${r.urlFotos ? `<a href="${r.urlFotos}" target="_blank">📷 Ver</a>` : '--'}</td>
+          </tr>
+        `;
+      });
+      tbody.innerHTML = html;
+      document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString();
+    }).getAllDataObservatorio();
+  }
+
+  loadDashboard();
+  setInterval(loadDashboard, 60000);
+</script>
   </script>
 </body>
 </html>
