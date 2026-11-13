@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <base target="_top">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel Observatorio Estratégico</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    body { background: #f0f2f5; padding: 16px; max-width: 1200px; margin: 0 auto; color: #333; }
+    .header { background: linear-gradient(135deg, #1f4e79 0%, #2c6aa0 100%); color: white; padding: 24px; border-radius: 16px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+    .header h1 { font-size: 1.4rem; }
+    .header p { font-size: 0.85rem; opacity: 0.9; margin-top: 4px; }
+    .refresh-btn { background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; }
+    .refresh-btn:hover { background: rgba(255,255,255,0.3); }
+    
+    /* KPI Cards */
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 20px; }
+    .kpi-card { background: white; border-radius: 12px; padding: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); text-align: center; }
+    .kpi-value { font-size: 2rem; font-weight: bold; color: #1f4e79; }
+    .kpi-label { font-size: 0.75rem; color: #666; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .kpi-card.alert { border: 2px solid #dc3545; }
+    .kpi-card.alert .kpi-value { color: #dc3545; }
+    
+    /* Filters */
+    .filters { background: white; border-radius: 12px; padding: 16px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+    .filters select, .filters input { padding: 8px 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 0.9rem; }
+    .filters label { font-size: 0.8rem; font-weight: 600; color: #666; }
+    
+    /* Table */
+    .table-container { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    table { width: 100%; border-collapse: collapse; }
+    th { background: #1f4e79; color: white; padding: 12px 16px; text-align: left; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; position: sticky; top: 0; }
+    td { padding: 12px 16px; border-bottom: 1px solid #f0f0f0; font-size: 0.85rem; }
+    tr:hover { background: #f8f9fa; }
+    tr.priority-row { background: #fff5f5 !important; }
+    tr.priority-row td { border-left: 3px solid #dc3545; }
+    .badge { display: inline-block; padding: 3px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: bold; }
+    .badge-priority { background: #f8d7da; color: #721c24; }
+    .badge-ok { background: #d4edda; color: #155724; }
+    .link-fotos { color: #1f4e79; text-decoration: none; font-weight: 600; }
+    .link-fotos:hover { text-decoration: underline; }
+    .loading { text-align: center; padding: 60px; color: #666; }
+    .spinner { display: inline-block; width: 32px; height: 32px; border: 3px solid #ddd; border-top-color: #1f4e79; border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 12px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .empty { text-align: center; padding: 60px; color: #999; }
+    .auto-refresh { text-align: center; font-size: 0.75rem; color: #999; margin-top: 16px; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div>
+      <h1>🔍 Panel Observatorio Estratégico Postal</h1>
+      <p><?= userEmail ?> | Corte diario: 06:00 PM</p>
+    </div>
+    <button class="refresh-btn" onclick="loadAll()">🔄 Actualizar</button>
+  </div>
+
+  <div id="kpiGrid" class="kpi-grid">
+    <div class="loading"><div class="spinner"></div><p>Cargando indicadores...</p></div>
+  </div>
+
+  <div class="filters">
+    <label>Filtrar:</label>
+    <select id="filterEstado" onchange="applyFilters()">
+      <option value="">Todos los Estados</option>
+    </select>
+    <select id="filterAlerta" onchange="applyFilters()">
+      <option value="">Todos los Reportes</option>
+      <option value="priority">⚠️ Solo Prioridad Violada</option>
+      <option value="ok">✅ Sin Alertas</option>
+    </select>
+    <input type="text" id="filterSearch" placeholder="Buscar OPT o Jefe..." oninput="applyFilters()" style="flex:1;min-width:150px;">
+  </div>
+
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Estado / OPT</th>
+          <th>Jefe OPT</th>
+          <th>Hora Llegada</th>
+          <th>Piezas</th>
+          <th>Entregas</th>
+          <th>Incidencias</th>
+          <th>Tiempo (min)</th>
+          <th>Evidencia</th>
+          <th>Aprobado Por</th>
+        </tr>
+      </thead>
+      <tbody id="reportTable">
+        <tr><td colspan="10" class="loading"><div class="spinner"></div><p>Cargando reportes aprobados...</p></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="auto-refresh">🔄 Auto-actualización cada 60 segundos | Última carga: <span id="lastRefresh">--</span></div>
+
+  <script>
+    const userEmail = '<?= userEmail ?>';
+    let allReports = [];
+    let stats = {};
+
+    window.onload = function() { loadAll(); };
+
+    function loadAll() {
+      google.script.run.withSuccessHandler(function(res) {
+        allReports = res.reports || [];
+        stats = res.stats || {};
+        renderKPIs();
+        populateStates();
+        applyFilters();
+        document.getElementById('lastRefresh').textContent = new Date().toLocaleTimeString('es-VE');
+      }).withFailureHandler(function(err) {
+        alert('Error cargando datos: ' + err);
+      }).getAllDataObservatorio();
+    }
+
+    // Función wrapper para obtener todo en una sola llamada
+    function getAllDataObservatorio() {
+      const reports = getAllApprovedReports();
+      const dashboardStats = getDashboardStats();
+      return { reports: reports, stats: dashboardStats };
+    }
+
+    function renderKPIs() {
+      const kpis = [
+        { label: 'Piezas Recibidas (CPC)', value: stats.fase1Piezas },
+        { label: 'Piezas Distribuidas', value: stats.fase1Distribuidas },
+        { label: 'Entregas Efectivas (Nacional)', value: stats.fase3Entregas },
+        { label: 'Incidencias Totales', value: stats.fase3Incidencias },
+        { label: 'Tiempo Promedio Entrega', value: stats.fase3TiempoPromedio + ' min' },
+        { label: '% Eficiencia', value: stats.eficiencia, alert: true }
+      ];
+
+      document.getElementById('kpiGrid').innerHTML = kpis.map(k => `
+        <div class="kpi-card ${k.alert ? 'alert' : ''}">
+          <div class="kpi-value">${k.value}</div>
+          <div class="kpi-label">${k.label}</div>
+        </div>
+      `).join('');
+    }
+
+    function populateStates() {
+      const estados = [...new Set(allReports.map(r => r.estado))].sort();
+      const sel = document.getElementById('filterEstado');
+      sel.innerHTML = '<option value="">Todos los Estados</option>' + 
+        estados.map(e => `<option value="${e}">${e}</option>`).join('');
+    }
+
+    function applyFilters() {
+      const estado = document.getElementById('filterEstado').value;
+      const alerta = document.getElementById('filterAlerta').value;
+      const search = document.getElementById('filterSearch').value.toLowerCase();
+
+      let filtered = allReports.filter(r => {
+        if (estado && r.estado !== estado) return false;
+        if (alerta === 'priority' && !r.alerta) return false;
+        if (alerta === 'ok' && r.alerta) return false;
+        if (search && !(r.opt.toLowerCase().includes(search) || r.jefe.toLowerCase().includes(search))) return false;
+        return true;
+      });
+
+      const tbody = document.getElementById('reportTable');
+      if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="10" class="empty">No hay reportes que coincidan con los filtros.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(r => `
+        <tr class="${r.alerta ? 'priority-row' : ''}">
+          <td><strong>${r.id}</strong></td>
+          <td>${r.estado}<br><small style="color:#666">${r.opt}</small></td>
+          <td>${r.jefe}</td>
+          <td>${r.horaLlegada || '--'}</td>
+          <td>${r.piezas}</td>
+          <td><span class="badge badge-ok">${r.entregas}</span></td>
+          <td>${r.incidencias > 0 ? `<span class="badge badge-priority">${r.incidencias}</span>` : '0'}</td>
+          <td>${r.tiempoEntrega || '--'}</td>
+          <td>${r.urlFotos ? `<a href="${r.urlFotos}" target="_blank" class="link-fotos">📷 Ver Fotos</a>` : '--'}</td>
+          <td><small>${r.aprobadoPor || '--'}<br>${r.fechaAprobacion ? new Date(r.fechaAprobacion).toLocaleString('es-VE') : ''}</small></td>
+        </tr>
+      `).join('');
+    }
+
+    // Auto-refresh cada 60 segundos
+    setInterval(loadAll, 60000);
+  </script>
+</body>
+</html>
