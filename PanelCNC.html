@@ -1,44 +1,135 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel CNC - Validación OPT</title>
-    <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #f4f6f9; padding: 20px; max-width: 700px; margin: 0 auto; }
-        .header { background: #70ad47; color: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; text-align: center; }
-        .report-card { background: white; padding: 20px; border-radius: 10px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border-left: 5px solid #ffc107; }
-        .report-card.approved { border-left-color: #28a745; opacity: 0.8; }
-        .btn-approve { background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        .loading { text-align: center; padding: 40px; color: #666; }
-    </style>
+  <base target="_top">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel CNC - Validación</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    body { background: #f4f6f9; padding: 16px; max-width: 700px; margin: 0 auto; color: #333; }
+    .header { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; padding: 24px; border-radius: 16px; margin-bottom: 20px; }
+    .header h1 { font-size: 1.3rem; }
+    .header p { font-size: 0.85rem; opacity: 0.9; margin-top: 4px; }
+    .stats { display: flex; gap: 12px; margin-bottom: 20px; }
+    .stat-card { background: white; border-radius: 10px; padding: 16px; flex: 1; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .stat-number { font-size: 2rem; font-weight: bold; color: #1f4e79; }
+    .stat-label { font-size: 0.75rem; color: #666; margin-top: 4px; }
+    .report-card { background: white; border-radius: 12px; padding: 18px; margin-bottom: 14px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); border-left: 5px solid #ffc107; transition: all 0.3s; }
+    .report-card.priority { border-left-color: #dc3545; background: #fff8f8; }
+    .report-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .report-title { font-weight: bold; font-size: 1rem; color: #1f4e79; }
+    .badge { padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: bold; }
+    .badge-pending { background: #fff3cd; color: #856404; }
+    .badge-alert { background: #f8d7da; color: #721c24; }
+    .report-meta { font-size: 0.8rem; color: #666; margin-bottom: 10px; }
+    .report-details { font-size: 0.85rem; line-height: 1.8; }
+    .report-alert { color: #dc3545; font-weight: bold; font-size: 0.85rem; margin-top: 8px; padding: 8px; background: #fff3cd; border-radius: 6px; }
+    .btn-approve { width: 100%; padding: 12px; background: #28a745; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 12px; transition: all 0.3s; }
+    .btn-approve:hover { background: #218838; }
+    .btn-approve:disabled { background: #aaa; cursor: not-allowed; }
+    .empty { text-align: center; padding: 60px 20px; color: #999; }
+    .empty-icon { font-size: 3rem; margin-bottom: 12px; }
+    .refresh-bar { text-align: center; font-size: 0.75rem; color: #999; margin-top: 20px; }
+    .loading { text-align: center; padding: 60px; color: #666; }
+    .spinner { display: inline-block; width: 32px; height: 32px; border: 3px solid #ddd; border-top-color: #28a745; border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 12px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
 </head>
 <body>
-    <div class="header">
-        <h2>🛡️ Panel CNC - Validación de Reportes</h2>
-        <p>Audite y apruebe los reportes diarios de las OPT</p>
-    </div>
-    
-    <div id="container" class="loading">⏳ Cargando reportes pendientes...</div>
+  <div class="header">
+    <h1>🛡️ Panel CNC - Aprobación de Reportes</h1>
+    <p><?= userEmail ?></p>
+  </div>
 
-    <script>
-        // Conexión pendiente a la función getPendingReports() de Apps Script
-        window.onload = function() {
-            setTimeout(() => {
-                document.getElementById('container').innerHTML = `
-                    <div class="report-card">
-                        <h3>OPT Anaco - Anzoátegui</h3>
-                        <p>Jefe: Carlos Pérez | Piezas: 150 | Entregas: 120 | Pendientes: 30</p>
-                        <button class="btn-approve" onclick="this.parentElement.classList.add('approved'); this.remove()">✅ APROBAR Y CONSOLIDAR</button>
-                    </div>
-                    <div class="report-card">
-                        <h3>OPT Puerto La Cruz - Anzoátegui</h3>
-                        <p>Jefe: María López | Piezas: 200 | Entregas: 200 | Pendientes: 0</p>
-                        <button class="btn-approve" onclick="this.parentElement.classList.add('approved'); this.remove()">✅ APROBAR Y CONSOLIDAR</button>
-                    </div>
-                `;
-            }, 1000);
-        };
-    </script>
+  <div id="stats" class="stats"></div>
+  <div id="container">
+    <div class="loading"><div class="spinner"></div><p>Cargando reportes pendientes...</p></div>
+  </div>
+  <div class="refresh-bar">🔄 Auto-actualización cada 30 segundos</div>
+
+  <script>
+    const userEmail = '<?= userEmail ?>';
+    let totalCount = 0;
+    let priorityCount = 0;
+
+    function loadReports() {
+      google.script.run.withSuccessHandler(renderReports).getPendingReports();
+    }
+
+    function renderReports(reports) {
+      totalCount = reports.length;
+      priorityCount = reports.filter(r => r.alerta && r.alerta.includes('PRIORIDAD')).length;
+
+      document.getElementById('stats').innerHTML = `
+        <div class="stat-card">
+          <div class="stat-number">${totalCount}</div>
+          <div class="stat-label">Pendientes</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" style="color:${priorityCount > 0 ? '#dc3545' : '#28a745'}">${priorityCount}</div>
+          <div class="stat-label">Prioridad Violada</div>
+        </div>
+      `;
+
+      if (reports.length === 0) {
+        document.getElementById('container').innerHTML = `
+          <div class="empty">
+            <div class="empty-icon">✅</div>
+            <h3>No hay reportes pendientes</h3>
+            <p style="margin-top:8px;font-size:0.9rem;">Todos los reportes han sido aprobados.</p>
+          </div>
+        `;
+        return;
+      }
+
+      let html = '';
+      reports.forEach(r => {
+        const isPriority = r.alerta && r.alerta.includes('PRIORIDAD');
+        html += `
+          <div class="report-card ${isPriority ? 'priority' : ''}">
+            <div class="report-header">
+              <span class="report-title">${r.opt} — ${r.estado}</span>
+              <span class="badge ${isPriority ? 'badge-alert' : 'badge-pending'}">${isPriority ? '🔴 PRIORIDAD' : '⏳ PENDIENTE'}</span>
+            </div>
+            <div class="report-meta">Jefe: ${r.jefe} | ID: ${r.id} | ${new Date(r.fecha).toLocaleString('es-VE')}</div>
+            <div class="report-details">
+              📦 Recibidas: <strong>${r.piezas}</strong> &nbsp;|&nbsp; ✅ Entregadas: <strong>${r.entregas}</strong>
+              ${isPriority ? `<div class="report-alert">⚠️ ${r.alerta}</div>` : ''}
+            </div>
+            <button class="btn-approve" onclick="approve('${r.id}', this)" data-id="${r.id}">✅ APROBAR Y CONSOLIDAR</button>
+          </div>
+        `;
+      });
+
+      document.getElementById('container').innerHTML = html;
+    }
+
+    function approve(id, btn) {
+      if (!confirm('¿Aprobar este reporte? Pasará al Dashboard oficial.')) return;
+      btn.disabled = true;
+      btn.textContent = '⏳ Procesando...';
+
+      google.script.run
+        .withSuccessHandler(function(res) {
+          if (res.success) {
+            loadReports();
+          } else {
+            alert('Error: ' + res.msg);
+            btn.disabled = false;
+            btn.textContent = '✅ APROBAR Y CONSOLIDAR';
+          }
+        })
+        .withFailureHandler(function(err) {
+          alert('Error de conexión: ' + err);
+          btn.disabled = false;
+          btn.textContent = '✅ APROBAR Y CONSOLIDAR';
+        })
+        .approveOptReport(id, userEmail);
+    }
+
+    // Carga inicial y auto-refresh cada 30 segundos
+    loadReports();
+    setInterval(loadReports, 30000);
+  </script>
 </body>
 </html>
