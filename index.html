@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>IPOSTEL - Reporte Electoral</title>
+  <title>IPOSTEL - Elecciones España 2026</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     body { background: #f4f6f9; padding-bottom: 50px; }
@@ -15,101 +15,136 @@
   <div class="header">IPOSTEL - Elecciones España 2026</div>
   <div class="container">
     
-    <!-- Login -->
+    <!-- PANTALLA DE LOGIN -->
     <div id="loginScreen" class="card p-4 mt-4">
-      <h5>Ingrese su correo institucional</h5>
-      <input type="email" id="emailInput" class="form-control mb-2" placeholder="correo@ipostel.gob.ve">
-      <button class="btn btn-primary w-100" onclick="login()">Ingresar</button>
+      <h5 class="mb-3">Acceso al Sistema</h5>
+      <div class="mb-3">
+        <label>Tipo de Usuario</label>
+        <select id="loginRol" class="form-select" onchange="actualizarCamposLogin()">
+          <option value="JEFE_OPT">Jefe de OPT</option>
+          <option value="DIR_CNC">Director CNC</option>
+          <option value="COORD_CNC">Coordinador CNC</option>
+          <option value="DESPACHO">Despacho / Observatorio</option>
+        </select>
+      </div>
+      
+      <div class="mb-3" id="divEstado" style="display:none;">
+        <label>Estado</label>
+        <input type="text" id="loginEstado" class="form-control" placeholder="Ej: Anzoátegui">
+      </div>
+      
+      <div class="mb-3" id="divOpt" style="display:none;">
+        <label>Oficina (OPT)</label>
+        <input type="text" id="loginOpt" class="form-control" placeholder="Ej: OPT-ORI-ANZ-003">
+      </div>
+
+      <div class="mb-3">
+        <label>Clave (4 dígitos)</label>
+        <input type="password" id="loginClave" class="form-control" placeholder="****">
+      </div>
+
+      <button class="btn btn-primary w-100" onclick="ejecutarLogin()">Ingresar</button>
       <div id="loginAlert" class="alert alert-danger mt-3 d-none"></div>
     </div>
 
+    <!-- PANTALLA DE APLICACIÓN -->
     <div id="appScreen" style="display:none;">
+      <div class="d-flex justify-content-between align-items-center mt-3 mb-2">
+        <h5 id="lblBienvenida" class="m-0"></h5>
+        <button class="btn btn-sm btn-outline-danger" onclick="location.reload()">Salir</button>
+      </div>
+
       <div class="card p-4" id="formulario">
-        <h4 id="tituloFormulario" class="mb-3"></h4>
         <form id="reporteForm">
-          <input type="hidden" id="rolUsuario" name="rol">
-          <input type="hidden" id="optUsuario" name="opt">
-          <input type="hidden" id="correoUsuario" name="correo">
           
+          <!-- FASE III: JEFE OPT -->
+          <div id="camposOPT" style="display:none;">
+            <h5>Fase III: Reporte Diario (OPT)</h5>
+            <div class="mb-3"><label>Piezas Recibidas en OPT</label><input type="number" class="form-control" name="piezasRecibidas" required></div>
+            <div class="mb-3"><label>Entregas Efectivas</label><input type="number" class="form-control" name="entregas" required></div>
+            <div class="mb-3"><label>En Ruta / Pendientes</label><input type="number" class="form-control" name="pendientes" required></div>
+            <div class="mb-3"><label>Incidencias</label><input type="number" class="form-control" name="incidencias" required></div>
+            <div class="mb-3"><label>URL Evidencia Fotográfica</label><input type="url" class="form-control" name="evidencia" required></div>
+            <button type="submit" class="btn btn-success w-100 mt-3">Enviar Reporte a CNC</button>
+          </div>
+
           <!-- FASE II: CNC -->
           <div id="camposCNC" style="display:none;">
             <h5>Fase II: Control y Auditoría (CNC)</h5>
-            <div class="mb-3"><label>Estado</label><input type="text" class="form-control" name="estado" required></div>
+            <div class="mb-3"><label>Estado a Reportar</label><input type="text" class="form-control" name="estadoReporte" required></div>
             <div class="mb-3"><label>Piezas Recibidas</label><input type="number" class="form-control" name="recibidas" required></div>
             <div class="mb-3"><label>Piezas Entregadas</label><input type="number" class="form-control" name="entregadas" required></div>
             <div class="mb-3"><label>Pendientes</label><input type="number" class="form-control" name="pendientes" required></div>
             <div class="mb-3"><label>Nudos Críticos</label><textarea class="form-control" name="nudos" rows="2"></textarea></div>
             <button type="submit" class="btn btn-primary w-100 mt-3">Enviar Consolidado CNC</button>
           </div>
-
-          <!-- FASE III: OPT -->
-          <div id="camposOPT" style="display:none;">
-            <h5>Fase III: Reporte Diario (OPT)</h5>
-            <p class="text-muted">Oficina: <span id="lblOpt" class="fw-bold"></span></p>
-            <div class="mb-3"><label>Piezas Recibidas en OPT</label><input type="number" class="form-control" name="piezasRecibidas" required></div>
-            <div class="mb-3"><label>Entregas Efectivas</label><input type="number" class="form-control" name="entregas" required></div>
-            <div class="mb-3"><label>Pendientes / En Ruta</label><input type="number" class="form-control" name="pendientesOPT" required></div>
-            <div class="mb-3"><label>Incidencias</label><input type="number" class="form-control" name="incidencias" required></div>
-            <div class="mb-3"><label>URL Evidencia Fotográfica</label><input type="url" class="form-control" name="evidencia" required></div>
-            <button type="submit" class="btn btn-success w-100 mt-3">Enviar Reporte a CNC</button>
-          </div>
         </form>
       </div>
 
-      <!-- Panel CNC -->
+      <!-- PANEL DE APROBACIONES (Solo CNC) -->
       <div class="card p-4 mt-4" id="panelCNC" style="display:none;">
-        <h4>Aprobación de Reportes (CNC)</h4>
+        <h5>Aprobación de Reportes OPT</h5>
         <div id="listaAprobaciones" class="mt-3">Cargando reportes...</div>
       </div>
     </div>
   </div>
 
   <script>
+    // AQUÍ VA TU URL DE APPS SCRIPT
     const API_URL = 'https://script.google.com/macros/s/AKfycbzx_AeJRGOOXphA0N5sUFEMJbDBwsyzfElr0hH38dmzUmFt9dy1NJ7w3MjMycrWzoI2/exec'; 
     let userActual = {};
 
-    async function login() {
-      const email = document.getElementById('emailInput').value;
-      if(!email) return;
+    function actualizarCamposLogin() {
+      const rol = document.getElementById('loginRol').value;
+      document.getElementById('divEstado').style.display = (rol === 'JEFE_OPT') ? 'block' : 'none';
+      document.getElementById('divOpt').style.display = (rol === 'JEFE_OPT') ? 'block' : 'none';
+    }
+
+    async function ejecutarLogin() {
+      const rol = document.getElementById('loginRol').value;
+      const estado = document.getElementById('loginEstado').value;
+      const opt = document.getElementById('loginOpt').value;
+      const clave = document.getElementById('loginClave').value;
       
       const btn = document.querySelector('#loginScreen button');
       btn.innerText = 'Validando...';
       document.getElementById('loginAlert').classList.add('d-none');
       
       try {
+        // Usamos el loginArbol de tu Code.gs
         const res = await fetch(API_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify({ accion: 'login', email: email })
+          body: JSON.stringify({ accion: 'loginArbol', rol: rol, estado: estado, codigoOPT: opt, clave: clave })
         });
         const json = await res.json();
         
-        if (json.success) {
-          userActual = json.user;
+        if (json.exito) {
+          userActual = json;
           document.getElementById('loginScreen').style.display = 'none';
           document.getElementById('appScreen').style.display = 'block';
+          document.getElementById('lblBienvenida').innerText = 'Usuario: ' + (json.usuario || json.rol);
           cargarInterfaz();
         } else {
-          document.getElementById('loginAlert').innerText = json.message;
+          document.getElementById('loginAlert').innerText = json.mensaje;
           document.getElementById('loginAlert').classList.remove('d-none');
         }
-      } catch(e) { alert('Error de conexión: ' + e); }
+      } catch(e) { 
+        document.getElementById('loginAlert').innerText = 'Error de conexión: ' + e;
+        document.getElementById('loginAlert').classList.remove('d-none');
+      }
       btn.innerText = 'Ingresar';
     }
 
     function cargarInterfaz() {
-      document.getElementById('rolUsuario').value = userActual.rol;
-      document.getElementById('optUsuario').value = userActual.opt;
-      document.getElementById('correoUsuario').value = userActual.email;
-      document.getElementById('tituloFormulario').innerText = 'Bienvenido: ' + userActual.nombre + ' (' + userActual.rol + ')';
-
-      if (userActual.rol === 'DIR_CNC' || userActual.rol === 'COORD_CNC') {
+      if (userActual.rol === 'JEFE_OPT' || userActual.rol === 'ANALISTA_OPT') {
+        document.getElementById('camposOPT').style.display = 'block';
+      } else if (userActual.rol === 'DIR_CNC' || userActual.rol === 'COORD_CNC') {
         document.getElementById('camposCNC').style.display = 'block';
         document.getElementById('panelCNC').style.display = 'block';
         cargarPendientesCNC();
-      } else if (userActual.rol === 'JEFE_OPT') {
-        document.getElementById('camposOPT').style.display = 'block';
-        document.getElementById('lblOpt').innerText = userActual.opt + ' - ' + userActual.estado;
+      } else if (userActual.rol === 'DESPACHO' || userActual.rol === 'OBSERVATORIO') {
+        window.location.href = 'observatorio.html';
       }
     }
 
@@ -121,34 +156,40 @@
       const formData = new FormData(e.target);
       const data = Object.fromEntries(formData.entries());
       data.rol = userActual.rol;
+      data.opt = userActual.codigoOPT || '';
 
       try {
+        // Aquí llamamos a la función guardarReporte que me pasaste
         const res = await fetch(API_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
           body: JSON.stringify({ accion: 'guardarReporte', formData: data })
         });
         const json = await res.json();
-        alert(json.message);
-        if(json.success) e.target.reset();
+        alert(json.mensaje || json.message);
+        if(json.exito || json.success) e.target.reset();
       } catch(e) { alert('Error al enviar: ' + e); }
       
       btn.disabled = false; 
-      btn.innerText = userActual.rol === 'JEFE_OPT' ? 'Enviar Reporte a CNC' : 'Enviar Consolidado CNC';
+      btn.innerText = (userActual.rol === 'JEFE_OPT') ? 'Enviar Reporte a CNC' : 'Enviar Consolidado CNC';
     };
 
     async function cargarPendientesCNC() {
       try {
-        const res = await fetch(API_URL + '?accion=obtenerPendientesCNC');
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ accion: 'obtenerPendientesOPT' })
+        });
         const json = await res.json();
         const div = document.getElementById('listaAprobaciones');
         
-        if (!json.data || json.data.length === 0) {
+        if (!json.exito || !json.pendientes || json.pendientes.length === 0) {
           div.innerHTML = '<p class="text-muted">No hay reportes pendientes.</p>'; return; 
         }
         
         let html = '<table class="table table-sm"><thead><tr><th>OPT</th><th>Recib.</th><th>Entreg.</th><th>Pend.</th><th>Acción</th></tr></thead><tbody>';
-        json.data.forEach(item => {
+        json.pendientes.forEach(item => {
           html += `<tr><td>${item.opt}</td><td>${item.recibidas}</td><td>${item.entregadas}</td><td>${item.pendientes}</td><td><button class="btn btn-sm btn-success" onclick="aprobar(${item.fila})">Aprobar</button></td></tr>`;
         });
         html += '</tbody></table>';
@@ -162,11 +203,11 @@
         const res = await fetch(API_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify({ accion: 'aprobarReporte', fila: fila })
+          body: JSON.stringify({ accion: 'aprobarReporteOPT', fila: fila })
         });
         const json = await res.json();
-        alert(json.message);
-        if(json.success) cargarPendientesCNC();
+        alert(json.mensaje || json.message);
+        if(json.exito || json.success) cargarPendientesCNC();
       } catch(e) { alert('Error: ' + e); }
     }
   </script>
