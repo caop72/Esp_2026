@@ -621,25 +621,53 @@ async function confirmarRecepcion() {
 async function cargarCustodia() {
   const tbody = document.getElementById('tablaCustodia');
   tbody.innerHTML = '<tr><td colspan="7" class="text-center py-3 text-muted">Cargando...</td></tr>';
+  
   try {
     const r = await postAPI({accion: 'cargarCustodia', opt: estadoApp.optSel});
     if (!r.exito) throw new Error(r.mensaje);
-    if (r.datos.length === 0) { tbody.innerHTML = '<tr><td colspan="7" class="text-center py-3 text-muted">No hay valijas en custodia.</td></tr>'; return; }
+
+    if (r.datos.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="7" class="text-center py-3 text-muted">No hay valijas/paquetes en custodia.</td></tr>';
+      return;
+    }
+
     tbody.innerHTML = '';
     r.datos.forEach(item => {
       let fechaRec = item.fechaRecepcion;
       if (fechaRec && fechaRec.includes('T')) fechaRec = fechaRec.split('T')[0].split('-').reverse().join('/');
+      
       let badgeColor = 'bg-success';
       if (item.semaforoColor === 'amarillo') badgeColor = 'bg-warning text-dark';
       if (item.semaforoColor === 'rojo') badgeColor = 'bg-danger';
       if (item.semaforoColor === 'negro') badgeColor = 'bg-dark';
+
       const tr = document.createElement('tr');
       if (item.semaforoColor === 'rojo') tr.className = 'fila-critica';
       if (item.semaforoColor === 'amarillo') tr.className = 'fila-alerta';
-      tr.innerHTML = `<td><span class="codigo-5d">${item.id}</span></td><td>-</td><td>${item.piezas}</td><td>${fechaRec}</td><td><b>${item.diasCustodia}</b></td><td><span class="badge ${badgeColor}">${item.semaforoTexto}</span></td><td><button class="btn btn-sm btn-primary fw-bold" onclick="abrirModalEntrega('${item.id}', ${item.piezas})"><i class="bi bi-person-check"></i> Entregar</button></td>`;
+
+      // MAGIA AQUÍ: Mostramos el desglose si es un Paquete (tiene cert/ord > 0)
+      let detallePiezas = item.piezas;
+      if (item.certificados > 0 || item.ordinarios > 0) {
+        detallePiezas = `<div style="font-size: 0.8rem;">
+          <span class="badge bg-primary">Cert: ${item.certificados}</span><br>
+          <span class="badge bg-info text-dark">Ord: ${item.ordinarios}</span>
+        </div>`;
+      }
+
+      tr.innerHTML = `
+        <td><span class="codigo-5d">${item.id}</span><br><small class="text-muted">${item.tipo}</small></td>
+        <td>-</td>
+        <td>${detallePiezas}</td>
+        <td>${fechaRec}</td>
+        <td><b>${item.diasCustodia}</b></td>
+        <td><span class="badge ${badgeColor}">${item.semaforoTexto}</span></td>
+        <td><button class="btn btn-sm btn-primary fw-bold" onclick="abrirModalEntrega('${item.id}', ${item.piezas})"><i class="bi bi-person-check"></i> Entregar</button></td>
+      `;
       tbody.appendChild(tr);
     });
-  } catch (e) { tbody.innerHTML = `<tr><td colspan="7" class="text-center text-danger">Error: ${e.message}</td></tr>`; }
+  } catch (e) {
+    tbody.innerHTML = `<tr><td colspan="7" class="text-center text-danger">Error: ${e.message}</td></tr>`;
+  }
 }
 
 function abrirModalEntrega(codigo, piezas) {
