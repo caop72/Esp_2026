@@ -344,20 +344,34 @@
     </div>
   </div>
 </div>
-
+ 
+<!-- MODAL DESPACHAR -->
 <div class="modal fade" id="modalDespachar" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
-      <div class="modal-header bg-success text-white"><h5 class="modal-title fw-bold">Despachar Valija a la OPT</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title fw-bold">Despachar Valija a la OPT</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
       <div class="modal-body">
-        <div class="mb-3"><label class="form-label fw-bold">Guía</label><input type="text" class="form-control" id="despacharGuia" readonly></div>
+        <div class="mb-3">
+          <label class="form-label fw-bold">Guía</label>
+          <input type="text" class="form-control" id="despacharGuia" readonly>
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-bold text-primary">Persona que recibe en la OPT *</label>
+          <input type="text" class="form-control" id="despacharRecibe" placeholder="Ej: Juan Pérez (Jefe de Anaco)" required>
+        </div>
         <div class="mb-3">
             <label class="form-label fw-bold text-danger">📸 Foto de la Entrega *</label>
             <input type="file" class="form-control" id="despacharFoto" accept="image/*" required>
             <input type="text" class="form-control form-control-sm bg-light mt-2" id="despacharGPS" readonly placeholder="GPS...">
         </div>
       </div>
-      <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-success fw-bold" onclick="confirmarDespacho()">Confirmar Entrega a OPT</button></div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button class="btn btn-success fw-bold" onclick="confirmarDespacho()">Confirmar Entrega a OPT</button>
+      </div>
     </div>
   </div>
 </div>
@@ -975,6 +989,7 @@ async function confirmarClasificacion() {
 
 function abrirDespachar(id) {
   document.getElementById('despacharGuia').value = id;
+  document.getElementById('despacharRecibe').value = ''; // Limpiar el nuevo campo
   document.getElementById('despacharFoto').value = '';
   document.getElementById('despacharGPS').value = '';
   modalDespachar.show();
@@ -982,15 +997,26 @@ function abrirDespachar(id) {
 
 async function confirmarDespacho() {
   const id = document.getElementById('despacharGuia').value;
+  const recibe = document.getElementById('despacharRecibe').value;
   const foto = document.getElementById('despacharFoto').files[0];
   const gps = document.getElementById('despacharGPS').value;
-  if (!foto) return Swal.fire('Atención', 'Debe tomar la foto como evidencia.', 'warning');
+  
+  if (!recibe || !foto) return Swal.fire('Atención', 'Debe indicar quién recibe y tomar la foto.', 'warning');
   
   Swal.fire({ title: 'Despachando...', didOpen: () => Swal.showLoading() });
-  const r = await postAPI({ accion: 'guardarAccionGerente', tipoAccion: 'despachar', idGuia: id, gpsDespacho: gps, fotoDespacho: "https://drive.google.com/foto_simulada" });
+  
+  const r = await postAPI({ 
+    accion: 'guardarAccionGerente', 
+    tipoAccion: 'despachar', 
+    idGuia: id, 
+    recibeNombre: recibe, // <-- Enviamos el nombre
+    gpsDespacho: gps, 
+    fotoDespacho: "https://drive.google.com/foto_simulada" 
+  });
+  
   if (r.exito) {
     modalDespachar.hide();
-    Swal.fire('Despachada', 'La valija va en camino a la OPT.', 'success');
+    Swal.fire('Despachada', 'La valija ha sido entregada a la OPT y el tiempo de custodia ha iniciado.', 'success');
     cargarGerenteDespachar();
   } else Swal.fire('Error', r.mensaje, 'error');
 }
