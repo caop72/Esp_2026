@@ -134,12 +134,12 @@
         <div class="tab-pane fade show active" id="tab-recepcion">
           <div class="card shadow-sm card-vector vector-recepcion">
             <div class="card-header bg-white d-flex justify-content-between py-3">
-              <h6 class="mb-0 fw-bold">Valijas en Tránsito hacia mi OPT</h6>
+              <h6 class="mb-0 fw-bold">Paquetes en Tránsito hacia mi OPT</h6>
               <button class="btn btn-warning btn-sm fw-bold" onclick="cargarPorRecibir()"><i class="bi bi-arrow-clockwise"></i> Actualizar</button>
             </div>
             <div class="card-body p-0 table-responsive">
               <table class="table table-hover mb-0">
-                <thead><tr><th>Guía/Valija</th><th>Master</th><th>Piezas</th><th>Fecha Envío</th><th>Días</th><th>Acción</th></tr></thead>
+                <thead><tr><th>Guía/Paquete</th><th>Master</th><th>Piezas</th><th>Fecha Envío</th><th>Días</th><th>Acción</th></tr></thead>
                 <tbody id="tablaPorRecibir"><tr><td colspan="6" class="text-center py-3">Cargando...</td></tr></tbody>
               </table>
             </div>
@@ -148,12 +148,12 @@
         <div class="tab-pane fade" id="tab-custodia">
           <div class="card shadow-sm card-vector vector-custodia">
             <div class="card-header bg-white d-flex justify-content-between py-3">
-              <h6 class="mb-0 fw-bold">Votos en Custodia (Semáforo SLA)</h6>
+              <h6 class="mb-0 fw-bold">Piezas en Custodia (Semáforo SLA)</h6>
               <button class="btn btn-primary btn-sm fw-bold" onclick="cargarCustodia()"><i class="bi bi-arrow-clockwise"></i> Actualizar</button>
             </div>
             <div class="card-body p-0 table-responsive">
               <table class="table table-hover mb-0">
-                <thead><tr><th>Guía/Valija</th><th>Destinatario</th><th>Piezas</th><th>Recepción</th><th>Días</th><th>SLA</th><th>Acción</th></tr></thead>
+                <thead><tr><th>Guía/Paquete</th><th>Destinatario</th><th>Piezas</th><th>Recepción</th><th>Días</th><th>SLA</th><th>Acción</th></tr></thead>
                 <tbody id="tablaCustodia"><tr><td colspan="7" class="text-center py-3">Cargando...</td></tr></tbody>
               </table>
             </div>
@@ -220,11 +220,97 @@
       </div>
     </div>
 
-    <!-- OTROS PANELES -->
+    <!-- PANEL CNC (MONITOREO EN VIVO) -->
     <div id="appCNC" class="oculto">
-      <h5 class="text-primary mb-3">Fase II: Aprobación de Reportes (CNC)</h5>
-      <div id="listaAprobaciones">Cargando reportes pendientes...</div>
+      <h4 class="text-primary mb-3 fw-bold"><i class="bi bi-globe-americas"></i> Centro Nacional de Control (CNC)</h4>
+      
+      <!-- KPIs Críticos -->
+      <div class="row g-2 mb-4">
+        <div class="col-6 col-md-3">
+          <div class="stat-mini bg-info bg-opacity-10">
+            <small class="text-info fw-bold">Tiempo Promedio Global</small>
+            <h3 class="text-info" id="cncKpiTiempo">0</h3>
+            <small class="text-muted">Horas (Nacional)</small>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="stat-mini bg-success bg-opacity-10">
+            <small class="text-success fw-bold">Entregadas Hoy (País)</small>
+            <h3 class="text-success" id="cncKpiEntregadas">0</h3>
+            <small class="text-muted">Piezas a nivel nacional</small>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="stat-mini bg-warning bg-opacity-25">
+            <small class="text-warning fw-bold">En Custodia (Nacional)</small>
+            <h3 class="text-warning" id="cncKpiCustodia">0</h3>
+            <small class="text-muted">Piezas esperando entrega</small>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="stat-mini bg-danger bg-opacity-10">
+            <small class="text-danger fw-bold">Reencaminadas</small>
+            <h3 class="text-danger" id="cncKpiReencaminadas">0</h3>
+            <small class="text-muted">Devoluciones de Gerencia</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <!-- Tabla por Estado -->
+        <div class="col-md-12 mb-4">
+          <div class="card shadow-sm border-primary">
+            <div class="card-header bg-primary text-white d-flex justify-content-between py-3">
+              <h6 class="mb-0 fw-bold"><i class="bi bi-map"></i> Consolidado por Estado</h6>
+              <button class="btn btn-sm btn-light fw-bold" onclick="cargarCNC()"><i class="bi bi-arrow-clockwise"></i> Actualizar</button>
+            </div>
+            <div class="card-body p-0 table-responsive">
+              <table class="table table-hover mb-0 align-middle">
+                <thead class="table-light">
+                  <tr>
+                    <th>Estado</th>
+                    <th class="text-center">Tiempo Prom. (hrs)</th>
+                    <th class="text-center">En Custodia</th>
+                    <th class="text-center">Incidencias</th>
+                    <th style="width: 25%;">% Efectividad</th>
+                  </tr>
+                </thead>
+                <tbody id="tablaCNC_Estados">
+                  <tr><td colspan="5" class="text-center py-3">Cargando estados...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tabla por OPT -->
+        <div class="col-md-12">
+          <div class="card shadow-sm">
+            <div class="card-header bg-white d-flex justify-content-between py-3">
+              <h6 class="mb-0 fw-bold">Detalle por Oficina Postal (OPT)</h6>
+            </div>
+            <div class="card-body p-0 table-responsive">
+              <table class="table table-hover mb-0 align-middle">
+                <thead class="table-light">
+                  <tr>
+                    <th>Oficina (OPT)</th>
+                    <th class="text-center">Tiempo Prom. (hrs)</th>
+                    <th class="text-center">En Custodia</th>
+                    <th class="text-center">Incidencias</th>
+                    <th style="width: 25%;">% Efectividad</th>
+                  </tr>
+                </thead>
+                <tbody id="tablaCNC_OPTs">
+                  <tr><td colspan="5" class="text-center py-3">Cargando oficinas...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
+
+    <!-- OTROS PANELES -->
     <div id="appObservatorio" class="oculto">
       <h5 class="text-primary mb-3">Observatorio Estratégico (KPIs)</h5>
       <div id="dashboardObservatorio">Cargando datos...</div>
@@ -531,7 +617,8 @@ function iniciarApp(r) {
     cargarCustodia();
     cargarHistorialEntregas();
   } else if (r.rol === 'DIR_CNC' || r.rol === 'COORD_CNC') {
-    mostrar('appCNC'); cargarPendientesCNC();
+    mostrar('appCNC'); 
+    cargarCNC(); // <-- CAMBIO AQUÍ
   } else if (r.rol === 'GERENTE_ESTADO') {
     mostrar('appGerente'); 
     mostrar('btnInformeGerente');
@@ -575,13 +662,13 @@ async function cargarPorRecibir() {
   try {
     const r = await postAPI({accion: 'cargarPorRecibir', opt: estadoApp.optSel});
     if (!r.exito) throw new Error(r.mensaje);
-    if (r.datos.length === 0) { tbody.innerHTML = '<tr><td colspan="6" class="text-center py-3 text-muted">No hay valijas en tránsito.</td></tr>'; return; }
+    if (r.datos.length === 0) { tbody.innerHTML = '<tr><td colspan="6" class="text-center py-3 text-muted">No hay paquetes en tránsito.</td></tr>'; return; }
     tbody.innerHTML = '';
     r.datos.forEach(item => {
       let fecha = item.fechaSalida;
       if (fecha && fecha.includes('T')) fecha = fecha.split('T')[0].split('-').reverse().join('/');
       const tr = document.createElement('tr');
-      tr.innerHTML = `<td><span class="codigo-5d">${item.id}</span></td><td>Valija</td><td>${item.piezas}</td><td>${fecha}</td><td><b>0</b></td><td><button class="btn btn-sm btn-warning fw-bold" onclick="abrirModalRecepcion('${item.id}', ${item.piezas})"><i class="bi bi-box-arrow-in-down"></i> Recibir</button></td>`;
+      tr.innerHTML = `<td><span class="codigo-5d">${item.id}</span></td><td>Paquete</td><td>${item.piezas}</td><td>${fecha}</td><td><b>0</b></td><td><button class="btn btn-sm btn-warning fw-bold" onclick="abrirModalRecepcion('${item.id}', ${item.piezas})"><i class="bi bi-box-arrow-in-down"></i> Recibir</button></td>`;
       tbody.appendChild(tr);
     });
   } catch (e) { tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">Error: ${e.message}</td></tr>`; }
@@ -606,14 +693,14 @@ async function confirmarRecepcion() {
   const obs = document.getElementById('recObs').value;
   const foto = document.getElementById('fotoRecepcion').files[0];
   const gps = document.getElementById('recGPS').value;
-  if (!conforme || !foto) return Swal.fire('Atención', 'Debe indicar si es conforme y subir la foto de la valija.', 'warning');
+  if (!conforme || !foto) return Swal.fire('Atención', 'Debe indicar si es conforme y subir la foto del paquete.', 'warning');
   Swal.fire({title: 'Procesando recepción...', allowOutsideClick: false, didOpen: () => Swal.showLoading()});
   try {
     const fotoUrl = "https://drive.google.com/foto_simulada_" + codigo; 
     const r = await postAPI({ accion: 'guardarAccionOPT', tipoAccion: 'recepcion', idGuia: codigo, usuario: 'Jefe Anaco', precinto: precinto, observaciones: obs || 'Recibido conforme', gps: gps, foto: fotoUrl });
     if (!r.exito) throw new Error(r.mensaje);
     modalRecepcion.hide();
-    Swal.fire('✅ Recepción Confirmada', 'La valija ahora está en custodia.', 'success');
+    Swal.fire('✅ Recepción Confirmada', 'El paquete ahora está en custodia.', 'success');
     cargarEstadisticasOPT(); cargarPorRecibir(); cargarCustodia(); cargarHistorialEntregas();
   } catch (e) { Swal.fire('Error', 'No se pudo guardar la recepción: ' + e.message, 'error'); }
 }
@@ -627,7 +714,7 @@ async function cargarCustodia() {
     if (!r.exito) throw new Error(r.mensaje);
 
     if (r.datos.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="7" class="text-center py-3 text-muted">No hay valijas/paquetes en custodia.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="7" class="text-center py-3 text-muted">No hay paquetes en custodia.</td></tr>';
       return;
     }
 
@@ -645,7 +732,6 @@ async function cargarCustodia() {
       if (item.semaforoColor === 'rojo') tr.className = 'fila-critica';
       if (item.semaforoColor === 'amarillo') tr.className = 'fila-alerta';
 
-      // Verificamos si la observación trae el desglose
       let detallePiezas = item.piezas;
       if (item.observaciones && item.observaciones.includes('Cert')) {
         detallePiezas = `<div style="font-size: 0.8rem;">
@@ -673,7 +759,6 @@ async function cargarCustodia() {
 function abrirModalEntrega(codigo, piezas) {
   document.getElementById('entCodigo').textContent = codigo;
   
-  // Buscamos si hay una observación con el desglose en la tabla
   let detalle = piezas;
   const filas = document.querySelectorAll('#tablaCustodia tr');
   for(let f of filas) {
@@ -833,7 +918,7 @@ async function generarInforme() {
           <div class="kpi-box ${k.pctEntrega > 80 ? 'success' : 'warning'}">
             <div class="kpi-value">${k.pctEntrega}%</div>
             <div class="kpi-label">Efectividad</div>
-            <div style="font-size: 10px; color: #666; margin-top: 5px;">Paquetes entregados / recibidos</div>
+            <div style="font-size: 10px; color: #666; margin-top: 5px;">Piezas entregadas / recibidas</div>
           </div>
           <div class="kpi-box info">
             <div class="kpi-value">${k.promHorasStr}</div>
@@ -882,7 +967,7 @@ async function generarInforme() {
 }
 
 // ==========================================
-// LÓGICA GERENTE DE ESTADO (PAQUETES)
+// LÓGICA GERENTE DE ESTADO
 // ==========================================
 function iniciarGerente() {
   modalClasificar = new bootstrap.Modal(document.getElementById('modalClasificar'));
@@ -970,8 +1055,8 @@ async function confirmarClasificacion() {
   if (r.exito) {
     modalClasificar.hide();
     Swal.fire('Paquete Creado', 'El paquete se ha añadido a la lista de despacho.', 'success');
-    cargarGerenteClasificar(); // Refresca la tabla de pendientes
-    cargarGerenteDespachar();  // Refresca la tabla de paquetes listos
+    cargarGerenteClasificar();
+    cargarGerenteDespachar();
   } else Swal.fire('Error', r.mensaje, 'error');
 }
 
@@ -1141,9 +1226,74 @@ async function generarInformeGerente() {
 }
 
 // ==========================================
+// LÓGICA CNC (MONITOREO EN VIVO)
+// ==========================================
+async function cargarCNC() {
+  const tbodyEstados = document.getElementById('tablaCNC_Estados');
+  const tbodyOPTs = document.getElementById('tablaCNC_OPTs');
+  
+  tbodyEstados.innerHTML = '<tr><td colspan="5" class="text-center py-3 text-muted">Sincronizando...</td></tr>';
+  tbodyOPTs.innerHTML = '<tr><td colspan="5" class="text-center py-3 text-muted">Sincronizando...</td></tr>';
+  
+  try {
+    const r = await postAPI({ accion: 'obtenerDatosVivoCNC' });
+    if (!r.exito) throw new Error(r.mensaje);
+    
+    // KPIs
+    document.getElementById('cncKpiTiempo').textContent = r.kpis.promNacional;
+    document.getElementById('cncKpiEntregadas').textContent = r.kpis.totEntregadasHoy;
+    document.getElementById('cncKpiCustodia').textContent = r.kpis.totEnCustodia;
+    document.getElementById('cncKpiReencaminadas').textContent = r.kpis.totReencaminadas;
+
+    // Función auxiliar para pintar las filas
+    const renderFila = (nombre, data) => {
+      let barColor = 'bg-danger';
+      if (data.efectividad >= 80) barColor = 'bg-success';
+      else if (data.efectividad >= 50) barColor = 'bg-warning';
+
+      return `
+        <tr>
+          <td><b>${nombre}</b></td>
+          <td class="text-center"><span class="badge bg-info text-dark">${data.tiempoPromedio} hrs</span></td>
+          <td class="text-center">${data.custodia} pzs</td>
+          <td class="text-center"><span class="text-danger fw-bold">${data.incidencias}</span></td>
+          <td>
+            <div class="d-flex align-items-center">
+              <div class="progress flex-grow-1 me-2" style="height: 15px;">
+                <div class="progress-bar ${barColor}" role="progressbar" style="width: ${data.efectividad}%;"></div>
+              </div>
+              <span class="fw-bold small">${data.efectividad}%</span>
+            </div>
+          </td>
+        </tr>
+      `;
+    };
+
+    // Llenar Tabla de Estados
+    if (r.detalleEstado.length === 0) {
+      tbodyEstados.innerHTML = '<tr><td colspan="5" class="text-center py-3 text-muted">Sin datos.</td></tr>';
+    } else {
+      tbodyEstados.innerHTML = '';
+      r.detalleEstado.forEach(est => { tbodyEstados.innerHTML += renderFila(est.estado, est); });
+    }
+
+    // Llenar Tabla de OPTs
+    if (r.detalleOPT.length === 0) {
+      tbodyOPTs.innerHTML = '<tr><td colspan="5" class="text-center py-3 text-muted">Sin datos.</td></tr>';
+    } else {
+      tbodyOPTs.innerHTML = '';
+      r.detalleOPT.forEach(opt => { tbodyOPTs.innerHTML += renderFila(opt.opt, opt); });
+    }
+
+  } catch (e) {
+    tbodyEstados.innerHTML = `<tr><td colspan="5" class="text-center text-danger">${e.message}</td></tr>`;
+    tbodyOPTs.innerHTML = `<tr><td colspan="5" class="text-center text-danger">${e.message}</td></tr>`;
+  }
+}
+
+// ==========================================
 // UTILIDADES LOGIN
 // ==========================================
-async function cargarPendientesCNC() { document.getElementById('listaAprobaciones').innerHTML = '<p class="text-muted">Cargando...</p>'; }
 async function cargarObservatorio() { document.getElementById('dashboardObservatorio').innerHTML = '<p class="text-muted">Cargando...</p>'; }
 function volverAtras() {
   if (!document.getElementById('pasoCredenciales').classList.contains('oculto')) {
