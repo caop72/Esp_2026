@@ -7,7 +7,12 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <style>
-  :root { --ipostel-azul: #003366; --ipostel-rojo: #c8102e; --ipostel-amarillo: #ffc72c; --ipostel-gris: #f4f6f9; }
+  :root { 
+    --ipostel-azul: #003366; 
+    --ipostel-rojo: #c8102e;
+    --ipostel-amarillo: #ffc72c;
+    --ipostel-gris: #f4f6f9;
+  }
   body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; min-height: 100vh; background-color: var(--ipostel-gris); }
   #pantallaBienvenida { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, var(--ipostel-azul) 0%, #001a33 100%); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; color: white; transition: opacity 0.6s ease; }
   .logo-bienvenida { font-size: 4rem; margin-bottom: 20px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); }
@@ -87,11 +92,24 @@
         <label class="form-label">Clave de Acceso</label>
         <input id="inpClave" type="password" class="form-control" placeholder="••••">
       </div>
+
+      <div id="boxRegistroNuevo" class="mb-3 p-3 bg-light rounded border oculto">
+        <h6 class="text-primary mb-3 fw-bold">Datos de Registro</h6>
+        <div class="mb-2"><label class="form-label small mb-1">Correo Electrónico</label><input id="inpCorreo" type="email" class="form-control form-control-sm" placeholder="correo@ipostel.gob.ve"></div>
+        <div class="mb-2"><label class="form-label small mb-1">Nombres y Apellidos</label><input id="inpNombre" type="text" class="form-control form-control-sm" placeholder="Ej: Juan Pérez"></div>
+        <div class="mb-2"><label class="form-label small mb-1">Cédula de Identidad</label><input id="inpCedula" type="text" class="form-control form-control-sm" placeholder="Ej: V-12345678"></div>
+        <div class="mb-0"><label class="form-label small mb-1">Clave de 4 dígitos</label><input id="inpClaveNueva" type="password" maxlength="4" inputmode="numeric" class="form-control form-control-sm" placeholder="••••"></div>
+      </div>
     </div>
 
     <div class="mt-3">
+      <button id="btnRegistrar" class="btn btn-success w-100 mb-2 oculto" onclick="registrarUsuario()">📝 Registrarse</button>
       <button id="btnIngresar" class="btn btn-ipostel w-100 mb-2 oculto" onclick="enviarAlBackend()">🔑 Ingresar al Sistema</button>
       <button id="btnVolver" class="btn btn-outline-secondary w-100 oculto" onclick="volverAtras()">⬅ Volver / Cancelar</button>
+    </div>
+
+    <div class="text-center mt-3">
+      <a href="#" onclick="recuperar()" class="small text-decoration-none text-muted">¿Olvidó su clave?</a>
     </div>
   </div>
 </div>
@@ -131,13 +149,14 @@
 
 <script>
 const API_URL = 'https://script.google.com/macros/s/AKfycbzx_AeJRGOOXphA0N5sUFEMJbDBwsyzfElr0hH38dmzUmFt9dy1NJ7w3MjMycrWzoI2/exec';
-const estadoApp = { rol: null, requiereEstado: false, requiereOPT: false, estadoSel: null, optSel: null, subRolSel: null };
+
+const estadoApp = { rol: null, requiereEstado: false, requiereOPT: false, usuarioExiste: null, estadoSel: null, optSel: null, subRolSel: null };
 const ROLES_CON_ESTADO = ['GERENCIA_ESTADO', 'JEFE_OPT', 'ANALISTA_OPT'];
 const ROLES_CON_OPT = ['JEFE_OPT', 'ANALISTA_OPT'];
 
 function ocultar(id) { document.getElementById(id).classList.add('oculto'); }
 function mostrar(id) { document.getElementById(id).classList.remove('oculto'); }
-function ocultarTodo() { ['pasoSubRol', 'pasoEstado', 'pasoOPT', 'pasoCredenciales', 'boxLoginExistente', 'btnIngresar', 'btnVolver'].forEach(id => ocultar(id)); }
+function ocultarTodo() { ['pasoSubRol', 'pasoEstado', 'pasoOPT', 'pasoCredenciales', 'boxLoginExistente', 'boxRegistroNuevo', 'btnIngresar', 'btnRegistrar', 'btnVolver'].forEach(id => ocultar(id)); }
 
 function entrarAlSistema() {
   document.getElementById('pantallaBienvenida').style.opacity = '0';
@@ -150,7 +169,7 @@ function entrarAlSistema() {
 function cambiarRol() {
   const rol = document.getElementById('selRol').value;
   ocultarTodo();
-  estadoApp.rol = rol; estadoApp.estadoSel = null; estadoApp.optSel = null; estadoApp.subRolSel = null;
+  estadoApp.rol = rol; estadoApp.usuarioExiste = null; estadoApp.estadoSel = null; estadoApp.optSel = null; estadoApp.subRolSel = null;
   if (!rol) return;
   estadoApp.requiereEstado = ROLES_CON_ESTADO.includes(rol);
   estadoApp.requiereOPT = ROLES_CON_OPT.includes(rol);
@@ -160,7 +179,7 @@ function cambiarRol() {
     document.getElementById('selSubRol').innerHTML = `<option value="">-- Seleccione --</option><option value="CNC">Dirección CNC</option><option value="OPERACIONES">Dirección de Operaciones</option>`;
   } else if (rol === 'COORDINADOR') {
     mostrar('pasoSubRol'); mostrar('btnVolver');
-    document.getElementById('selSubRol').innerHTML = `<option value="">-- Seleccione --</option><option value="ENCAMINAMIENTO">Encaminamiento</option><option value="ALIANZA">Control del Aliado</option><option value="CNC_MICRO">CNC-Micro Entrega</option>`;
+    document.getElementById('selSubRol').innerHTML = `<option value="">-- Seleccione --</option><option value="ENCAMINAMIENTO">Encaminamiento (Mariana)</option><option value="ALIANZA">Control del Aliado (Alfredo)</option><option value="CNC_MICRO">CNC-Micro Entrega (José)</option>`;
   } else if (estadoApp.requiereEstado) {
     mostrar('pasoEstado'); mostrar('btnVolver'); cargarEstados();
   } else {
@@ -188,7 +207,49 @@ async function verificarUsuario() {
     estadoApp.optSel = document.getElementById('selOPT').value;
     if (!estadoApp.optSel) { mostrar('pasoEstado'); mostrar('pasoOPT'); mostrar('btnVolver'); return; }
   }
+
   mostrar('pasoCredenciales'); mostrar('btnVolver');
+  const payload = { accion: 'verificarExistencia', rol: estadoApp.rol, estado: estadoApp.estadoSel, opt: estadoApp.optSel, subRol: estadoApp.subRolSel };
+
+  try {
+    const resp = await postAPI(payload);
+    if (resp.exito) {
+      estadoApp.usuarioExiste = resp.existe;
+      if (resp.existe) {
+        ocultar('boxRegistroNuevo'); mostrar('boxLoginExistente'); ocultar('btnRegistrar'); mostrar('btnIngresar');
+      } else {
+        ocultar('boxLoginExistente'); mostrar('boxRegistroNuevo'); mostrar('btnRegistrar'); ocultar('btnIngresar');
+      }
+    } else { Swal.fire('Error', resp.mensaje, 'error'); }
+  } catch (e) { Swal.fire('Error de red', 'No se pudo verificar el usuario.', 'error'); }
+}
+
+async function registrarUsuario() {
+  const rol = estadoApp.rol;
+  const correo = document.getElementById('inpCorreo').value.trim();
+  const nombre = document.getElementById('inpNombre').value.trim();
+  const cedula = document.getElementById('inpCedula').value.trim();
+  const clave = document.getElementById('inpClaveNueva').value.trim();
+
+  if (!correo || !nombre || !cedula || !clave) { Swal.fire('Atención', 'Complete todos los datos.', 'warning'); return; }
+  if (!/^\d{4}$/.test(clave)) { Swal.fire('Atención', 'La clave debe tener 4 dígitos.', 'warning'); return; }
+
+  let payload = { accion: 'registrarUsuario', rol: rol, correo, nombre, cedula, clave };
+  if (rol === 'DIRECCION' || rol === 'COORDINADOR') {
+    payload.subRol = estadoApp.subRolSel;
+    if (rol === 'DIRECCION') payload.usuario = (estadoApp.subRolSel === 'CNC') ? 'Director_CNC' : 'Director_Operaciones';
+  } else if (estadoApp.requiereEstado) { payload.estado = estadoApp.estadoSel; }
+  if (estadoApp.requiereOPT) { payload.codigoOPT = estadoApp.optSel; }
+
+  const btn = document.getElementById('btnRegistrar');
+  btn.disabled = true; btn.textContent = 'Registrando...';
+
+  try {
+    const resp = await postAPI(payload);
+    if (!resp.exito) { Swal.fire('Error', resp.mensaje, 'error'); }
+    else { Swal.fire('✅ Registrado', 'Usuario creado exitosamente.', 'success'); verificarUsuario(); }
+  } catch (err) { Swal.fire('Error de conexión', err.message, 'error'); } 
+  finally { btn.disabled = false; btn.textContent = '📝 Registrarse'; }
 }
 
 async function enviarAlBackend() {
