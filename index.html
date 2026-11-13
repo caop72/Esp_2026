@@ -22,7 +22,7 @@
   .btn-bienvenida { background: var(--ipostel-rojo); border: none; color: white; padding: 12px 50px; border-radius: 30px; font-weight: 700; font-size: 1.1rem; transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 15px rgba(200, 16, 46, 0.4); }
   .btn-bienvenida:hover { background: #a00d25; color: white; transform: translateY(-2px); }
   #pantallaLogin, #pantallaApp { display: none; min-height: 100vh; padding: 40px 20px; background: linear-gradient(135deg, var(--ipostel-azul) 0%, #001a33 100%); }
-  .card-ipostel { background: #fff; color: #222; border-radius: 12px; box-shadow: 0 8px 25px rgba(0,0,0,0.2); width: 100%; max-width: 600px; margin: auto; padding: 30px; border-top: 5px solid var(--ipostel-rojo); }
+  .card-ipostel { background: #fff; color: #222; border-radius: 12px; box-shadow: 0 8px 25px rgba(0,0,0,0.2); width: 100%; max-width: 900px; margin: auto; padding: 30px; border-top: 5px solid var(--ipostel-rojo); }
   .titulo { color: var(--ipostel-azul); font-weight: 800; margin-bottom: 0; }
   .subtitulo { color: #6c757d; font-size: 0.9rem; }
   .btn-ipostel { background: var(--ipostel-azul); color: #fff; font-weight: 600; border: none; padding: 12px; border-radius: 8px; transition: 0.3s; }
@@ -45,7 +45,7 @@
 </div>
 
 <div id="pantallaLogin">
-  <div class="card card-ipostel">
+  <div class="card card-ipostel" style="max-width: 600px;">
     <div class="text-center mb-4">
       <h2 class="titulo">Control Electoral</h2>
       <span class="subtitulo">Seleccione su rol para continuar</span>
@@ -115,31 +115,68 @@
 </div>
 
 <div id="pantallaApp">
-  <div class="card card-ipostel" style="max-width: 900px;">
+  <div class="card card-ipostel">
     <div class="header-app">
       <h5 class="m-0" id="lblBienvenida">Cargando...</h5>
       <button class="btn btn-sm btn-outline-light" onclick="location.reload()">Salir</button>
     </div>
 
+    <!-- FORMULARIO JEFE OPT -->
     <div id="appOPT" class="oculto">
       <h5 class="text-primary mb-3">Fase III: Reporte Diario (OPT)</h5>
-      <form id="formReporteOPT">
+      
+      <!-- Formulario de Cabecera (Consolidado) -->
+      <form id="formReporteOPT" class="mb-4 p-3 bg-light border rounded">
         <div class="row">
-          <div class="col-md-6 mb-3"><label>Piezas Recibidas</label><input type="number" class="form-control" name="recibidas" required></div>
-          <div class="col-md-6 mb-3"><label>Entregas Efectivas</label><input type="number" class="form-control" name="entregas" required></div>
-          <div class="col-md-6 mb-3"><label>Pendientes / En Ruta</label><input type="number" class="form-control" name="pendientes" required></div>
-          <div class="col-md-6 mb-3"><label>Incidencias</label><input type="number" class="form-control" name="incidencias" required></div>
-          <div class="col-12 mb-3"><label>URL Evidencia Fotográfica</label><input type="url" class="form-control" name="evidencia" required></div>
+          <div class="col-md-6 mb-3"><label>Piezas Recibidas Acumuladas</label><input type="number" class="form-control" name="recibidas" id="inpRecibidas" required></div>
+          <div class="col-md-6 mb-3"><label>Entregas Efectivas Acumuladas</label><input type="number" class="form-control" name="entregas" id="inpEntregas" required></div>
+          <div class="col-md-6 mb-3"><label>Pendientes / En Ruta</label><input type="number" class="form-control" name="pendientes" id="inpPendientes" required></div>
+          <div class="col-md-6 mb-3"><label>Incidencias</label><input type="number" class="form-control" name="incidencias" id="inpIncidencias" required></div>
+          <div class="col-12 mb-3"><label>URL Evidencia Fotográfica General</label><input type="url" class="form-control" name="evidencia" required></div>
         </div>
-        <button type="submit" class="btn btn-success w-100">Enviar Reporte a CNC</button>
+        <button type="submit" class="btn btn-primary w-100 fw-bold">Enviar Consolidado a CNC</button>
       </form>
+
+      <hr>
+
+      <!-- Bitácora de Entregas Individuales -->
+      <h5 class="text-secondary mb-3">Bitácora de Entregas (Medición de Tiempos)</h5>
+      
+      <!-- Formulario para agregar UNA entrega -->
+      <form id="formAgregarEntrega" class="mb-3 p-3 border rounded bg-white">
+        <div class="row align-items-end">
+          <div class="col-md-4 mb-2"><label class="small">Código / Guía</label><input type="text" class="form-control form-control-sm" name="codigo" required></div>
+          <div class="col-md-3 mb-2"><label class="small">Hora Recepción en OPT</label><input type="time" class="form-control form-control-sm" name="horaRecibe" required></div>
+          <div class="col-md-3 mb-2"><label class="small">Hora Entrega Efectiva</label><input type="time" class="form-control form-control-sm" name="horaEntrega" required></div>
+          <div class="col-md-2 mb-2"><button type="submit" class="btn btn-success btn-sm w-100">➕ Agregar</button></div>
+        </div>
+      </form>
+
+      <!-- Tabla de Entregas Registradas -->
+      <div class="table-responsive">
+        <table class="table table-sm table-bordered">
+          <thead class="table-dark">
+            <tr>
+              <th>Código</th>
+              <th>Recibido</th>
+              <th>Entregado</th>
+              <th>Tiempo Total</th>
+            </tr>
+          </thead>
+          <tbody id="tablaEntregas">
+            <!-- Aquí se cargarán las entregas -->
+          </tbody>
+        </table>
+      </div>
     </div>
 
+    <!-- PANEL CNC -->
     <div id="appCNC" class="oculto">
       <h5 class="text-primary mb-3">Fase II: Aprobación de Reportes (CNC)</h5>
       <div id="listaAprobaciones">Cargando reportes pendientes...</div>
     </div>
 
+    <!-- PANEL OBSERVATORIO -->
     <div id="appObservatorio" class="oculto">
       <h5 class="text-primary mb-3">Observatorio Estratégico (KPIs)</h5>
       <div id="dashboardObservatorio">Cargando datos...</div>
@@ -153,6 +190,7 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbzx_AeJRGOOXphA0N5sUFEM
 const estadoApp = { rol: null, requiereEstado: false, requiereOPT: false, usuarioExiste: null, estadoSel: null, optSel: null, subRolSel: null };
 const ROLES_CON_ESTADO = ['GERENCIA_ESTADO', 'JEFE_OPT', 'ANALISTA_OPT'];
 const ROLES_CON_OPT = ['JEFE_OPT', 'ANALISTA_OPT'];
+let entregasTemporales = [];
 
 function ocultar(id) { document.getElementById(id).classList.add('oculto'); }
 function mostrar(id) { document.getElementById(id).classList.remove('oculto'); }
@@ -290,7 +328,9 @@ function iniciarApp(r) {
   }
 }
 
+// --- LOGICA OPT (CON BITÁCORA Y TIEMPOS) ---
 function configurarFormularioOPT() {
+  // 1. Manejar el formulario de CABECERA (Consolidado)
   document.getElementById('formReporteOPT').onsubmit = async function(e) {
     e.preventDefault();
     const btn = e.target.querySelector('button');
@@ -299,23 +339,105 @@ function configurarFormularioOPT() {
     const data = Object.fromEntries(formData.entries());
     data.rol = estadoApp.rol;
     data.opt = estadoApp.optSel;
+    data.detalles = entregasTemporales;
+
     try {
       const res = await postAPI({ accion: 'guardarReporte', formData: data });
       Swal.fire('Éxito', res.mensaje, 'success');
-      if(res.exito) e.target.reset();
+      if(res.exito) {
+        e.target.reset();
+        entregasTemporales = [];
+        renderizarTablaEntregas();
+      }
     } catch(e) { Swal.fire('Error', 'No se pudo enviar', 'error'); }
-    btn.disabled = false; btn.innerText = 'Enviar Reporte a CNC';
+    
+    btn.disabled = false; btn.innerText = 'Enviar Consolidado a CNC';
   };
+
+  // 2. Manejar el formulario para AGREGAR una entrega individual
+  document.getElementById('formAgregarEntrega').onsubmit = function(e) {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const data = Object.fromEntries(formData.entries());
+    
+    const [hRec, mRec] = data.horaRecibe.split(':').map(Number);
+    const [hEnt, mEnt] = data.horaEntrega.split(':').map(Number);
+    
+    let diffMinutos = (hEnt * 60 + mEnt) - (hRec * 60 + mRec);
+    if (diffMinutos < 0) diffMinutos += 24 * 60;
+
+    const horas = Math.floor(diffMinutos / 60);
+    const minutos = diffMinutos % 60;
+    
+    entregasTemporales.push({
+      codigo: data.codigo,
+      horaRecibe: data.horaRecibe,
+      horaEntrega: data.horaEntrega,
+      tiempoTotal: `${horas}h ${minutos}m`,
+      diffMinutos: diffMinutos
+    });
+
+    renderizarTablaEntregas();
+    e.target.reset();
+  };
+
+  renderizarTablaEntregas();
 }
 
+function renderizarTablaEntregas() {
+  const tbody = document.getElementById('tablaEntregas');
+  tbody.innerHTML = '';
+  
+  if (entregasTemporales.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">No hay entregas registradas hoy.</td></tr>';
+    return;
+  }
+
+  let sumaMinutos = 0;
+  entregasTemporales.forEach((ent) => {
+    sumaMinutos += ent.diffMinutos;
+    tbody.innerHTML += `
+      <tr>
+        <td>${ent.codigo}</td>
+        <td>${ent.horaRecibe}</td>
+        <td>${ent.horaEntrega}</td>
+        <td><strong>${ent.tiempoTotal}</strong></td>
+      </tr>
+    `;
+  });
+
+  const promedioMin = Math.round(sumaMinutos / entregasTemporales.length);
+  const promHoras = Math.floor(promedioMin / 60);
+  const promMins = promedioMin % 60;
+
+  tbody.innerHTML += `
+    <tr class="table-primary fw-bold">
+      <td colspan="3" class="text-end">PROMEDIO DE TIEMPO DE ENTREGA:</td>
+      <td>${promHoras}h ${promMins}m</td>
+    </tr>
+  `;
+}
+
+// --- LOGICA CNC ---
 async function cargarPendientesCNC() {
   const div = document.getElementById('listaAprobaciones');
   try {
     const res = await postAPI({ accion: 'obtenerPendientesOPT' });
     if (!res.exito || !res.pendientes || res.pendientes.length === 0) { div.innerHTML = '<p class="text-muted">No hay reportes pendientes.</p>'; return; }
-    let html = '<table class="table table-sm"><thead><tr><th>OPT</th><th>Recib.</th><th>Entreg.</th><th>Pend.</th><th>Acción</th></tr></thead><tbody>';
-    res.pendientes.forEach(item => { html += `<tr><td>${item.opt}</td><td>${item.recibidas}</td><td>${item.entregadas}</td><td>${item.pendientes}</td><td><button class="btn btn-sm btn-success" onclick="aprobar(${item.fila})">Aprobar</button></td></tr>`; });
-    html += '</tbody></table>'; div.innerHTML = html;
+    
+    let html = '<table class="table table-sm"><thead><tr><th>OPT</th><th>Recib.</th><th>Entreg.</th><th>Pend.</th><th>T. Prom.</th><th>Acción</th></tr></thead><tbody>';
+    res.pendientes.forEach(item => { 
+      html += `<tr>
+        <td>${item.opt}</td>
+        <td>${item.recibidas}</td>
+        <td>${item.entregadas}</td>
+        <td>${item.pendientes}</td>
+        <td>${item.tiempoPromedio || '--'}</td>
+        <td><button class="btn btn-sm btn-success" onclick="aprobar(${item.fila})">Aprobar</button></td>
+      </tr>`; 
+    });
+    html += '</tbody></table>'; 
+    div.innerHTML = html;
   } catch(e) { console.error(e); }
 }
 
@@ -327,17 +449,29 @@ async function aprobar(fila) {
   } catch(e) { Swal.fire('Error', e, 'error'); }
 }
 
+// --- LOGICA OBSERVATORIO ---
 async function cargarObservatorio() {
   const div = document.getElementById('dashboardObservatorio');
   try {
     const res = await postAPI({ accion: 'obtenerDatosObservatorio' });
     if (!res.exito || !res.datos || res.datos.length === 0) { div.innerHTML = '<p class="text-muted">No hay datos consolidados.</p>'; return; }
-    let html = '<table class="table table-sm"><thead><tr><th>OPT</th><th>Recib.</th><th>Entreg.</th><th>Pend.</th></tr></thead><tbody>';
-    res.datos.forEach(row => { html += `<tr><td>${row[1]}</td><td>${row[2]}</td><td>${row[3]}</td><td>${row[4]}</td></tr>`; });
-    html += '</tbody></table>'; div.innerHTML = html;
+    
+    let html = '<table class="table table-sm"><thead><tr><th>OPT</th><th>Recib.</th><th>Entreg.</th><th>Pend.</th><th>T. Prom.</th></tr></thead><tbody>';
+    res.datos.forEach(row => { 
+      html += `<tr>
+        <td>${row[1]}</td>
+        <td>${row[2]}</td>
+        <td>${row[3]}</td>
+        <td>${row[4]}</td>
+        <td><strong>${row[8] || '--'}</strong></td>
+      </tr>`; 
+    });
+    html += '</tbody></table>'; 
+    div.innerHTML = html;
   } catch(e) { console.error(e); }
 }
 
+// --- UTILIDADES ---
 function volverAtras() {
   if (!document.getElementById('pasoCredenciales').classList.contains('oculto')) {
     document.getElementById('pasoCredenciales').classList.add('oculto');
