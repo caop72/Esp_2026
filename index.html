@@ -105,6 +105,9 @@
     <div class="d-flex justify-content-between align-items-center mb-3 bg-dark text-white p-3 rounded">
       <h5 class="m-0" id="lblBienvenida">Cargando...</h5>
       <div>
+        <button id="btnInformeGerente" class="btn btn-sm btn-outline-info me-2 oculto" onclick="abrirModalInformeGerente()">
+            <i class="bi bi-file-earmark-bar-graph"></i> Informe de Estado
+        </button>
         <button id="btnInformeOPT" class="btn btn-sm btn-outline-warning me-2 oculto" onclick="abrirModalInforme()">
             <i class="bi bi-file-earmark-bar-graph"></i> Generar Informe
         </button>
@@ -173,7 +176,7 @@
       </div>
     </div>
 
-    <!-- PANEL GERENTE DE ESTADO (NUEVO) -->
+    <!-- PANEL GERENTE DE ESTADO (FLUJO OPERATIVO) -->
     <div id="appGerente" class="oculto">
       <h4 class="text-primary mb-3 fw-bold"><i class="bi bi-building"></i> Gerencia de Estado: Clasificación y Despacho</h4>
       <div class="alert alert-warning py-2 small">
@@ -319,7 +322,7 @@
   </div>
 </div>
 
-<!-- MODALES (GERENTE) -->
+<!-- MODAL CLASIFICAR GERENTE -->
 <div class="modal fade" id="modalClasificar" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -344,8 +347,8 @@
     </div>
   </div>
 </div>
- 
-<!-- MODAL DESPACHAR -->
+
+<!-- MODAL DESPACHAR GERENTE -->
 <div class="modal fade" id="modalDespachar" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -376,12 +379,43 @@
   </div>
 </div>
 
+<!-- MODAL INFORME GERENTE -->
+<div class="modal fade" id="modalInformeGerente" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-dark text-white">
+        <h5 class="modal-title fw-bold"><i class="bi bi-file-earmark-text"></i> Informe de Gerencia</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p class="text-muted small">Seleccione el período a reportar. Por defecto el día de hoy.</p>
+        <div class="row g-3">
+          <div class="col-6">
+            <label class="form-label fw-bold">Desde</label>
+            <input type="date" class="form-control" id="infoGerFechaInicio">
+          </div>
+          <div class="col-6">
+            <label class="form-label fw-bold">Hasta</label>
+            <input type="date" class="form-control" id="infoGerFechaFin">
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button class="btn btn-info fw-bold text-white" onclick="generarInformeGerente()">
+            <i class="bi bi-printer"></i> Generar Informe
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 const API_URL = 'https://script.google.com/macros/s/AKfycbzx_AeJRGOOXphA0N5sUFEMJbDBwsyzfElr0hH38dmzUmFt9dy1NJ7w3MjMycrWzoI2/exec';
 const estadoApp = { rol: null, requiereEstado: false, requiereOPT: false, estadoSel: null, optSel: null, subRolSel: null };
 const ROLES_CON_ESTADO = ['GERENCIA_ESTADO', 'JEFE_OPT', 'ANALISTA_OPT'];
 const ROLES_CON_OPT = ['JEFE_OPT', 'ANALISTA_OPT'];
-let modalRecepcion, modalEntrega, modalInforme, modalClasificar, modalDespachar;
+let modalRecepcion, modalEntrega, modalInforme, modalClasificar, modalDespachar, modalInformeGerente;
 
 function ocultar(id) { document.getElementById(id).classList.add('oculto'); }
 function mostrar(id) { document.getElementById(id).classList.remove('oculto'); }
@@ -466,7 +500,7 @@ async function enviarAlBackend() {
 function iniciarApp(r) {
   document.getElementById('pantallaLogin').style.display = 'none';
   document.getElementById('pantallaApp').style.display = 'block';
-  document.getElementById('lblBienvenida').innerText = `Rol: ${r.rol} | OPT: ${estadoApp.optSel || ''}`;
+  document.getElementById('lblBienvenida').innerText = `Rol: ${r.rol} | Estado: ${estadoApp.estadoSel || ''} | OPT: ${estadoApp.optSel || ''}`;
   
   if (r.rol === 'JEFE_OPT' || r.rol === 'ANALISTA_OPT') {
     mostrar('appOPT'); 
@@ -481,13 +515,17 @@ function iniciarApp(r) {
   } else if (r.rol === 'DIR_CNC' || r.rol === 'COORD_CNC') {
     mostrar('appCNC'); cargarPendientesCNC();
   } else if (r.rol === 'GERENTE_ESTADO') {
-    mostrar('appGerente'); iniciarGerente();
+    mostrar('appGerente'); 
+    mostrar('btnInformeGerente');
+    iniciarGerente();
   } else {
     mostrar('appObservatorio'); cargarObservatorio();
   }
 }
 
-// --- LOGICA PANEL JEFE OPT (AEROPUERTO) ---
+// ==========================================
+// LÓGICA PANEL JEFE OPT
+// ==========================================
 async function cargarEstadisticasOPT() {
   try {
     const [rRecibir, rCustodia, rHistorial] = await Promise.all([
@@ -507,7 +545,6 @@ async function cargarEstadisticasOPT() {
         return f.toLocaleDateString() === hoy;
       }).length;
       document.getElementById('statEntregados').textContent = entregadasHoy;
-      
       const incidencias = rHistorial.datos.filter(d => ['Retrasado', 'Extraviado'].includes(d.estatus)).length;
       document.getElementById('statRetrasados').textContent = incidencias;
     }
@@ -517,35 +554,19 @@ async function cargarEstadisticasOPT() {
 async function cargarPorRecibir() {
   const tbody = document.getElementById('tablaPorRecibir');
   tbody.innerHTML = '<tr><td colspan="6" class="text-center py-3 text-muted">Cargando valijas...</td></tr>';
-  
   try {
     const r = await postAPI({accion: 'cargarPorRecibir', opt: estadoApp.optSel});
     if (!r.exito) throw new Error(r.mensaje);
-    
-    if (r.datos.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="6" class="text-center py-3 text-muted">No hay valijas en tránsito.</td></tr>';
-      return;
-    }
-
+    if (r.datos.length === 0) { tbody.innerHTML = '<tr><td colspan="6" class="text-center py-3 text-muted">No hay valijas en tránsito.</td></tr>'; return; }
     tbody.innerHTML = '';
     r.datos.forEach(item => {
       let fecha = item.fechaSalida;
       if (fecha && fecha.includes('T')) fecha = fecha.split('T')[0].split('-').reverse().join('/');
-      
       const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td><span class="codigo-5d">${item.id}</span></td>
-        <td>Valija</td>
-        <td>${item.piezas}</td>
-        <td>${fecha}</td>
-        <td><b>0</b></td>
-        <td><button class="btn btn-sm btn-warning fw-bold" onclick="abrirModalRecepcion('${item.id}', ${item.piezas})"><i class="bi bi-box-arrow-in-down"></i> Recibir</button></td>
-      `;
+      tr.innerHTML = `<td><span class="codigo-5d">${item.id}</span></td><td>Valija</td><td>${item.piezas}</td><td>${fecha}</td><td><b>0</b></td><td><button class="btn btn-sm btn-warning fw-bold" onclick="abrirModalRecepcion('${item.id}', ${item.piezas})"><i class="bi bi-box-arrow-in-down"></i> Recibir</button></td>`;
       tbody.appendChild(tr);
     });
-  } catch (e) {
-    tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">Error: ${e.message}</td></tr>`;
-  }
+  } catch (e) { tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">Error: ${e.message}</td></tr>`; }
 }
 
 function abrirModalRecepcion(codigo, piezas) {
@@ -567,80 +588,40 @@ async function confirmarRecepcion() {
   const obs = document.getElementById('recObs').value;
   const foto = document.getElementById('fotoRecepcion').files[0];
   const gps = document.getElementById('recGPS').value;
-  
   if (!conforme || !foto) return Swal.fire('Atención', 'Debe indicar si es conforme y subir la foto de la valija.', 'warning');
-
   Swal.fire({title: 'Procesando recepción...', allowOutsideClick: false, didOpen: () => Swal.showLoading()});
-  
   try {
     const fotoUrl = "https://drive.google.com/foto_simulada_" + codigo; 
-
-    const r = await postAPI({
-      accion: 'guardarAccionOPT',
-      tipoAccion: 'recepcion',
-      idGuia: codigo,
-      usuario: 'Jefe Anaco',
-      precinto: precinto,
-      observaciones: obs || 'Recibido conforme',
-      gps: gps,
-      foto: fotoUrl
-    });
-
+    const r = await postAPI({ accion: 'guardarAccionOPT', tipoAccion: 'recepcion', idGuia: codigo, usuario: 'Jefe Anaco', precinto: precinto, observaciones: obs || 'Recibido conforme', gps: gps, foto: fotoUrl });
     if (!r.exito) throw new Error(r.mensaje);
-
     modalRecepcion.hide();
     Swal.fire('✅ Recepción Confirmada', 'La valija ahora está en custodia.', 'success');
-    
-    cargarEstadisticasOPT();
-    cargarPorRecibir();
-    cargarCustodia();
-    cargarHistorialEntregas();
-  } catch (e) {
-    Swal.fire('Error', 'No se pudo guardar la recepción: ' + e.message, 'error');
-  }
+    cargarEstadisticasOPT(); cargarPorRecibir(); cargarCustodia(); cargarHistorialEntregas();
+  } catch (e) { Swal.fire('Error', 'No se pudo guardar la recepción: ' + e.message, 'error'); }
 }
 
 async function cargarCustodia() {
   const tbody = document.getElementById('tablaCustodia');
   tbody.innerHTML = '<tr><td colspan="7" class="text-center py-3 text-muted">Cargando...</td></tr>';
-  
   try {
     const r = await postAPI({accion: 'cargarCustodia', opt: estadoApp.optSel});
     if (!r.exito) throw new Error(r.mensaje);
-
-    if (r.datos.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="7" class="text-center py-3 text-muted">No hay valijas en custodia.</td></tr>';
-      return;
-    }
-
+    if (r.datos.length === 0) { tbody.innerHTML = '<tr><td colspan="7" class="text-center py-3 text-muted">No hay valijas en custodia.</td></tr>'; return; }
     tbody.innerHTML = '';
     r.datos.forEach(item => {
       let fechaRec = item.fechaRecepcion;
       if (fechaRec && fechaRec.includes('T')) fechaRec = fechaRec.split('T')[0].split('-').reverse().join('/');
-      
       let badgeColor = 'bg-success';
       if (item.semaforoColor === 'amarillo') badgeColor = 'bg-warning text-dark';
       if (item.semaforoColor === 'rojo') badgeColor = 'bg-danger';
       if (item.semaforoColor === 'negro') badgeColor = 'bg-dark';
-
       const tr = document.createElement('tr');
       if (item.semaforoColor === 'rojo') tr.className = 'fila-critica';
       if (item.semaforoColor === 'amarillo') tr.className = 'fila-alerta';
-
-      tr.innerHTML = `
-        <td><span class="codigo-5d">${item.id}</span></td>
-        <td>-</td>
-        <td>${item.piezas}</td>
-        <td>${fechaRec}</td>
-        <td><b>${item.diasCustodia}</b></td>
-        <td><span class="badge ${badgeColor}">${item.semaforoTexto}</span></td>
-        <td><button class="btn btn-sm btn-primary fw-bold" onclick="abrirModalEntrega('${item.id}', ${item.piezas})"><i class="bi bi-person-check"></i> Entregar</button></td>
-      `;
+      tr.innerHTML = `<td><span class="codigo-5d">${item.id}</span></td><td>-</td><td>${item.piezas}</td><td>${fechaRec}</td><td><b>${item.diasCustodia}</b></td><td><span class="badge ${badgeColor}">${item.semaforoTexto}</span></td><td><button class="btn btn-sm btn-primary fw-bold" onclick="abrirModalEntrega('${item.id}', ${item.piezas})"><i class="bi bi-person-check"></i> Entregar</button></td>`;
       tbody.appendChild(tr);
     });
-  } catch (e) {
-    tbody.innerHTML = `<tr><td colspan="7" class="text-center text-danger">Error: ${e.message}</td></tr>`;
-  }
+  } catch (e) { tbody.innerHTML = `<tr><td colspan="7" class="text-center text-danger">Error: ${e.message}</td></tr>`; }
 }
 
 function abrirModalEntrega(codigo, piezas) {
@@ -666,82 +647,40 @@ async function confirmarEntregaUPAE() {
   const declaracion = document.getElementById('entDeclaracion').checked;
   const gps = document.getElementById('entGPS').value;
   const codigo = document.getElementById('entCodigo').textContent;
-
-  if (!nombre || !cedula || !relacion || !estadoSobre || !foto || !declaracion) {
-    return Swal.fire('Datos incompletos', 'Debe completar todos los campos y subir la foto.', 'warning');
-  }
-
+  if (!nombre || !cedula || !relacion || !estadoSobre || !foto || !declaracion) return Swal.fire('Datos incompletos', 'Debe completar todos los campos y subir la foto.', 'warning');
   Swal.fire({title: 'Registrando Acta...', allowOutsideClick: false, didOpen: () => Swal.showLoading()});
-  
   try {
     const fotoUrl = "https://drive.google.com/foto_entrega_simulada_" + codigo;
-
-    const r = await postAPI({
-      accion: 'guardarAccionOPT',
-      tipoAccion: 'entrega',
-      idGuia: codigo,
-      nombreRecibe: nombre,
-      cedulaRecibe: cedula,
-      relacion: relacion,
-      estadoSobre: estadoSobre,
-      gpsEntrega: gps,
-      fotoEntrega: fotoUrl
-    });
-
+    const r = await postAPI({ accion: 'guardarAccionOPT', tipoAccion: 'entrega', idGuia: codigo, nombreRecibe: nombre, cedulaRecibe: cedula, relacion: relacion, estadoSobre: estadoSobre, gpsEntrega: gps, fotoEntrega: fotoUrl });
     if (!r.exito) throw new Error(r.mensaje);
-
     modalEntrega.hide();
     Swal.fire('✅ Entrega Registrada (Inmutable)', 'El acta ha sido guardada.', 'success');
-    
-    cargarEstadisticasOPT();
-    cargarPorRecibir();
-    cargarCustodia();
-    cargarHistorialEntregas();
-  } catch (e) {
-    Swal.fire('Error', 'No se pudo registrar la entrega: ' + e.message, 'error');
-  }
+    cargarEstadisticasOPT(); cargarPorRecibir(); cargarCustodia(); cargarHistorialEntregas();
+  } catch (e) { Swal.fire('Error', 'No se pudo registrar la entrega: ' + e.message, 'error'); }
 }
 
 async function cargarHistorialEntregas() {
   const tbody = document.getElementById('tablaHistorial');
   tbody.innerHTML = '<tr><td colspan="7" class="text-center py-3 text-muted">Cargando historial...</td></tr>';
-  
   try {
     const r = await postAPI({accion: 'cargarHistorialEntregas', opt: estadoApp.optSel});
     if (!r.exito) throw new Error(r.mensaje);
-
-    if (r.datos.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="7" class="text-center py-3 text-muted">No hay entregas registradas.</td></tr>';
-      return;
-    }
-
+    if (r.datos.length === 0) { tbody.innerHTML = '<tr><td colspan="7" class="text-center py-3 text-muted">No hay entregas registradas.</td></tr>'; return; }
     tbody.innerHTML = '';
     r.datos.forEach(item => {
       let fechaEnt = item.fechaEntrega;
-      if (fechaEnt && fechaEnt.includes('T')) {
-        fechaEnt = new Date(fechaEnt).toLocaleString();
-      } else {
-        fechaEnt = fechaEnt || '—';
-      }
-
+      if (fechaEnt && fechaEnt.includes('T')) fechaEnt = new Date(fechaEnt).toLocaleString();
+      else fechaEnt = fechaEnt || '—';
       const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td><span class="badge bg-secondary">${item.estatus}</span></td>
-        <td><span class="codigo-5d">${item.id}</span></td>
-        <td>${item.nombreRecibe || '—'}</td>
-        <td>${item.cedulaRecibe || '—'}</td>
-        <td>${fechaEnt}</td>
-        <td><small>${item.gpsEntrega || '—'}</small></td>
-        <td>${item.fotoEntrega ? '<i class="bi bi-image text-success"></i>' : '—'}</td>
-      `;
+      tr.innerHTML = `<td><span class="badge bg-secondary">${item.estatus}</span></td><td><span class="codigo-5d">${item.id}</span></td><td>${item.nombreRecibe || '—'}</td><td>${item.cedulaRecibe || '—'}</td><td>${fechaEnt}</td><td><small>${item.gpsEntrega || '—'}</small></td><td>${item.fotoEntrega ? '<i class="bi bi-image text-success"></i>' : '—'}</td>`;
       tbody.appendChild(tr);
     });
-  } catch (e) {
-    tbody.innerHTML = `<tr><td colspan="7" class="text-center text-danger">Error: ${e.message}</td></tr>`;
-  }
+  } catch (e) { tbody.innerHTML = `<tr><td colspan="7" class="text-center text-danger">Error: ${e.message}</td></tr>`; }
 }
 
-// --- LÓGICA DEL INFORME ---
+// ==========================================
+// LÓGICA DEL INFORME (JEFE OPT)
+// ==========================================
 function abrirModalInforme() {
   const hoy = new Date().toISOString().split('T')[0];
   document.getElementById('infoFechaInicio').value = hoy;
@@ -752,46 +691,22 @@ function abrirModalInforme() {
 async function generarInforme() {
   const fInicio = document.getElementById('infoFechaInicio').value;
   const fFin = document.getElementById('infoFechaFin').value;
-
   if (!fInicio || !fFin) return Swal.fire('Atención', 'Seleccione ambas fechas.', 'warning');
   if (fInicio > fFin) return Swal.fire('Error', 'La fecha "Desde" no puede ser mayor que "Hasta".', 'error');
-
   Swal.fire({ title: 'Generando informe...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-
   try {
-    const r = await postAPI({
-      accion: 'obtenerResumenInforme',
-      opt: estadoApp.optSel,
-      fechaInicio: fInicio,
-      fechaFin: fFin
-    });
-
+    const r = await postAPI({ accion: 'obtenerResumenInforme', opt: estadoApp.optSel, fechaInicio: fInicio, fechaFin: fFin });
     if (!r.exito) throw new Error(r.mensaje);
-
     modalInforme.hide();
-    
     let filasDetalle = '';
-    if (r.detalle.length === 0) {
-      filasDetalle = '<tr><td colspan="7" class="text-center">No hubo entregas en este período.</td></tr>';
-    } else {
+    if (r.detalle.length === 0) { filasDetalle = '<tr><td colspan="7" class="text-center">No hubo entregas en este período.</td></tr>'; } 
+    else {
       r.detalle.forEach(d => {
-        filasDetalle += `<tr>
-          <td>${d.id}</td>
-          <td>${d.fecha}</td>
-          <td>${d.nombre} (${d.cedula})</td>
-          <td>${d.piezas}</td>
-          <td class="${d.tieneFoto === 'Sí' ? 'text-success' : 'text-danger'}">${d.tieneFoto}</td>
-          <td class="${d.tieneGPS === 'Sí' ? 'text-success' : 'text-danger'}">${d.tieneGPS}</td>
-          <td>${d.tiempoStr}</td>
-        </tr>`;
+        filasDetalle += `<tr><td>${d.id}</td><td>${d.fecha}</td><td>${d.nombre} (${d.cedula})</td><td>${d.piezas}</td><td class="${d.tieneFoto === 'Sí' ? 'text-success' : 'text-danger'}">${d.tieneFoto}</td><td class="${d.tieneGPS === 'Sí' ? 'text-success' : 'text-danger'}">${d.tieneGPS}</td><td>${d.tiempoStr}</td></tr>`;
       });
     }
-
-    const k = r.kpis;
-    const info = r.infoOPT;
-
+    const k = r.kpis; const info = r.infoOPT;
     const subtituloGeografico = `Estado: ${info.estado} | Municipio: ${info.municipio} | Parroquia: ${info.parroquia}`;
-
     const htmlInforme = `
       <html>
       <head>
@@ -801,24 +716,19 @@ async function generarInforme() {
           h1 { text-align: center; color: #003366; margin-bottom: 5px; font-size: 26px; }
           h2 { text-align: center; font-size: 16px; color: #444; margin-top: 0; margin-bottom: 5px; }
           .geo-info { text-align: center; font-size: 12px; color: #666; margin-bottom: 25px; text-transform: uppercase; letter-spacing: 1px; }
-          
           .kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 30px; }
           .kpi-box { border: 1px solid #ddd; border-radius: 8px; padding: 15px; text-align: center; background: #f8f9fa; border-top: 4px solid #003366; }
           .kpi-box.success { border-top-color: #198754; }
           .kpi-box.warning { border-top-color: #ffc107; }
           .kpi-box.info { border-top-color: #0dcaf0; }
-          
           .kpi-value { font-size: 28px; font-weight: bold; color: #003366; margin-bottom: 5px; }
           .kpi-box.success .kpi-value { color: #198754; }
           .kpi-box.warning .kpi-value { color: #d39e00; }
-          
           .kpi-label { font-size: 11px; text-transform: uppercase; color: #666; font-weight: bold; letter-spacing: 1px; }
-          
           table { width: 100%; border-collapse: collapse; margin-top: 20px; }
           th, td { border: 1px solid #ddd; padding: 10px; text-align: left; font-size: 12px; }
           th { background-color: #003366; color: white; font-weight: 600; }
           tr:nth-child(even) { background-color: #f9f9f9; }
-          
           .footer { margin-top: 40px; text-align: center; font-size: 10px; color: #888; border-top: 1px solid #ddd; padding-top: 10px; }
           .text-success { color: #198754; font-weight: bold; }
           .text-danger { color: #dc3545; font-weight: bold; }
@@ -866,43 +776,28 @@ async function generarInforme() {
         <h3>Detalle de Entregas</h3>
         <table>
           <thead>
-            <tr>
-              <th>Guía</th>
-              <th>Fecha/Hora</th>
-              <th>Quien Retiró</th>
-              <th>Piezas</th>
-              <th>Foto</th>
-              <th>GPS</th>
-              <th>Tiempo</th>
-            </tr>
+            <tr><th>Guía</th><th>Fecha/Hora</th><th>Quien Retiró</th><th>Piezas</th><th>Foto</th><th>GPS</th><th>Tiempo</th></tr>
           </thead>
           <tbody>${filasDetalle}</tbody>
         </table>
-
-        <div class="footer">
-          Generado el ${new Date().toLocaleString()} por el sistema de Observatorio Estratégico Postal.
-        </div>
-        
-        <script>
-          window.onload = function() { window.print(); }
-        <\/script>
+        <div class="footer">Generado el ${new Date().toLocaleString()} por el sistema de Observatorio Estratégico Postal.</div>
+        <script>window.onload = function() { window.print(); }<\/script>
       </body>
       </html>
     `;
-
     const ventana = window.open('', '_blank');
     ventana.document.write(htmlInforme);
     ventana.document.close();
-
-  } catch (e) {
-    Swal.fire('Error', 'No se pudo generar el informe: ' + e.message, 'error');
-  }
+  } catch (e) { Swal.fire('Error', 'No se pudo generar el informe: ' + e.message, 'error'); }
 }
 
-// --- LÓGICA GERENTE DE ESTADO ---
+// ==========================================
+// LÓGICA GERENTE DE ESTADO
+// ==========================================
 function iniciarGerente() {
   modalClasificar = new bootstrap.Modal(document.getElementById('modalClasificar'));
   modalDespachar = new bootstrap.Modal(document.getElementById('modalDespachar'));
+  modalInformeGerente = new bootstrap.Modal(document.getElementById('modalInformeGerente'));
   cargarGerenteClasificar();
   cargarGerenteDespachar();
   document.getElementById('despacharFoto').addEventListener('change', function() {
@@ -918,23 +813,14 @@ async function cargarGerenteClasificar() {
   try {
     const r = await postAPI({ accion: 'cargarPendientesClasificar', estado: estadoApp.estadoSel });
     if (!r.exito) throw new Error(r.mensaje);
-    if (r.datos.length === 0) return tbody.innerHTML = '<tr><td colspan="6" class="text-center py-3 text-muted">No hay valijas por clasificar.</td></tr>';
-    
+    if (r.datos.length === 0) { tbody.innerHTML = '<tr><td colspan="6" class="text-center py-3 text-muted">No hay valijas por clasificar.</td></tr>'; return; }
     tbody.innerHTML = '';
     r.datos.forEach(item => {
       let badge = item.semaforoColor === 'negro' ? 'bg-dark' : (item.semaforoColor === 'rojo' ? 'bg-danger' : (item.semaforoColor === 'amarillo' ? 'bg-warning text-dark' : 'bg-success'));
       const tr = document.createElement('tr');
       if (item.semaforoColor === 'rojo') tr.className = 'fila-critica';
       else if (item.semaforoColor === 'amarillo') tr.className = 'fila-alerta';
-      
-      tr.innerHTML = `
-        <td><span class="codigo-5d">${item.id}</span></td>
-        <td>${item.origen}</td>
-        <td>${item.piezas}</td>
-        <td>${item.peso} kg</td>
-        <td><span class="badge ${badge}">${item.semaforoTexto} (${item.horasRestantes}h)</span></td>
-        <td><button class="btn btn-sm btn-warning fw-bold" onclick="abrirClasificar('${item.id}')"><i class="bi bi-tags"></i> Clasificar</button></td>
-      `;
+      tr.innerHTML = `<td><span class="codigo-5d">${item.id}</span></td><td>${item.origen}</td><td>${item.piezas}</td><td>${item.peso} kg</td><td><span class="badge ${badge}">${item.semaforoTexto} (${item.horasRestantes}h)</span></td><td><button class="btn btn-sm btn-warning fw-bold" onclick="abrirClasificar('${item.id}')"><i class="bi bi-tags"></i> Clasificar</button></td>`;
       tbody.appendChild(tr);
     });
   } catch (e) { tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">${e.message}</td></tr>`; }
@@ -946,21 +832,13 @@ async function cargarGerenteDespachar() {
   try {
     const r = await postAPI({ accion: 'cargarPendientesDespachar', estado: estadoApp.estadoSel });
     if (!r.exito) throw new Error(r.mensaje);
-    if (r.datos.length === 0) return tbody.innerHTML = '<tr><td colspan="5" class="text-center py-3 text-muted">No hay valijas clasificadas listas para despacho.</td></tr>';
-    
+    if (r.datos.length === 0) { tbody.innerHTML = '<tr><td colspan="5" class="text-center py-3 text-muted">No hay valijas clasificadas listas para despacho.</td></tr>'; return; }
     tbody.innerHTML = '';
     r.datos.forEach(item => {
       let badge = item.semaforoColor === 'negro' ? 'bg-dark' : (item.semaforoColor === 'rojo' ? 'bg-danger' : (item.semaforoColor === 'amarillo' ? 'bg-warning text-dark' : 'bg-success'));
       const tr = document.createElement('tr');
       if (item.semaforoColor === 'rojo') tr.className = 'fila-critica';
-      
-      tr.innerHTML = `
-        <td><span class="codigo-5d">${item.id}</span></td>
-        <td>${item.destino}</td>
-        <td>${item.piezas}</td>
-        <td><span class="badge ${badge}">${item.semaforoTexto} (${item.horasRestantes}h)</span></td>
-        <td><button class="btn btn-sm btn-success fw-bold" onclick="abrirDespachar('${item.id}')"><i class="bi bi-send"></i> Despachar</button></td>
-      `;
+      tr.innerHTML = `<td><span class="codigo-5d">${item.id}</span></td><td>${item.destino}</td><td>${item.piezas}</td><td><span class="badge ${badge}">${item.semaforoTexto} (${item.horasRestantes}h)</span></td><td><button class="btn btn-sm btn-success fw-bold" onclick="abrirDespachar('${item.id}')"><i class="bi bi-send"></i> Despachar</button></td>`;
       tbody.appendChild(tr);
     });
   } catch (e) { tbody.innerHTML = `<tr><td colspan="5" class="text-center text-danger">${e.message}</td></tr>`; }
@@ -977,7 +855,6 @@ async function confirmarClasificacion() {
   const id = document.getElementById('clasificarGuia').value;
   const destino = document.getElementById('clasificarDestino').value;
   if (!destino) return Swal.fire('Atención', 'Debe seleccionar un destino.', 'warning');
-  
   Swal.fire({ title: 'Guardando...', didOpen: () => Swal.showLoading() });
   const r = await postAPI({ accion: 'guardarAccionGerente', tipoAccion: 'clasificar', idGuia: id, optDestino: destino, observaciones: document.getElementById('clasificarObs').value });
   if (r.exito) {
@@ -989,7 +866,7 @@ async function confirmarClasificacion() {
 
 function abrirDespachar(id) {
   document.getElementById('despacharGuia').value = id;
-  document.getElementById('despacharRecibe').value = ''; // Limpiar el nuevo campo
+  document.getElementById('despacharRecibe').value = '';
   document.getElementById('despacharFoto').value = '';
   document.getElementById('despacharGPS').value = '';
   modalDespachar.show();
@@ -1000,20 +877,9 @@ async function confirmarDespacho() {
   const recibe = document.getElementById('despacharRecibe').value;
   const foto = document.getElementById('despacharFoto').files[0];
   const gps = document.getElementById('despacharGPS').value;
-  
   if (!recibe || !foto) return Swal.fire('Atención', 'Debe indicar quién recibe y tomar la foto.', 'warning');
-  
   Swal.fire({ title: 'Despachando...', didOpen: () => Swal.showLoading() });
-  
-  const r = await postAPI({ 
-    accion: 'guardarAccionGerente', 
-    tipoAccion: 'despachar', 
-    idGuia: id, 
-    recibeNombre: recibe, // <-- Enviamos el nombre
-    gpsDespacho: gps, 
-    fotoDespacho: "https://drive.google.com/foto_simulada" 
-  });
-  
+  const r = await postAPI({ accion: 'guardarAccionGerente', tipoAccion: 'despachar', idGuia: id, recibeNombre: recibe, gpsDespacho: gps, fotoDespacho: "https://drive.google.com/foto_simulada" });
   if (r.exito) {
     modalDespachar.hide();
     Swal.fire('Despachada', 'La valija ha sido entregada a la OPT y el tiempo de custodia ha iniciado.', 'success');
@@ -1021,7 +887,98 @@ async function confirmarDespacho() {
   } else Swal.fire('Error', r.mensaje, 'error');
 }
 
-// --- UTILIDADES LOGIN ---
+function abrirModalInformeGerente() {
+  const hoy = new Date().toISOString().split('T')[0];
+  document.getElementById('infoGerFechaInicio').value = hoy;
+  document.getElementById('infoGerFechaFin').value = hoy;
+  modalInformeGerente.show();
+}
+
+async function generarInformeGerente() {
+  const fInicio = document.getElementById('infoGerFechaInicio').value;
+  const fFin = document.getElementById('infoGerFechaFin').value;
+  if (!fInicio || !fFin) return Swal.fire('Atención', 'Seleccione ambas fechas.', 'warning');
+  if (fInicio > fFin) return Swal.fire('Error', 'La fecha "Desde" no puede ser mayor que "Hasta".', 'error');
+  Swal.fire({ title: 'Generando informe...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+  try {
+    const r = await postAPI({ accion: 'obtenerResumenGerente', estado: estadoApp.estadoSel, fechaInicio: fInicio, fechaFin: fFin });
+    if (!r.exito) throw new Error(r.mensaje);
+    modalInformeGerente.hide();
+    let filasDetalle = '';
+    if (r.detalle.length === 0) { filasDetalle = '<tr><td colspan="6" class="text-center">No hubo despachos en este período.</td></tr>'; } 
+    else { r.detalle.forEach(d => { filasDetalle += `<tr><td>${d.id}</td><td>${d.origen}</td><td>${d.destino}</td><td>${d.piezas}</td><td>${d.fechaDespacho}</td><td>${d.recibe}</td></tr>`; }); }
+    const k = r.kpis; const info = r.infoGerencia;
+    const htmlInforme = `
+      <html>
+      <head>
+        <title>Informe Gerencia - ${info.estado}</title>
+        <style>
+          body { font-family: 'Segoe UI', Arial, sans-serif; padding: 30px; color: #333; }
+          h1 { text-align: center; color: #003366; margin-bottom: 5px; font-size: 26px; }
+          h2 { text-align: center; font-size: 16px; color: #444; margin-top: 0; margin-bottom: 5px; }
+          .geo-info { text-align: center; font-size: 12px; color: #666; margin-bottom: 25px; text-transform: uppercase; letter-spacing: 1px; }
+          .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 30px; }
+          .kpi-box { border: 1px solid #ddd; border-radius: 8px; padding: 15px; text-align: center; background: #f8f9fa; border-top: 4px solid #003366; }
+          .kpi-box.success { border-top-color: #198754; }
+          .kpi-box.warning { border-top-color: #ffc107; }
+          .kpi-box.danger { border-top-color: #dc3545; }
+          .kpi-value { font-size: 28px; font-weight: bold; color: #003366; margin-bottom: 5px; }
+          .kpi-box.success .kpi-value { color: #198754; }
+          .kpi-box.warning .kpi-value { color: #d39e00; }
+          .kpi-box.danger .kpi-value { color: #dc3545; }
+          .kpi-label { font-size: 11px; text-transform: uppercase; color: #666; font-weight: bold; letter-spacing: 1px; }
+          table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+          th, td { border: 1px solid #ddd; padding: 10px; text-align: left; font-size: 12px; }
+          th { background-color: #003366; color: white; font-weight: 600; }
+          tr:nth-child(even) { background-color: #f9f9f9; }
+          .footer { margin-top: 40px; text-align: center; font-size: 10px; color: #888; border-top: 1px solid #ddd; padding-top: 10px; }
+        </style>
+      </head>
+      <body>
+        <h1>IPOSTEL - Informe de Gerencia de Estado</h1>
+        <h2>Estado: ${info.estado}</h2>
+        <div class="geo-info">Período: ${fInicio.split('-').reverse().join('/')} al ${fFin.split('-').reverse().join('/')}</div>
+        
+        <div class="kpi-grid">
+          <div class="kpi-box">
+            <div class="kpi-value">${k.totRecibidasAliado}</div>
+            <div class="kpi-label">Recibidas (Aliado)</div>
+          </div>
+          <div class="kpi-box warning">
+            <div class="kpi-value">${k.totClasificadas}</div>
+            <div class="kpi-label">Por Despachar</div>
+          </div>
+          <div class="kpi-box success">
+            <div class="kpi-value">${k.totDespachadas}</div>
+            <div class="kpi-label">Despachadas a OPT</div>
+          </div>
+          <div class="kpi-box danger">
+            <div class="kpi-value">${k.incidencias}</div>
+            <div class="kpi-label">Devoluciones</div>
+          </div>
+        </div>
+
+        <h3>Detalle de Despachos</h3>
+        <table>
+          <thead>
+            <tr><th>Guía</th><th>Origen</th><th>Destino (OPT)</th><th>Piezas</th><th>Fecha/Hora Despacho</th><th>Recibido Por</th></tr>
+          </thead>
+          <tbody>${filasDetalle}</tbody>
+        </table>
+        <div class="footer">Generado el ${new Date().toLocaleString()} por el sistema de Observatorio Estratégico Postal.</div>
+        <script>window.onload = function() { window.print(); }<\/script>
+      </body>
+      </html>
+    `;
+    const ventana = window.open('', '_blank');
+    ventana.document.write(htmlInforme);
+    ventana.document.close();
+  } catch (e) { Swal.fire('Error', 'No se pudo generar el informe: ' + e.message, 'error'); }
+}
+
+// ==========================================
+// UTILIDADES LOGIN
+// ==========================================
 async function cargarPendientesCNC() { document.getElementById('listaAprobaciones').innerHTML = '<p class="text-muted">Cargando...</p>'; }
 async function cargarObservatorio() { document.getElementById('dashboardObservatorio').innerHTML = '<p class="text-muted">Cargando...</p>'; }
 function volverAtras() {
