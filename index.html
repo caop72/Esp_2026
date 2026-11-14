@@ -535,16 +535,55 @@ function iniciarApp(r) {
 async function cargarPanelOperaciones() {
   const tbody = document.getElementById('tablaOperaciones');
   tbody.innerHTML = '<tr><td colspan="10" class="text-center py-3 text-muted">Cargando vuelos...</td></tr>';
+  
   try {
     const r = await postAPI({ accion: 'obtenerDatosOperaciones' });
     if (!r.exito) throw new Error(r.mensaje);
+    
     const fmt = (num) => Number(num || 0).toLocaleString('es-VE');
+    let totVuelos = 0, totPiezas = 0, totKg = 0, totNovedades = 0;
     tbody.innerHTML = '';
+    
+    // Función auxiliar para formatear fechas de forma segura
+    const formatFecha = (f) => {
+      if (!f) return '—';
+      let d = new Date(f);
+      if (isNaN(d.getTime())) return f; // Si no es fecha válida, muestra el texto original
+      return d.toLocaleString('es-VE', { dateStyle: 'short', timeStyle: 'short' });
+    };
+
     r.datos.forEach(d => {
-      let badge = d.estado === 'Conforme' ? 'bg-success' : 'bg-warning text-dark';
-      tbody.innerHTML += `<tr><td><b>${d.guia}</b></td><td>${d.fechaLlegada ? new Date(d.fechaLlegada).toLocaleString() : '—'}</td><td>${d.fechaSalida ? new Date(d.fechaSalida).toLocaleString() : '—'}</td><td>${d.precinto || '—'}</td><td>${d.vehiculo || '—'}</td><td>${d.conductor || '—'}</td><td>${fmt(d.valijas)}</td><td>${fmt(d.piezas)}</td><td>${d.kg} kg</td><td><span class="badge ${badge}">${d.estado}</span></td></tr>`;
+      totVuelos++;
+      totPiezas += Number(d.piezas) || 0;
+      totKg += Number(d.kg) || 0;
+      if (d.estado !== 'Conforme' && d.estado !== 'Recibido') totNovedades++;
+
+      let badge = (d.estado === 'Conforme' || d.estado === 'Recibido') ? 'bg-success' : 'bg-warning text-dark';
+      
+      tbody.innerHTML += `
+        <tr>
+          <td><b>${d.guia || '—'}</b></td>
+          <td>${formatFecha(d.fechaLlegada)}</td>
+          <td>${formatFecha(d.fechaSalida)}</td>
+          <td>${d.precinto || '—'}</td>
+          <td>${d.vehiculo || '—'}</td>
+          <td>${d.conductor || '—'}</td>
+          <td>${fmt(d.valijas)}</td>
+          <td>${fmt(d.piezas)}</td>
+          <td>${fmt(d.kg)} kg</td>
+          <td><span class="badge ${badge}">${d.estado}</span></td>
+        </tr>`;
     });
-  } catch (e) { tbody.innerHTML = `<tr><td colspan="10" class="text-center text-danger">${e.message}</td></tr>`; }
+    
+    // Actualizar los KPIs superiores
+    document.getElementById('opKpiVuelos').textContent = totVuelos;
+    document.getElementById('opKpiPiezas').textContent = fmt(totPiezas);
+    document.getElementById('opKpiKg').textContent = fmt(totKg);
+    document.getElementById('opKpiNovedades').textContent = totNovedades;
+
+  } catch (e) { 
+    tbody.innerHTML = `<tr><td colspan="10" class="text-center text-danger">${e.message}</td></tr>`; 
+  }
 }
 
 function abrirModalOperaciones() {
