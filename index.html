@@ -758,7 +758,48 @@
     </div>
   </div>
 </div>
-  
+<!-- MODAL REGISTRO ALIADO -->
+<div class="modal fade" id="modalAliado" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title fw-bold">Registrar Recepción de Carga</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row g-3">
+          <div class="col-md-6"><label class="form-label fw-bold">Guía Aérea</label><input type="text" class="form-control" id="aliadoGuia" placeholder="000-12345678"></div>
+          <div class="col-md-6"><label class="form-label fw-bold">País Origen</label><input type="text" class="form-control" id="aliadoOrigen" value="España"></div>
+          
+          <div class="col-md-6"><label class="form-label fw-bold">Fecha Vuelo</label><input type="date" class="form-control" id="aliadoFechaVuelo"></div>
+          <div class="col-md-6"><label class="form-label fw-bold">Fecha Llegada</label><input type="datetime-local" class="form-control" id="aliadoFechaLlegada"></div>
+
+          <div class="col-md-6"><label class="form-label fw-bold">Valijas Declaradas</label><input type="number" class="form-control" id="aliadoValDecl"></div>
+          <div class="col-md-6"><label class="form-label fw-bold">Valijas Recibidas</label><input type="number" class="form-control" id="aliadoValRec"></div>
+
+          <div class="col-md-6"><label class="form-label fw-bold">Piezas Declaradas</label><input type="number" class="form-control" id="aliadoPzDecl"></div>
+          <div class="col-md-6"><label class="form-label fw-bold">Piezas Recibidas</label><input type="number" class="form-control" id="aliadoPzRec"></div>
+
+          <div class="col-md-6"><label class="form-label fw-bold">Kg Recibidos</label><input type="number" step="0.1" class="form-control" id="aliadoKg"></div>
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Estado de Recepción</label>
+            <select class="form-select" id="aliadoEstado">
+              <option value="Conforme">✅ Conforme (Todo OK)</option>
+              <option value="Faltante">⚠️ Faltante</option>
+              <option value="Sobrante">⚠️ Sobrante</option>
+            </select>
+          </div>
+
+          <div class="col-12"><label class="form-label fw-bold">Novedad / Observación</label><textarea class="form-control" id="aliadoNovedad" rows="2"></textarea></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button class="btn btn-primary fw-bold" onclick="guardarRecepcionAliado()">Registrar</button>
+      </div>
+    </div>
+  </div>
+</div>
 <script>
 const API_URL = 'https://script.google.com/macros/s/AKfycbzx_AeJRGOOXphA0N5sUFEMJbDBwsyzfElr0hH38dmzUmFt9dy1NJ7w3MjMycrWzoI2/exec';
 const estadoApp = { rol: null, requiereEstado: false, requiereOPT: false, estadoSel: null, optSel: null, subRolSel: null };
