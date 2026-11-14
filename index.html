@@ -781,8 +781,8 @@ function iniciarApp(r) {
     modalDespachoCamion = new bootstrap.Modal(document.getElementById('modalDespachoCamion'));
     cargarPanelOperaciones();
     cargarTablaDespachos();
-  } else if (r.rol === 'COORD_ENCAMINAMIENTO') {
-    // ⬇️ NUEVO BLOQUE PARA MARIELA ⬇️
+  } else if (r.rol === 'COORD_ENCAM') { 
+    // ⬅️ AQUÍ ESTÁ EL CAMBIO: Ahora busca 'COORD_ENCAM' que es lo que devuelve tu backend
     mostrar('appEncaminamiento'); 
     modalRecibirCamion = new bootstrap.Modal(document.getElementById('modalRecibirCamion'));
     modalEntregarMRW = new bootstrap.Modal(document.getElementById('modalEntregarMRW'));
