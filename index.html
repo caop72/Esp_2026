@@ -1279,11 +1279,16 @@ async function cargarCNC() {
         throw new Error("El backend no devolvió detalleRegion o detalleOPT. Revisa que la versión en GS esté actualizada.");
     }
     
-    document.getElementById('cncKpiTiempo').textContent = r.kpis.promNacional;
-    document.getElementById('cncKpiEntregadas').textContent = r.kpis.totEntregadasHoy;
-    document.getElementById('cncKpiCustodia').textContent = r.kpis.totEnCustodia;
-    document.getElementById('cncKpiReencaminadas').textContent = r.kpis.totReencaminadas;
+    // FUNCIÓN AUXILIAR DE FORMATO
+    const fmt = (num) => Number(num || 0).toLocaleString('es-VE');
 
+    // KPIs Globales con formato
+    document.getElementById('cncKpiTiempo').textContent = fmt(r.kpis.promNacional);
+    document.getElementById('cncKpiEntregadas').textContent = fmt(r.kpis.totEntregadasHoy);
+    document.getElementById('cncKpiCustodia').textContent = fmt(r.kpis.totEnCustodia);
+    document.getElementById('cncKpiReencaminadas').textContent = fmt(r.kpis.totReencaminadas);
+
+    // Función auxiliar para pintar las filas
     const renderFila = (nombre, data) => {
       let barColor = 'bg-danger';
       if (data.efectividad >= 80) barColor = 'bg-success';
@@ -1292,9 +1297,9 @@ async function cargarCNC() {
       return `
         <tr>
           <td><b>${nombre}</b></td>
-          <td class="text-center"><span class="badge bg-info text-dark">${data.tiempoPromedio} hrs</span></td>
-          <td class="text-center">${data.custodia} pzs</td>
-          <td class="text-center"><span class="text-danger fw-bold">${data.incidencias}</span></td>
+          <td class="text-center"><span class="badge bg-info text-dark">${fmt(data.tiempoPromedio)} hrs</span></td>
+          <td class="text-center">${fmt(data.custodia)} pzs</td>
+          <td class="text-center"><span class="text-danger fw-bold">${fmt(data.incidencias)}</span></td>
           <td>
             <div class="d-flex align-items-center">
               <div class="progress flex-grow-1 me-2" style="height: 15px;">
@@ -1307,6 +1312,7 @@ async function cargarCNC() {
       `;
     };
 
+    // Llenar Tabla de Regiones
     if (r.detalleRegion.length === 0) {
       tbodyEstados.innerHTML = '<tr><td colspan="5" class="text-center py-3 text-muted">Sin datos en regiones.</td></tr>';
     } else {
@@ -1314,6 +1320,7 @@ async function cargarCNC() {
       r.detalleRegion.forEach(reg => { tbodyEstados.innerHTML += renderFila(reg.region, reg); });
     }
 
+    // Llenar Tabla de OPTs
     if (r.detalleOPT.length === 0) {
       tbodyOPTs.innerHTML = '<tr><td colspan="5" class="text-center py-3 text-muted">Sin datos en oficinas.</td></tr>';
     } else {
