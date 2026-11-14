@@ -318,25 +318,26 @@
     <!-- PANEL ENCAMINAMIENTO (MARIEA - CPC) -->
     <div id="appEncaminamiento" class="oculto">
       <h4 class="text-primary mb-3 fw-bold"><i class="bi bi-signpost-split"></i> Encaminamiento (CPC)</h4>
-      <div class="alert alert-info py-2 small"><i class="bi bi-info-circle"></i> Recepción de camiones desde el Aeropuerto y clasificación para entrega a MRW.</div>
+      <div class="alert alert-info py-2 small"><i class="bi bi-info-circle"></i> Recepción de carga, clasificación y entrega a MRW.</div>
       
       <ul class="nav nav-tabs mb-3" id="tabsEncaminamiento" role="tablist">
-        <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-recibe-camion" type="button"><i class="bi bi-truck text-primary"></i> 1. Recibir Camión (CPI)</button></li>
-        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-clasificar-mrw" type="button"><i class="bi bi-box-seam text-warning"></i> 2. Clasificar y Entregar a MRW</button></li>
+        <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-recibe-ipostel" type="button"><i class="bi bi-truck text-primary"></i> 1. Recibir de IPOSTEL</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-clasificar-mrw" type="button"><i class="bi bi-box-seam text-warning"></i> 2. Entregar a MRW (Estados)</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-recibe-mrw" type="button"><i class="bi bi-arrow-down-left-circle text-success"></i> 3. Recibir de MRW</button></li>
       </ul>
 
       <div class="tab-content">
-        <!-- PESTAÑA 1: RECIBIR CAMION -->
-        <div class="tab-pane fade show active" id="tab-recibe-camion">
+        <!-- PESTAÑA 1: RECIBIR DE IPOSTEL (AEROPUERTO) -->
+        <div class="tab-pane fade show active" id="tab-recibe-ipostel">
           <div class="card shadow-sm">
             <div class="card-header bg-white d-flex justify-content-between py-3">
-              <h6 class="mb-0 fw-bold">Camiones en Tránsito (Esperando Recepción)</h6>
+              <h6 class="mb-0 fw-bold">Camiones de IPOSTEL (Maiquetía)</h6>
               <button class="btn btn-primary btn-sm fw-bold" onclick="cargarCamionesPorRecibir()"><i class="bi bi-arrow-clockwise"></i> Actualizar</button>
             </div>
             <div class="card-body p-0 table-responsive">
               <table class="table table-hover mb-0 align-middle">
                 <thead class="table-light">
-                  <tr><th>Vehículo / Conductor</th><th>Precinto</th><th>Carga Asignada</th><th>Salida CPC</th><th>Acción</th></tr>
+                  <tr><th>Vehículo / Conductor</th><th>Precinto</th><th>Carga Asignada</th><th>Salida CPI</th><th>Acción</th></tr>
                 </thead>
                 <tbody id="tablaCamionesPorRecibir">
                   <tr><td colspan="5" class="text-center py-3 text-muted">Cargando...</td></tr>
@@ -345,6 +346,48 @@
             </div>
           </div>
         </div>
+
+        <!-- PESTAÑA 2: ENTREGAR A MRW (MÁSTERS) -->
+        <div class="tab-pane fade" id="tab-clasificar-mrw">
+          <div class="card shadow-sm">
+            <div class="card-header bg-white d-flex justify-content-between py-3">
+              <h6 class="mb-0 fw-bold">Másters en CPC (Listos para Estados)</h6>
+              <button class="btn btn-warning btn-sm fw-bold" onclick="cargarValijasMRW()"><i class="bi bi-arrow-clockwise"></i> Actualizar</button>
+            </div>
+            <div class="card-body p-0 table-responsive">
+              <table class="table table-hover mb-0 align-middle">
+                <thead class="table-light">
+                  <tr><th>Guía Aérea / Máster</th><th>Valijas / Piezas</th><th>Fecha Recepción CPC</th><th>Acción</th></tr>
+                </thead>
+                <tbody id="tablaValijasMRW">
+                  <tr><td colspan="4" class="text-center py-3 text-muted">Cargando...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- PESTAÑA 3: RECIBIR DE MRW (DESDE ESTADOS) -->
+        <div class="tab-pane fade" id="tab-recibe-mrw">
+          <div class="card shadow-sm">
+            <div class="card-header bg-white d-flex justify-content-between py-3">
+              <h6 class="mb-0 fw-bold">Camiones de MRW (Desde Estados)</h6>
+              <button class="btn btn-success btn-sm fw-bold" onclick="cargarCamionesMRWPorRecibir()"><i class="bi bi-arrow-clockwise"></i> Actualizar</button>
+            </div>
+            <div class="card-body p-0 table-responsive">
+              <table class="table table-hover mb-0 align-middle">
+                <thead class="table-light">
+                  <tr><th>Vehículo / Conductor</th><th>Precinto</th><th>Carga Asignada</th><th>Salida Estado</th><th>Acción</th></tr>
+                </thead>
+                <tbody id="tablaCamionesMRWPorRecibir">
+                  <tr><td colspan="5" class="text-center py-3 text-muted">Cargando...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
         <!-- PESTAÑA 2: CLASIFICAR Y ENTREGAR A MRW -->
         <div class="tab-pane fade" id="tab-clasificar-mrw">
