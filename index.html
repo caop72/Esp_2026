@@ -2022,6 +2022,107 @@ async function generarReporteOperaciones() {
     Swal.fire('Error', 'No se pudo generar: ' + e.message, 'error');
   }
 }
+
+// ==========================================
+// LÓGICA CONTROL DEL ALIADO (ALFREDO)
+// ==========================================
+let modalAliado;
+
+function iniciarAliado() {
+  modalAliado = new bootstrap.Modal(document.getElementById('modalAliado'));
+  cargarPanelAliado();
+}
+
+async function cargarPanelAliado() {
+  const tbody = document.getElementById('tablaAliado');
+  tbody.innerHTML = '<tr><td colspan="8" class="text-center py-3 text-muted">Cargando...</td></tr>';
+  
+  try {
+    const r = await postAPI({ accion: 'obtenerDatosAliado' });
+    if (!r.exito) throw new Error(r.mensaje);
+    
+    const fmt = (num) => Number(num || 0).toLocaleString('es-VE');
+    
+    let totValijas = 0, totPiezas = 0, totKg = 0, totNovedades = 0;
+    
+    tbody.innerHTML = '';
+    r.datos.forEach(d => {
+      totValijas += Number(d.valRec) || 0;
+      totPiezas += Number(d.pzRec) || 0;
+      totKg += Number(d.kg) || 0;
+      if (d.estado !== 'Conforme') totNovedades++;
+      
+      let badge = d.estado === 'Conforme' ? 'bg-success' : 'bg-warning text-dark';
+      
+      tbody.innerHTML += `
+        <tr>
+          <td><b>${d.guia}</b></td>
+          <td>${d.origen}</td>
+          <td>${d.fechaLlegada ? new Date(d.fechaLlegada).toLocaleDateString() : '—'}</td>
+          <td>${d.valDecl} / <b>${d.valRec}</b></td>
+          <td>${fmt(d.pzDecl)} / <b>${fmt(d.pzRec)}</b></td>
+          <td>${d.kg} kg</td>
+          <td><span class="badge ${badge}">${d.estado}</span></td>
+          <td><small>${d.novedad || '—'}</small></td>
+        </tr>
+      `;
+    });
+
+    document.getElementById('aliadoKpiValijas').textContent = fmt(totValijas);
+    document.getElementById('aliadoKpiPiezas').textContent = fmt(totPiezas);
+    document.getElementById('aliadoKpiKg').textContent = fmt(totKg) + ' kg';
+    document.getElementById('aliadoKpiNovedades').textContent = fmt(totNovedades);
+    
+  } catch (e) {
+    tbody.innerHTML = `<tr><td colspan="8" class="text-center text-danger">${e.message}</td></tr>`;
+  }
+}
+
+function abrirModalAliado() {
+  document.getElementById('aliadoGuia').value = '';
+  document.getElementById('aliadoOrigen').value = 'España';
+  document.getElementById('aliadoFechaVuelo').value = '';
+  document.getElementById('aliadoFechaLlegada').value = new Date().toISOString().slice(0, 16);
+  document.getElementById('aliadoValDecl').value = '';
+  document.getElementById('aliadoValRec').value = '';
+  document.getElementById('aliadoPzDecl').value = '';
+  document.getElementById('aliadoPzRec').value = '';
+  document.getElementById('aliadoKg').value = '';
+  document.getElementById('aliadoEstado').value = 'Conforme';
+  document.getElementById('aliadoNovedad').value = '';
+  modalAliado.show();
+}
+
+async function guardarRecepcionAliado() {
+  const payload = {
+    accion: 'registrarRecepcionAliado',
+    idRegistro: 'ALI-' + Math.floor(Math.random() * 10000),
+    guiaAerea: document.getElementById('aliadoGuia').value,
+    paisOrigen: document.getElementById('aliadoOrigen').value,
+    fechaVuelo: document.getElementById('aliadoFechaVuelo').value,
+    fechaLlegada: document.getElementById('aliadoFechaLlegada').value,
+    valijasDeclaradas: document.getElementById('aliadoValDecl').value,
+    valijasRecibidas: document.getElementById('aliadoValRec').value,
+    piezasDeclaradas: document.getElementById('aliadoPzDecl').value,
+    piezasRecibidas: document.getElementById('aliadoPzRec').value,
+    kgRecibidos: document.getElementById('aliadoKg').value,
+    estadoRecepcion: document.getElementById('aliadoEstado').value,
+    novedad: document.getElementById('aliadoNovedad').value
+  };
+  
+  if (!payload.guiaAerea || !payload.valijasRecibidas) {
+    return Swal.fire('Atención', 'Complete la Guía Aérea y las Valijas Recibidas.', 'warning');
+  }
+  
+  Swal.fire({ title: 'Registrando...', didOpen: () => Swal.showLoading() });
+  const r = await postAPI(payload);
+  if (r.exito) {
+    modalAliado.hide();
+    Swal.fire('Registrado', 'La recepción ha sido guardada.', 'success');
+    cargarPanelAliado();
+  } else Swal.fire('Error', r.mensaje, 'error');
+}
+  
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
