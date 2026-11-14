@@ -1304,12 +1304,14 @@ function generarInformeCNC() {
   ventana.document.close();
   modalInformeCNC.hide();
 }
-  // ==========================================
+// ==========================================
 // LÓGICA ENCAMINAMIENTO (MARIELA)
 // ==========================================
+
+// 1. RECIBIR DE IPOSTEL (AEROPUERTO)
 async function cargarCamionesPorRecibir() {
   const tbody = document.getElementById('tablaCamionesPorRecibir');
-  if(!tbody) return; // Seguridad por si la pestaña no está cargada
+  if(!tbody) return; 
   tbody.innerHTML = '<tr><td colspan="5" class="text-center py-3 text-muted">Cargando...</td></tr>';
   
   try {
@@ -1317,7 +1319,7 @@ async function cargarCamionesPorRecibir() {
     if (!r.exito) throw new Error(r.mensaje);
     
     tbody.innerHTML = '';
-    if(r.datos.length === 0) return tbody.innerHTML = '<tr><td colspan="5" class="text-center py-3">No hay camiones en tránsito.</td></tr>';
+    if(r.datos.length === 0) return tbody.innerHTML = '<tr><td colspan="5" class="text-center py-3">No hay camiones de IPOSTEL en tránsito.</td></tr>';
     
     r.datos.forEach(d => {
       tbody.innerHTML += `<tr>
@@ -1325,7 +1327,7 @@ async function cargarCamionesPorRecibir() {
         <td>${d.precinto}</td>
         <td>Guía: ${d.guiaAerea}<br><small>${d.valijas} Val | ${d.piezas} Pzs</small></td>
         <td>${d.fechaSalida}</td>
-        <td><button class="btn btn-sm btn-primary fw-bold" onclick="abrirModalRecibirCamion('${d.id}', '${d.vehiculo}', '${d.precinto}', '${d.guiaAerea}')">Recibir</button></td>
+        <td><button class="btn btn-sm btn-primary fw-bold" onclick="abrirModalRecibirCamion('${d.id}', '${d.vehiculo}', '${d.conductor}', '${d.precinto}', '${d.guiaAerea}', '${d.valijas}', '${d.piezas}')">Recibir</button></td>
       </tr>`;
     });
   } catch(e) { 
@@ -1333,10 +1335,14 @@ async function cargarCamionesPorRecibir() {
   }
 }
 
-function abrirModalRecibirCamion(id, vehiculo, precinto, guia) {
+function abrirModalRecibirCamion(id, vehiculo, conductor, precinto, guia, valijas, piezas) {
   document.getElementById('recCamVehiculoTxt').textContent = vehiculo;
+  document.getElementById('recCamConductorTxt').textContent = conductor;
   document.getElementById('recCamPrecintoTxt').textContent = precinto;
   document.getElementById('recCamCargaTxt').textContent = 'Guía Aérea: ' + guia;
+  document.getElementById('recCamValijasTxt').textContent = valijas;
+  document.getElementById('recCamPiezasTxt').textContent = piezas;
+  document.getElementById('recCamCondicionTxt').textContent = 'Pendiente de verificación física'; 
   document.getElementById('recCamIntactoInp').value = 'SI';
   document.getElementById('recCamObsInp').value = '';
   document.getElementById('recCamFotoInp').value = '';
@@ -1349,33 +1355,31 @@ async function confirmarRecepcionCamion() {
   const intacto = document.getElementById('recCamIntactoInp').value;
   const obs = document.getElementById('recCamObsInp').value;
   const foto = document.getElementById('recCamFotoInp').files[0];
-  
   if (!foto) return Swal.fire('Atención', 'Debe adjuntar la foto de recepción.', 'warning');
   
   Swal.fire({ title: 'Confirmando recepción...', didOpen: () => Swal.showLoading() });
-  const r = await postAPI({ accion: 'confirmarRecepcionCamion', intacto: intacto, obs: obs, foto: 'url_simulada' });
+  const r = await postAPI({ accion: 'confirmarRecepcionCamion', intacto, obs, foto: 'url_simulada' });
   
   if (r.exito) {
     modalRecibirCamion.hide();
     Swal.fire('Recibido', 'El camión ha sido recibido en el CPC.', 'success');
     cargarCamionesPorRecibir();
     cargarValijasMRW();
-  } else {
-    Swal.fire('Error', r.mensaje, 'error');
-  }
+  } else { Swal.fire('Error', r.mensaje, 'error'); }
 }
 
+// 2. ENTREGAR A MRW (HACIA ESTADOS)
 async function cargarValijasMRW() {
   const tbody = document.getElementById('tablaValijasMRW');
   if(!tbody) return;
-  tbody.innerHTML = '<tr><td colspan="4" class="text-center py-3 text-muted">Cargando valijas...</td></tr>';
+  tbody.innerHTML = '<tr><td colspan="4" class="text-center py-3 text-muted">Cargando Másters...</td></tr>';
   
   try {
      const r = await postAPI({ accion: 'obtenerValijasCPC' });
      if(!r.exito) throw new Error(r.mensaje);
      
      tbody.innerHTML = '';
-     if(r.datos.length === 0) return tbody.innerHTML = '<tr><td colspan="4" class="text-center py-3">No hay valijas listas para MRW.</td></tr>';
+     if(r.datos.length === 0) return tbody.innerHTML = '<tr><td colspan="4" class="text-center py-3">No hay Másters listos para MRW.</td></tr>';
      
      r.datos.forEach(d => {
        tbody.innerHTML += `<tr>
@@ -1424,6 +1428,19 @@ async function confirmarEntregaMRW() {
   } else {
     Swal.fire('Error', r.mensaje, 'error');
   }
+}
+
+// 3. RECIBIR DE MRW (DESDE ESTADOS)
+async function cargarCamionesMRWPorRecibir() {
+  const tbody = document.getElementById('tablaCamionesMRWPorRecibir');
+  if(!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="5" class="text-center py-3 text-muted">Cargando camiones de MRW...</td></tr>';
+  
+  // Aquí llamarías a una nueva función en el backend que te devuelva los camiones de MRW
+  // Simulamos que no hay datos por ahora.
+  setTimeout(() => {
+    tbody.innerHTML = '<tr><td colspan="5" class="text-center py-3 text-muted">No hay camiones de MRW en tránsito.</td></tr>';
+  }, 1000);
 }
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
