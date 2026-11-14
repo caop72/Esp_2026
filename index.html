@@ -612,20 +612,21 @@
             <div class="bg-light p-2 rounded border">
               <b>Vehículo:</b> <span id="recCamVehiculoTxt"></span><br>
               <b>Conductor:</b> <span id="recCamConductorTxt"></span><br>
-              <b>Precinto:</b> <span id="recCamPrecintoTxt"></span><br>
-              <b>Carga:</b> <span id="recCamCargaTxt"></span>
+              <b>Precinto:</b> <span id="recCamPrecintoTxt"></span>
             </div>
           </div>
           <div class="col-md-6">
             <div class="bg-light p-2 rounded border">
-              <b>Valijas:</b> <span id="recCamValijasTxt"></span><br>
-              <b>Piezas:</b> <span id="recCamPiezasTxt"></span><br>
-              <b>Estado Físico:</b> <span id="recCamCondicionTxt"></span>
+              <b>Guía Aérea:</b> <span id="recCamGuiaTxt"></span><br>
+              <b>Valijas:</b> <span id="recCamValijasTxt"></span> | <b>Piezas:</b> <span id="recCamPiezasTxt"></span>
             </div>
           </div>
+          
+          <div class="col-md-6"><label class="form-label fw-bold">Hora de Llegada al CPC *</label><input type="datetime-local" class="form-control" id="recCamHoraLlegadaInp" required></div>
           <div class="col-md-6"><label class="form-label fw-bold">¿Precinto Intacto? *</label><select class="form-select" id="recCamIntactoInp"><option value="SI">✅ Sí</option><option value="NO">❌ No (Reportar Novedad)</option></select></div>
-          <div class="col-md-6"><label class="form-label fw-bold text-danger">📸 Foto de Recepción *</label><input type="file" class="form-control" id="recCamFotoInp" accept="image/*" required></div>
-          <div class="col-12"><label class="form-label fw-bold">Observaciones (Opcional)</label><textarea class="form-control" id="recCamObsInp" rows="2"></textarea></div>
+          
+          <div class="col-12"><label class="form-label fw-bold">Condición de la Carga (Opcional)</label><textarea class="form-control" id="recCamObsInp" rows="2" placeholder="Ej: Llegó con 1 valija abollada..."></textarea></div>
+          <div class="col-12"><label class="form-label fw-bold text-danger">📸 Foto de la Carga / Precinto *</label><input type="file" class="form-control" id="recCamFotoInp" accept="image/*" required></div>
         </div>
       </div>
       <div class="modal-footer">
@@ -634,7 +635,7 @@
       </div>
     </div>
   </div>
-</div> 
+</div>
 
 <!-- MODAL: ENTREGAR A MRW (Mariela -> Alfredo) -->
 <div class="modal fade" id="modalEntregarMRW" tabindex="-1" data-bs-backdrop="static">
