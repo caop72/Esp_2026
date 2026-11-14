@@ -487,6 +487,7 @@ async function enviarAlBackend() {
   let payload = { accion: 'loginArbol', rol: rol, clave: document.getElementById('inpClave').value.trim() };
   if (['PRESIDENCIA', 'DESPACHO', 'OBSERVATORIO'].includes(rol)) { if (rol === 'PRESIDENCIA') payload.usuario = 'Presidencia'; if (rol === 'DESPACHO') payload.usuario = 'Despacho'; if (rol === 'OBSERVATORIO') payload.usuario = 'Observatorio'; }
   else if (rol === 'DIRECCION' || rol === 'COORDINADOR') { payload.subRol = estadoApp.subRolSel; if (rol === 'DIRECCION') payload.usuario = (estadoApp.subRolSel === 'CNC') ? 'Director_CNC' : 'Director_Operaciones'; }
+  else if (rol === 'GER_OPER') { payload.usuario = 'Gerente de Operaciones (CPC)'; }
   else if (estadoApp.requiereEstado) { payload.estado = estadoApp.estadoSel; }
   if (estadoApp.requiereOPT) { payload.codigoOPT = estadoApp.optSel; }
   const btn = document.getElementById('btnIngresar'); btn.disabled = true; btn.textContent = 'Validando...';
