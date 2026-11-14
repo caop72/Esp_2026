@@ -828,6 +828,87 @@ async function cargarEstados() { try { const r = await postAPI({accion: 'obtener
 async function cargarOPTs(estado) { try { const r = await postAPI({accion: 'obtenerOPTsPorEstado', estado: estado}); if (r.exito) { const sel = document.getElementById('selOPT'); sel.innerHTML = '<option value="">-- Seleccione OPT --</option>'; r.opts.forEach(o => sel.innerHTML += `<option value="${o.codigo}">${o.nombre}</option>`); mostrar('pasoOPT'); } } catch(e) { console.error(e); } }
 function postAPI(payload) { return fetch(API_URL, { method: 'POST', body: JSON.stringify(payload), headers: { 'Content-Type': 'text/plain;charset=utf-8' } }).then(r => r.json()); }
 function formatNum_(num, decimals = 0) { if (num === undefined || num === null || isNaN(num)) return '0'; let n = Number(num); let str = n.toFixed(decimals); let partes = str.split('.'); partes[0] = partes[0].replace(/\B(?=(\d{3})+(?!\d))/g, "."); return partes.join(','); }
+// ==========================================
+// LÓGICA PARA EL INFORME DEL CNC
+// ==========================================
+function abrirModalInformeCNC() {
+  // Inicializar el modal si no se ha hecho antes
+  if (!modalInformeCNC) {
+    modalInformeCNC = new bootstrap.Modal(document.getElementById('modalInformeCNC'));
+  }
+  // Poner fechas de hoy por defecto
+  const hoy = new Date().toISOString().split('T')[0];
+  document.getElementById('infoCNCFechaInicio').value = hoy;
+  document.getElementById('infoCNCFechaFin').value = hoy;
+  
+  modalInformeCNC.show();
+}
+
+function generarInformeCNC() {
+  const desde = document.getElementById('infoCNCFechaInicio').value;
+  const hasta = document.getElementById('infoCNCFechaFin').value;
+  
+  if (!desde || !hasta) {
+    return Swal.fire('Atención', 'Debe seleccionar ambas fechas.', 'warning');
+  }
+
+  // Como los datos del CNC ya están en pantalla y no tenemos una función de PDF en backend,
+  // generamos un reporte imprimible usando el navegador.
+  let contenidoHTML = `
+    <html>
+    <head>
+      <title>Informe CNC - Elecciones España 2026</title>
+      <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        h1 { color: #003366; text-align: center; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+        th { background-color: #003366; color: white; }
+        .kpi-box { display: inline-block; border: 1px solid #ccc; padding: 10px; margin: 5px; width: 20%; text-align: center; }
+        .footer { text-align: center; margin-top: 30px; font-size: 12px; color: #666; }
+      </style>
+    </head>
+    <body>
+      <h1>Centro Nacional de Control (CNC)</h1>
+      <p style="text-align: center;">Reporte generado desde: <b>${desde}</b> hasta: <b>${hasta}</b></p>
+      
+      <div style="text-align: center; margin-bottom: 20px;">
+        <div class="kpi-box"><b>Tiempo Promedio</b><br>${document.getElementById('cncKpiTiempo').innerText} hrs</div>
+        <div class="kpi-box"><b>Entregadas Hoy</b><br>${document.getElementById('cncKpiEntregadas').innerText}</div>
+        <div class="kpi-box"><b>En Custodia</b><br>${document.getElementById('cncKpiCustodia').innerText}</div>
+        <div class="kpi-box"><b>En Riesgo</b><br>${document.getElementById('cncKpiRiesgo').innerText}</div>
+      </div>
+
+      <h3>Efectividad por Región</h3>
+      <table>
+        <tr><th>Región</th><th>T. Prom (hrs)</th><th>Custodia</th><th>En Riesgo</th><th>% Efectividad</th></tr>
+        ${document.getElementById('tablaCNC_Estados').innerHTML}
+      </table>
+
+      <h3>Alertas por OPT</h3>
+      <table>
+        <tr><th>Oficina (OPT)</th><th>T. Prom (hrs)</th><th>Custodia</th><th>Riesgo</th><th>Incid.</th><th>% Efectividad</th></tr>
+        ${document.getElementById('tablaCNC_OPTs').innerHTML}
+      </table>
+
+      <div class="footer">
+        IPOSTEL - Observatorio Estratégico Postal - Elecciones España 2026
+      </div>
+      <script>
+        window.onload = function() { window.print(); }
+      <\/script>
+    </body>
+    </html>
+  `;
+
+  // Abrir en una nueva ventana para imprimir/guardar PDF
+  const ventana = window.open('', '_blank');
+  ventana.document.write(contenidoHTML);
+  ventana.document.close();
+  
+  // Cerrar el modal
+  modalInformeCNC.hide();
+}
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
