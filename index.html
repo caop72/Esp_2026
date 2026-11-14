@@ -1283,6 +1283,139 @@ function generarInformeCNC() {
   ventana.document.close();
   modalInformeCNC.hide();
 }
+  // ==========================================
+// LÓGICA ENCAMINAMIENTO (MARIELA)
+// ==========================================
+async function cargarCamionesPorRecibir() {
+  const tbody = document.getElementById('tablaCamionesPorRecibir');
+  if(!tbody) return; // Seguridad por si la pestaña no está cargada
+  tbody.innerHTML = '<tr><td colspan="5" class="text-center py-3 text-muted">Cargando...</td></tr>';
+  
+  try {
+    const r = await postAPI({ accion: 'obtenerDespachosCamiones' }); 
+    if (!r.exito) throw new Error(r.mensaje);
+    
+    tbody.innerHTML = '';
+    if(r.datos.length === 0) return tbody.innerHTML = '<tr><td colspan="5" class="text-center py-3">No hay camiones en tránsito.</td></tr>';
+    
+    r.datos.forEach(d => {
+      tbody.innerHTML += `<tr>
+        <td><b>${d.vehiculo}</b><br><small>${d.conductor}</small></td>
+        <td>${d.precinto}</td>
+        <td>Guía: ${d.guiaAerea}<br><small>${d.valijas} Val | ${d.piezas} Pzs</small></td>
+        <td>${d.fechaSalida}</td>
+        <td><button class="btn btn-sm btn-primary fw-bold" onclick="abrirModalRecibirCamion('${d.id}', '${d.vehiculo}', '${d.precinto}', '${d.guiaAerea}')">Recibir</button></td>
+      </tr>`;
+    });
+  } catch(e) { 
+    tbody.innerHTML = `<tr><td colspan="5" class="text-center text-danger">${e.message}</td></tr>`; 
+  }
+}
+
+function abrirModalRecibirCamion(id, vehiculo, precinto, guia) {
+  document.getElementById('recCamVehiculo').textContent = vehiculo;
+  document.getElementById('recCamPrecinto').textContent = precinto;
+  document.getElementById('recCamCarga').textContent = 'Guía Aérea: ' + guia;
+  document.getElementById('recCamIntacto').value = 'SI';
+  document.getElementById('recCamObs').value = '';
+  document.getElementById('recCamFoto').value = '';
+  modalRecibirCamion.show();
+}
+
+async function confirmarRecepcionCamion() {
+  const intacto = document.getElementById('recCamIntacto').value;
+  const obs = document.getElementById('recCamObs').value;
+  const foto = document.getElementById('recCamFoto').files[0];
+  
+  if (!foto) return Swal.fire('Atención', 'Debe adjuntar la foto de recepción.', 'warning');
+  
+  Swal.fire({ title: 'Confirmando recepción...', didOpen: () => Swal.showLoading() });
+  
+  const r = await postAPI({ 
+    accion: 'confirmarRecepcionCamion', 
+    idDespacho: document.getElementById('recCamVehiculo').textContent, // Simulando ID
+    intacto: intacto, 
+    observaciones: obs, 
+    foto: 'url_simulada' 
+  });
+  
+  if (r.exito) {
+    modalRecibirCamion.hide();
+    Swal.fire('Recibido', 'El camión ha sido recibido en el CPC.', 'success');
+    cargarCamionesPorRecibir();
+    cargarValijasMRW();
+  } else {
+    Swal.fire('Error', r.mensaje, 'error');
+  }
+}
+
+async function cargarValijasMRW() {
+  const tbody = document.getElementById('tablaValijasMRW');
+  if(!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="4" class="text-center py-3 text-muted">Cargando valijas...</td></tr>';
+  
+  try {
+     const r = await postAPI({ accion: 'obtenerValijasCPC' });
+     if(!r.exito) throw new Error(r.mensaje);
+     
+     tbody.innerHTML = '';
+     if(r.datos.length === 0) return tbody.innerHTML = '<tr><td colspan="4" class="text-center py-3">No hay valijas listas para MRW.</td></tr>';
+     
+     r.datos.forEach(d => {
+       tbody.innerHTML += `<tr>
+         <td><b>${d.guiaAerea}</b></td>
+         <td>${d.valijas} Val | ${d.piezas} Pzs</td>
+         <td>${d.fecha}</td>
+         <td><button class="btn btn-sm btn-warning fw-bold" onclick="abrirModalEntregarMRW('${d.guiaAerea}', '${d.piezas}')">Entregar a MRW</button></td>
+       </tr>`;
+     });
+  } catch(e) { 
+    tbody.innerHTML = `<tr><td colspan="4" class="text-center text-danger">${e.message}</td></tr>`; 
+  }
+}
+
+function abrirModalEntregarMRW(guia, piezas) {
+  document.getElementById('mrwGuia').textContent = guia;
+  document.getElementById('mrwPiezas').textContent = piezas;
+  document.getElementById('mrwEstadoDestino').value = '';
+  document.getElementById('mrwChofer').value = '';
+  document.getElementById('mrwPlaca').value = '';
+  document.getElementById('mrwFoto').value = '';
+  modalEntregarMRW.show();
+}
+
+async function confirmarEntregaMRW() {
+  const guia = document.getElementById('mrwGuia').textContent;
+  const piezas = document.getElementById('mrwPiezas').textContent;
+  const estado = document.getElementById('mrwEstadoDestino').value;
+  const chofer = document.getElementById('mrwChofer').value;
+  const placa = document.getElementById('mrwPlaca').value;
+  const foto = document.getElementById('mrwFoto').files[0];
+  
+  if (!estado || !chofer || !placa || !foto) {
+    return Swal.fire('Atención', 'Complete todos los campos y adjunte la foto.', 'warning');
+  }
+  
+  Swal.fire({ title: 'Entregando a MRW...', didOpen: () => Swal.showLoading() });
+  
+  const r = await postAPI({ 
+    accion: 'registrarEntregaMRW', 
+    guiaAerea: guia, 
+    piezas: piezas, 
+    estadoDestino: estado, 
+    choferMRW: chofer, 
+    placaMRW: placa, 
+    foto: 'url_simulada' 
+  });
+  
+  if(r.exito) {
+    modalEntregarMRW.hide();
+    Swal.fire('Entregado', 'La carga ha sido entregada a MRW.', 'success');
+    cargarValijasMRW();
+  } else {
+    Swal.fire('Error', r.mensaje, 'error');
+  }
+}
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
