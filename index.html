@@ -1307,77 +1307,146 @@ async function generarInformeGerente() {
 // ==========================================
 // LÓGICA CNC (MONITOREO EN VIVO)
 // ==========================================
+let chartRegiones = null;
+let datosGlobalesCNC = { opts: [], regiones: [] };
+
 async function cargarCNC() {
   const tbodyEstados = document.getElementById('tablaCNC_Estados');
   const tbodyOPTs = document.getElementById('tablaCNC_OPTs');
   
-  tbodyEstados.innerHTML = '<tr><td colspan="5" class="text-center py-3 text-muted">Sincronizando...</td></tr>';
-  tbodyOPTs.innerHTML = '<tr><td colspan="5" class="text-center py-3 text-muted">Sincronizando...</td></tr>';
+  tbodyEstados.innerHTML = '<tr><td colspan="6" class="text-center py-3 text-muted">Sincronizando...</td></tr>';
+  tbodyOPTs.innerHTML = '<tr><td colspan="7" class="text-center py-3 text-muted">Sincronizando...</td></tr>';
   
   try {
     const r = await postAPI({ accion: 'obtenerDatosVivoCNC' });
     if (!r.exito) throw new Error(r.mensaje);
     
     if (!r.detalleRegion || !r.detalleOPT) {
-        throw new Error("El backend no devolvió detalleRegion o detalleOPT. Revisa que la versión en GS esté actualizada.");
+        throw new Error("El backend no devolvió los datos. Revisa que la versión en GS esté actualizada.");
     }
     
-    // FUNCIÓN AUXILIAR DE FORMATO
-    const fmt = (num) => Number(num || 0).toLocaleString('es-VE');
+    datosGlobalesCNC.opts = r.detalleOPT;
+    datosGlobalesCNC.regiones = r.detalleRegion;
+    
+    const fmt = (num, dec=0) => Number(num || 0).toLocaleString('es-VE', { minimumFractionDigits: dec, maximumFractionDigits: dec });
+    const fmtFecha = (fechaStr) => {
+      if (!fechaStr) return '—';
+      const f = new Date(fechaStr);
+      return f.toLocaleDateString('es-VE') + ' ' + f.toLocaleTimeString('es-VE', {hour: '2-digit', minute:'2-digit'});
+    };
 
-    // KPIs Globales con formato
-    document.getElementById('cncKpiTiempo').textContent = fmt(r.kpis.promNacional);
+    // KPIs Globales
+    document.getElementById('cncKpiTiempo').textContent = fmt(r.kpis.promNacional, 1);
     document.getElementById('cncKpiEntregadas').textContent = fmt(r.kpis.totEntregadasHoy);
     document.getElementById('cncKpiCustodia').textContent = fmt(r.kpis.totEnCustodia);
-    document.getElementById('cncKpiReencaminadas').textContent = fmt(r.kpis.totReencaminadas);
+    document.getElementById('cncKpiRiesgo').textContent = fmt(r.kpis.totEnRiesgo);
 
-    // Función auxiliar para pintar las filas
-    const renderFila = (nombre, data) => {
-      let barColor = 'bg-danger';
-      if (data.efectividad >= 80) barColor = 'bg-success';
-      else if (data.efectividad >= 50) barColor = 'bg-warning';
-
-      return `
+    // Renderizar Tabla de Regiones
+    tbodyEstados.innerHTML = '';
+    r.detalleRegion.forEach(reg => {
+      let barColor = reg.efectividad >= 80 ? 'bg-success' : (reg.efectividad >= 50 ? 'bg-warning' : 'bg-danger');
+      tbodyEstados.innerHTML += `
         <tr>
-          <td><b>${nombre}</b></td>
-          <td class="text-center"><span class="badge bg-info text-dark">${fmt(data.tiempoPromedio)} hrs</span></td>
-          <td class="text-center">${fmt(data.custodia)} pzs</td>
-          <td class="text-center"><span class="text-danger fw-bold">${fmt(data.incidencias)}</span></td>
+          <td><b>${reg.region}</b></td>
+          <td class="text-center"><small class="text-muted">${fmtFecha(reg.ultimaSync)}</small></td>
+          <td class="text-center"><span class="badge bg-info text-dark">${fmt(reg.tiempoPromedio, 1)} hrs</span></td>
+          <td class="text-center">${fmt(reg.custodia)} pzs</td>
+          <td class="text-center"><span class="badge bg-warning text-dark">${fmt(reg.enRiesgo)}</span></td>
           <td>
             <div class="d-flex align-items-center">
               <div class="progress flex-grow-1 me-2" style="height: 15px;">
-                <div class="progress-bar ${barColor}" role="progressbar" style="width: ${data.efectividad}%;"></div>
+                <div class="progress-bar ${barColor}" role="progressbar" style="width: ${reg.efectividad}%;"></div>
               </div>
-              <span class="fw-bold small">${data.efectividad}%</span>
+              <span class="fw-bold small">${reg.efectividad}%</span>
             </div>
           </td>
         </tr>
       `;
-    };
+    });
 
-    // Llenar Tabla de Regiones
-    if (r.detalleRegion.length === 0) {
-      tbodyEstados.innerHTML = '<tr><td colspan="5" class="text-center py-3 text-muted">Sin datos en regiones.</td></tr>';
-    } else {
-      tbodyEstados.innerHTML = '';
-      r.detalleRegion.forEach(reg => { tbodyEstados.innerHTML += renderFila(reg.region, reg); });
-    }
-
-    // Llenar Tabla de OPTs
-    if (r.detalleOPT.length === 0) {
-      tbodyOPTs.innerHTML = '<tr><td colspan="5" class="text-center py-3 text-muted">Sin datos en oficinas.</td></tr>';
-    } else {
-      const optOrdenadas = r.detalleOPT.sort((a, b) => b.incidencias - a.incidencias);
-      tbodyOPTs.innerHTML = '';
-      optOrdenadas.forEach(opt => { tbodyOPTs.innerHTML += renderFila(opt.opt, opt); });
-    }
+    // Renderizar Tabla de OPTs (Por defecto todas)
+    renderTablaOPTs('todas', fmt, fmtFecha);
+    actualizarGrafico(r.detalleRegion, fmt);
 
   } catch (e) {
-    tbodyEstados.innerHTML = `<tr><td colspan="5" class="text-center text-danger">${e.message}</td></tr>`;
-    tbodyOPTs.innerHTML = `<tr><td colspan="5" class="text-center text-danger">${e.message}</td></tr>`;
+    tbodyEstados.innerHTML = `<tr><td colspan="6" class="text-center text-danger">${e.message}</td></tr>`;
+    tbodyOPTs.innerHTML = `<tr><td colspan="7" class="text-center text-danger">${e.message}</td></tr>`;
   }
 }
 
+function renderTablaOPTs(filtro, fmt, fmtFecha) {
+  const tbodyOPTs = document.getElementById('tablaCNC_OPTs');
+  tbodyOPTs.innerHTML = '';
+  
+  let optsFiltradas = datosGlobalesCNC.opts;
+  if (filtro === 'criticas') optsFiltradas = optsFiltradas.filter(o => o.incidencias > 0);
+  if (filtro === 'riesgo') optsFiltradas = optsFiltradas.filter(o => o.enRiesgo > 0);
+
+  if (optsFiltradas.length === 0) {
+    tbodyOPTs.innerHTML = '<tr><td colspan="7" class="text-center py-3 text-muted">No hay OPTs en esta categoría.</td></tr>';
+    return;
+  }
+
+  optsFiltradas.forEach(opt => {
+    let barColor = opt.efectividad >= 80 ? 'bg-success' : (opt.efectividad >= 50 ? 'bg-warning' : 'bg-danger');
+    tbodyOPTs.innerHTML += `
+      <tr>
+        <td><b>${opt.opt}</b></td>
+        <td class="text-center"><small class="text-muted">${fmtFecha(opt.ultimaSync)}</small></td>
+        <td class="text-center"><span class="badge bg-info text-dark">${fmt(opt.tiempoPromedio, 1)} hrs</span></td>
+        <td class="text-center">${fmt(opt.custodia)}</td>
+        <td class="text-center"><span class="badge bg-warning text-dark">${fmt(opt.enRiesgo)}</span></td>
+        <td class="text-center"><span class="text-danger fw-bold">${fmt(opt.incidencias)}</span></td>
+        <td>
+          <div class="d-flex align-items-center">
+            <div class="progress flex-grow-1 me-2" style="height: 15px;">
+              <div class="progress-bar ${barColor}" role="progressbar" style="width: ${opt.efectividad}%;"></div>
+            </div>
+            <span class="fw-bold small">${opt.efectividad}%</span>
+          </div>
+        </td>
+      </tr>
+    `;
+  });
+}
+
+function filtrarOPTs(tipo) {
+  const fmt = (num, dec=0) => Number(num || 0).toLocaleString('es-VE', { minimumFractionDigits: dec, maximumFractionDigits: dec });
+  const fmtFecha = (fechaStr) => {
+    if (!fechaStr) return '—';
+    const f = new Date(fechaStr);
+    return f.toLocaleDateString('es-VE') + ' ' + f.toLocaleTimeString('es-VE', {hour: '2-digit', minute:'2-digit'});
+  };
+  renderTablaOPTs(tipo, fmt, fmtFecha);
+}
+
+function actualizarGrafico(regiones, fmt) {
+  const ctx = document.getElementById('graficoRegiones').getContext('2d');
+  const labels = regiones.map(r => r.region);
+  const data = regiones.map(r => r.efectividad);
+  const bgColors = data.map(v => v >= 80 ? '#198754' : (v >= 50 ? '#ffc107' : '#dc3545'));
+
+  if (chartRegiones) chartRegiones.destroy();
+  
+  chartRegiones = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: '% Efectividad',
+        data: data,
+        backgroundColor: bgColors,
+        borderRadius: 5
+      }]
+    },
+    options: {
+      indexAxis: 'y', // Barras horizontales
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: { x: { max: 100, beginAtZero: true } }
+    }
+  });
+}
 // ==========================================
 // LÓGICA INFORME CNC
 // ==========================================
