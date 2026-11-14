@@ -105,6 +105,9 @@
     <div class="d-flex justify-content-between align-items-center mb-3 bg-dark text-white p-3 rounded">
       <h5 class="m-0" id="lblBienvenida">Cargando...</h5>
       <div>
+        <button id="btnInformeCNC" class="btn btn-sm btn-outline-primary me-2 oculto" onclick="abrirModalInformeCNC()">
+            <i class="bi bi-file-earmark-pdf"></i> Generar Informe CNC
+        </button>
         <button id="btnInformeGerente" class="btn btn-sm btn-outline-info me-2 oculto" onclick="abrirModalInformeGerente()">
             <i class="bi bi-file-earmark-bar-graph"></i> Informe de Estado
         </button>
@@ -283,11 +286,11 @@
           </div>
         </div>
 
-        <!-- Tabla por OPT -->
+        <!-- Tabla de Alertas de Incidencias por OPT -->
         <div class="col-md-12">
-          <div class="card shadow-sm">
-            <div class="card-header bg-white d-flex justify-content-between py-3">
-              <h6 class="mb-0 fw-bold">Detalle por Oficina Postal (OPT)</h6>
+          <div class="card shadow-sm border-danger">
+            <div class="card-header bg-danger text-white d-flex justify-content-between py-3">
+              <h6 class="mb-0 fw-bold"><i class="bi bi-exclamation-triangle-fill"></i> Alertas de Incidencias por OPT</h6>
             </div>
             <div class="card-body p-0 table-responsive">
               <table class="table table-hover mb-0 align-middle">
@@ -301,7 +304,7 @@
                   </tr>
                 </thead>
                 <tbody id="tablaCNC_OPTs">
-                  <tr><td colspan="5" class="text-center py-3">Cargando oficinas...</td></tr>
+                  <tr><td colspan="5" class="text-center py-3">Cargando alertas...</td></tr>
                 </tbody>
               </table>
             </div>
@@ -514,12 +517,43 @@
   </div>
 </div>
 
+<!-- MODAL INFORME CNC -->
+<div class="modal fade" id="modalInformeCNC" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-dark text-white">
+        <h5 class="modal-title fw-bold"><i class="bi bi-file-earmark-text"></i> Informe Consolidado CNC</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p class="text-muted small">Seleccione el período a reportar. Por defecto el día de hoy.</p>
+        <div class="row g-3">
+          <div class="col-6">
+            <label class="form-label fw-bold">Desde</label>
+            <input type="date" class="form-control" id="infoCNCFechaInicio">
+          </div>
+          <div class="col-6">
+            <label class="form-label fw-bold">Hasta</label>
+            <input type="date" class="form-control" id="infoCNCFechaFin">
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button class="btn btn-primary fw-bold" onclick="generarInformeCNC()">
+            <i class="bi bi-printer"></i> Generar e Imprimir
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 const API_URL = 'https://script.google.com/macros/s/AKfycbzx_AeJRGOOXphA0N5sUFEMJbDBwsyzfElr0hH38dmzUmFt9dy1NJ7w3MjMycrWzoI2/exec';
 const estadoApp = { rol: null, requiereEstado: false, requiereOPT: false, estadoSel: null, optSel: null, subRolSel: null };
 const ROLES_CON_ESTADO = ['GERENCIA_ESTADO', 'JEFE_OPT', 'ANALISTA_OPT'];
 const ROLES_CON_OPT = ['JEFE_OPT', 'ANALISTA_OPT'];
-let modalRecepcion, modalEntrega, modalInforme, modalClasificar, modalDespachar, modalInformeGerente;
+let modalRecepcion, modalEntrega, modalInforme, modalClasificar, modalDespachar, modalInformeGerente, modalInformeCNC;
 
 function ocultar(id) { document.getElementById(id).classList.add('oculto'); }
 function mostrar(id) { document.getElementById(id).classList.remove('oculto'); }
@@ -618,7 +652,9 @@ function iniciarApp(r) {
     cargarHistorialEntregas();
   } else if (r.rol === 'DIR_CNC' || r.rol === 'COORD_CNC') {
     mostrar('appCNC'); 
-    cargarCNC(); // <-- CAMBIO AQUÍ
+    mostrar('btnInformeCNC'); // <-- AÑADIDO AQUÍ
+    modalInformeCNC = new bootstrap.Modal(document.getElementById('modalInformeCNC'));
+    cargarCNC();
   } else if (r.rol === 'GERENTE_ESTADO') {
     mostrar('appGerente'); 
     mostrar('btnInformeGerente');
@@ -1239,18 +1275,15 @@ async function cargarCNC() {
     const r = await postAPI({ accion: 'obtenerDatosVivoCNC' });
     if (!r.exito) throw new Error(r.mensaje);
     
-    // Verificamos que el backend realmente envió las listas nuevas
     if (!r.detalleRegion || !r.detalleOPT) {
         throw new Error("El backend no devolvió detalleRegion o detalleOPT. Revisa que la versión en GS esté actualizada.");
     }
     
-    // KPIs Globales
     document.getElementById('cncKpiTiempo').textContent = r.kpis.promNacional;
     document.getElementById('cncKpiEntregadas').textContent = r.kpis.totEntregadasHoy;
     document.getElementById('cncKpiCustodia').textContent = r.kpis.totEnCustodia;
     document.getElementById('cncKpiReencaminadas').textContent = r.kpis.totReencaminadas;
 
-    // Función auxiliar para pintar las filas
     const renderFila = (nombre, data) => {
       let barColor = 'bg-danger';
       if (data.efectividad >= 80) barColor = 'bg-success';
@@ -1274,7 +1307,6 @@ async function cargarCNC() {
       `;
     };
 
-    // Llenar Tabla de Regiones
     if (r.detalleRegion.length === 0) {
       tbodyEstados.innerHTML = '<tr><td colspan="5" class="text-center py-3 text-muted">Sin datos en regiones.</td></tr>';
     } else {
@@ -1282,17 +1314,132 @@ async function cargarCNC() {
       r.detalleRegion.forEach(reg => { tbodyEstados.innerHTML += renderFila(reg.region, reg); });
     }
 
-    // Llenar Tabla de OPTs
     if (r.detalleOPT.length === 0) {
       tbodyOPTs.innerHTML = '<tr><td colspan="5" class="text-center py-3 text-muted">Sin datos en oficinas.</td></tr>';
     } else {
+      const optOrdenadas = r.detalleOPT.sort((a, b) => b.incidencias - a.incidencias);
       tbodyOPTs.innerHTML = '';
-      r.detalleOPT.forEach(opt => { tbodyOPTs.innerHTML += renderFila(opt.opt, opt); });
+      optOrdenadas.forEach(opt => { tbodyOPTs.innerHTML += renderFila(opt.opt, opt); });
     }
 
   } catch (e) {
     tbodyEstados.innerHTML = `<tr><td colspan="5" class="text-center text-danger">${e.message}</td></tr>`;
     tbodyOPTs.innerHTML = `<tr><td colspan="5" class="text-center text-danger">${e.message}</td></tr>`;
+  }
+}
+
+// ==========================================
+// LÓGICA INFORME CNC
+// ==========================================
+function abrirModalInformeCNC() {
+  if (!modalInformeCNC) modalInformeCNC = new bootstrap.Modal(document.getElementById('modalInformeCNC'));
+  const hoy = new Date().toISOString().split('T')[0];
+  document.getElementById('infoCNCFechaInicio').value = hoy;
+  document.getElementById('infoCNCFechaFin').value = hoy;
+  modalInformeCNC.show();
+}
+
+async function generarInformeCNC() {
+  const fInicio = document.getElementById('infoCNCFechaInicio').value;
+  const fFin = document.getElementById('infoCNCFechaFin').value;
+  if (!fInicio || !fFin) return Swal.fire('Atención', 'Seleccione ambas fechas.', 'warning');
+  if (fInicio > fFin) return Swal.fire('Error', 'La fecha "Desde" no puede ser mayor que "Hasta".', 'error');
+  
+  Swal.fire({ title: 'Generando informe CNC...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+  
+  try {
+    const r = await postAPI({ accion: 'obtenerDatosVivoCNC' });
+    if (!r.exito) throw new Error(r.mensaje);
+    
+    modalInformeCNC.hide();
+    
+    let filasRegiones = '';
+    r.detalleRegion.forEach(reg => {
+      let color = reg.efectividad >= 80 ? 'green' : (reg.efectividad >= 50 ? 'orange' : 'red');
+      filasRegiones += `<tr>
+        <td>${reg.region}</td>
+        <td style="text-align:center;">${reg.tiempoPromedio} hrs</td>
+        <td style="text-align:center;">${reg.custodia}</td>
+        <td style="text-align:center;">${reg.incidencias}</td>
+        <td style="text-align:center; font-weight:bold; color: ${color};">${reg.efectividad}%</td>
+      </tr>`;
+    });
+
+    let filasOPTs = '';
+    r.detalleOPT.sort((a, b) => b.incidencias - a.incidencias).forEach(opt => {
+      let color = opt.efectividad >= 80 ? 'green' : (opt.efectividad >= 50 ? 'orange' : 'red');
+      filasOPTs += `<tr>
+        <td>${opt.opt}</td>
+        <td style="text-align:center;">${opt.tiempoPromedio} hrs</td>
+        <td style="text-align:center;">${opt.custodia}</td>
+        <td style="text-align:center; font-weight:bold; color: red;">${opt.incidencias}</td>
+        <td style="text-align:center; font-weight:bold; color: ${color};">${opt.efectividad}%</td>
+      </tr>`;
+    });
+
+    const k = r.kpis;
+
+    const htmlInforme = `
+      <html>
+      <head>
+        <title>Informe CNC - Consolidado Nacional</title>
+        <style>
+          body { font-family: 'Segoe UI', Arial, sans-serif; padding: 30px; color: #333; }
+          h1 { text-align: center; color: #003366; margin-bottom: 5px; font-size: 26px; }
+          h2 { text-align: center; font-size: 16px; color: #444; margin-top: 0; margin-bottom: 5px; }
+          .geo-info { text-align: center; font-size: 12px; color: #666; margin-bottom: 25px; text-transform: uppercase; letter-spacing: 1px; }
+          
+          .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 30px; }
+          .kpi-box { border: 1px solid #ddd; border-radius: 8px; padding: 15px; text-align: center; background: #f8f9fa; border-top: 4px solid #003366; }
+          .kpi-box.success { border-top-color: #198754; }
+          .kpi-box.warning { border-top-color: #ffc107; }
+          .kpi-box.danger { border-top-color: #dc3545; }
+          .kpi-value { font-size: 24px; font-weight: bold; color: #003366; margin-bottom: 5px; }
+          .kpi-label { font-size: 11px; text-transform: uppercase; color: #666; font-weight: bold; }
+          
+          table { width: 100%; border-collapse: collapse; margin-top: 20px; margin-bottom: 30px; }
+          th, td { border: 1px solid #ddd; padding: 10px; text-align: left; font-size: 12px; }
+          th { background-color: #003366; color: white; font-weight: 600; }
+          tr:nth-child(even) { background-color: #f9f9f9; }
+          
+          .footer { margin-top: 40px; text-align: center; font-size: 10px; color: #888; border-top: 1px solid #ddd; padding-top: 10px; }
+        </style>
+      </head>
+      <body>
+        <h1>IPOSTEL - Centro Nacional de Control (CNC)</h1>
+        <h2>Informe Consolidado de Operaciones</h2>
+        <div class="geo-info">Período: ${fInicio.split('-').reverse().join('/')} al ${fFin.split('-').reverse().join('/')}</div>
+        
+        <div class="kpi-grid">
+          <div class="kpi-box"><div class="kpi-value">${k.promNacional}</div><div class="kpi-label">T. Promedio Nacional</div></div>
+          <div class="kpi-box success"><div class="kpi-value">${k.totEntregadasHoy}</div><div class="kpi-label">Piezas Entregadas Hoy</div></div>
+          <div class="kpi-box warning"><div class="kpi-value">${k.totEnCustodia}</div><div class="kpi-label">Piezas en Custodia</div></div>
+          <div class="kpi-box danger"><div class="kpi-value">${k.totReencaminadas}</div><div class="kpi-label">Reencaminadas</div></div>
+        </div>
+
+        <h3>1. Desempeño por Región Administrativa</h3>
+        <table>
+          <thead><tr><th>Región</th><th style="text-align:center;">T. Promedio</th><th style="text-align:center;">En Custodia</th><th style="text-align:center;">Incidencias</th><th style="text-align:center;">% Efectividad</th></tr></thead>
+          <tbody>${filasRegiones}</tbody>
+        </table>
+
+        <h3>2. Alertas de Incidencias por OPT</h3>
+        <table>
+          <thead><tr><th>Oficina (OPT)</th><th style="text-align:center;">T. Promedio</th><th style="text-align:center;">En Custodia</th><th style="text-align:center;">Incidencias</th><th style="text-align:center;">% Efectividad</th></tr></thead>
+          <tbody>${filasOPTs}</tbody>
+        </table>
+
+        <div class="footer">Generado el ${new Date().toLocaleString()} por el sistema de Observatorio Estratégico Postal.</div>
+        <script>window.onload = function() { window.print(); }<\/script>
+      </body>
+      </html>
+    `;
+    
+    const ventana = window.open('', '_blank');
+    ventana.document.write(htmlInforme);
+    ventana.document.close();
+  } catch (e) {
+    Swal.fire('Error', 'No se pudo generar el informe: ' + e.message, 'error');
   }
 }
 
