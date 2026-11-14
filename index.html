@@ -900,6 +900,21 @@ async function generarInforme() {
 
     const k = r.kpis;
     const info = r.infoOPT;
+        // Formatear números
+    k.totPaquetesRecibidos = formatNum_(k.totPaquetesRecibidos);
+    k.totPiezasRecibidas = formatNum_(k.totPiezasRecibidas);
+    k.totPiezasEntregadas = formatNum_(k.totPiezasEntregadas);
+    k.certEntregados = formatNum_(k.certEntregados);
+    k.ordEntregados = formatNum_(k.ordEntregados);
+    k.conFoto = formatNum_(k.conFoto);
+    k.totPaquetesEntregados = formatNum_(k.totPaquetesEntregados);
+    k.incidencias = formatNum_(k.incidencias);
+    k.pctEntrega = formatNum_(k.pctEntrega);
+    k.promHorasStr = formatNum_(k.promHorasStr.replace(' hrs', ''), 1) + ' hrs';
+    r.detalle.forEach(d => {
+      d.cert = formatNum_(d.cert);
+      d.ord = formatNum_(d.ord);
+    });
     const subtituloGeografico = `Estado: ${info.estado} | Municipio: ${info.municipio} | Parroquia: ${info.parroquia}`;
 
     const htmlInforme = `
@@ -1167,6 +1182,17 @@ async function generarInformeGerente() {
 
     const k = r.kpis;
     const info = r.infoGerencia;
+        // Formatear números
+    k.totValijasRecibidas = formatNum_(k.totValijasRecibidas);
+    k.totPiezasRecibidas = formatNum_(k.totPiezasRecibidas);
+    k.totPaquetesCreados = formatNum_(k.totPaquetesCreados);
+    k.totPaquetesDespachados = formatNum_(k.totPaquetesDespachados);
+    k.piezasDespachadas = formatNum_(k.piezasDespachadas);
+    k.certDespachados = formatNum_(k.certDespachados);
+    k.ordDespachados = formatNum_(k.ordDespachados);
+    r.detalle.forEach(d => {
+      d.totalPiezas = formatNum_(d.totalPiezas);
+    });
 
     const htmlInforme = `
       <html>
@@ -1385,7 +1411,26 @@ async function generarInformeCNC() {
     });
 
     const k = r.kpis;
+    // Formatear números
+    k.promNacional = formatNum_(k.promNacional, 1);
+    k.totEntregadasHoy = formatNum_(k.totEntregadasHoy);
+    k.totEnCustodia = formatNum_(k.totEnCustodia);
+    k.totReencaminadas = formatNum_(k.totReencaminadas);
 
+    r.detalleRegion.forEach(reg => {
+      reg.tiempoPromedio = formatNum_(reg.tiempoPromedio, 1);
+      reg.custodia = formatNum_(reg.custodia);
+      reg.incidencias = formatNum_(reg.incidencias);
+      reg.efectividad = formatNum_(reg.efectividad);
+    });
+
+    r.detalleOPT.forEach(opt => {
+      opt.tiempoPromedio = formatNum_(opt.tiempoPromedio, 1);
+      opt.custodia = formatNum_(opt.custodia);
+      opt.incidencias = formatNum_(opt.incidencias);
+      opt.efectividad = formatNum_(opt.efectividad);
+    });
+    
     const htmlInforme = `
       <html>
       <head>
