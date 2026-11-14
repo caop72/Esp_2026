@@ -223,7 +223,6 @@
         </div>
       </div>
     </div>
-
     <!-- PANEL CNC (MONITOREO EN VIVO) -->
     <div id="appCNC" class="oculto">
       <h4 class="text-primary mb-3 fw-bold"><i class="bi bi-globe-americas"></i> Centro Nacional de Control (CNC)</h4>
@@ -253,10 +252,20 @@
         </div>
         <div class="col-6 col-md-3">
           <div class="stat-mini bg-danger bg-opacity-10">
-            <small class="text-danger fw-bold">Reencaminadas</small>
-            <h3 class="text-danger" id="cncKpiReencaminadas">0</h3>
-            <small class="text-muted">Devoluciones de Gerencia</small>
+            <small class="text-danger fw-bold">En Riesgo (SLA > 12h)</small>
+            <h3 class="text-danger" id="cncKpiRiesgo">0</h3>
+            <small class="text-muted">Piezas a punto de vencer</small>
           </div>
+        </div>
+      </div>
+
+      <!-- Gráfico de Efectividad por Región -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-white py-3">
+          <h6 class="mb-0 fw-bold"><i class="bi bi-bar-chart-fill text-primary"></i> Efectividad por Región</h6>
+        </div>
+        <div class="card-body">
+          <canvas id="graficoRegiones" height="80"></canvas>
         </div>
       </div>
 
@@ -265,7 +274,7 @@
         <div class="col-md-12 mb-4">
           <div class="card shadow-sm border-primary">
             <div class="card-header bg-primary text-white d-flex justify-content-between py-3">
-              <h6 class="mb-0 fw-bold"><i class="bi bi-map"></i> Tabla de Control por Región Administrativa</h6>
+              <h6 class="mb-0 fw-bold"><i class="bi bi-map"></i> Tabla de Control por Región</h6>
               <button class="btn btn-sm btn-light fw-bold" onclick="cargarCNC()"><i class="bi bi-arrow-clockwise"></i> Actualizar</button>
             </div>
             <div class="card-body p-0 table-responsive">
@@ -273,39 +282,47 @@
                 <thead class="table-light">
                   <tr>
                     <th>Región</th>
-                    <th class="text-center">Tiempo Prom. (hrs)</th>
-                    <th class="text-center">En Custodia</th>
-                    <th class="text-center">Incidencias</th>
-                    <th style="width: 25%;">% Efectividad</th>
+                    <th class="text-center">Última Sync</th>
+                    <th class="text-center">T. Prom (hrs)</th>
+                    <th class="text-center">Custodia</th>
+                    <th class="text-center">En Riesgo</th>
+                    <th class="text-center">% Efectividad</th>
                   </tr>
                 </thead>
                 <tbody id="tablaCNC_Estados">
-                  <tr><td colspan="5" class="text-center py-3">Cargando regiones...</td></tr>
+                  <tr><td colspan="6" class="text-center py-3">Cargando regiones...</td></tr>
                 </tbody>
               </table>
             </div>
           </div>
         </div>
 
-        <!-- Tabla de Alertas de Incidencias por OPT -->
+        <!-- Tabla de Alertas por OPT -->
         <div class="col-md-12">
           <div class="card shadow-sm border-danger">
             <div class="card-header bg-danger text-white d-flex justify-content-between py-3">
               <h6 class="mb-0 fw-bold"><i class="bi bi-exclamation-triangle-fill"></i> Alertas de Incidencias por OPT</h6>
+              <div class="btn-group btn-group-sm">
+                <button class="btn btn-light fw-bold" onclick="filtrarOPTs('todas')">Ver Todas</button>
+                <button class="btn btn-outline-light fw-bold" onclick="filtrarOPTs('criticas')">🔴 Críticas</button>
+                <button class="btn btn-outline-light fw-bold" onclick="filtrarOPTs('riesgo')">⚠️ En Riesgo</button>
+              </div>
             </div>
             <div class="card-body p-0 table-responsive">
               <table class="table table-hover mb-0 align-middle">
                 <thead class="table-light">
                   <tr>
                     <th>Oficina (OPT)</th>
-                    <th class="text-center">Tiempo Prom. (hrs)</th>
-                    <th class="text-center">En Custodia</th>
-                    <th class="text-center">Incidencias</th>
-                    <th style="width: 25%;">% Efectividad</th>
+                    <th class="text-center">Última Sync</th>
+                    <th class="text-center">T. Prom (hrs)</th>
+                    <th class="text-center">Custodia</th>
+                    <th class="text-center">Riesgo</th>
+                    <th class="text-center">Incid.</th>
+                    <th style="width: 20%;">% Efectividad</th>
                   </tr>
                 </thead>
                 <tbody id="tablaCNC_OPTs">
-                  <tr><td colspan="5" class="text-center py-3">Cargando alertas...</td></tr>
+                  <tr><td colspan="7" class="text-center py-3">Cargando alertas...</td></tr>
                 </tbody>
               </table>
             </div>
@@ -313,7 +330,6 @@
         </div>
       </div>
     </div>
-
     <!-- OTROS PANELES -->
     <div id="appObservatorio" class="oculto">
       <h5 class="text-primary mb-3">Observatorio Estratégico (KPIs)</h5>
