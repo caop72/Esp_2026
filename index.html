@@ -911,6 +911,10 @@ function iniciarApp(r) {
     mostrar('appOperaciones'); 
     mostrar('btnReporteOperaciones');
     iniciarOperaciones();
+ } else if (r.rol === 'COORD_ALIANZA') {
+    mostrar('appAliado'); 
+    mostrar('btnControlAliado');
+    iniciarAliado();
   } else if (r.rol === 'GERENTE_ESTADO') {
     mostrar('appGerente'); 
     mostrar('btnInformeGerente');
