@@ -1379,10 +1379,15 @@ function abrirModalRecibirCamion(id, vehiculo, conductor, precinto, guia, valija
   document.getElementById('recCamVehiculoTxt').textContent = vehiculo;
   document.getElementById('recCamConductorTxt').textContent = conductor;
   document.getElementById('recCamPrecintoTxt').textContent = precinto;
-  document.getElementById('recCamCargaTxt').textContent = 'Guía Aérea: ' + guia;
+  document.getElementById('recCamGuiaTxt').textContent = guia;
   document.getElementById('recCamValijasTxt').textContent = valijas;
   document.getElementById('recCamPiezasTxt').textContent = piezas;
-  document.getElementById('recCamCondicionTxt').textContent = 'Pendiente de verificación física'; 
+  
+  // Poner la hora actual por defecto
+  const ahora = new Date();
+  ahora.setMinutes(ahora.getMinutes() - ahora.getTimezoneOffset());
+  document.getElementById('recCamHoraLlegadaInp').value = ahora.toISOString().slice(0, 16);
+  
   document.getElementById('recCamIntactoInp').value = 'SI';
   document.getElementById('recCamObsInp').value = '';
   document.getElementById('recCamFotoInp').value = '';
@@ -1392,20 +1397,64 @@ function abrirModalRecibirCamion(id, vehiculo, conductor, precinto, guia, valija
 }
 
 async function confirmarRecepcionCamion() {
+  const vehiculo = document.getElementById('recCamVehiculoTxt').textContent;
+  const horaLlegada = document.getElementById('recCamHoraLlegadaInp').value;
   const intacto = document.getElementById('recCamIntactoInp').value;
   const obs = document.getElementById('recCamObsInp').value;
   const foto = document.getElementById('recCamFotoInp').files[0];
-  if (!foto) return Swal.fire('Atención', 'Debe adjuntar la foto de recepción.', 'warning');
+  
+  if (!horaLlegada || !foto) return Swal.fire('Atención', 'Debe indicar la hora de llegada y adjuntar la foto.', 'warning');
   
   Swal.fire({ title: 'Confirmando recepción...', didOpen: () => Swal.showLoading() });
-  const r = await postAPI({ accion: 'confirmarRecepcionCamion', intacto, obs, foto: 'url_simulada' });
+  
+  // Enviamos el vehículo como identificador y la hora de llegada al backend
+  const r = await postAPI({ 
+    accion: 'confirmarRecepcionCamion', 
+    vehiculo: vehiculo, 
+    horaLlegada: horaLlegada,
+    intacto: intacto, 
+    obs: obs, 
+    foto: 'url_simulada' 
+  });
   
   if (r.exito) {
     modalRecibirCamion.hide();
-    Swal.fire('Recibido', 'El camión ha sido recibido en el CPC.', 'success');
-    cargarCamionesPorRecibir();
+    Swal.fire('Recibido', 'El camión ha sido recibido y registrado en el historial.', 'success');
+    cargarCamionesPorRecibir(); // Actualiza la lista y hace desaparecer el camión
     cargarValijasMRW();
-  } else { Swal.fire('Error', r.mensaje, 'error'); }
+  } else { 
+    Swal.fire('Error', r.mensaje, 'error'); 
+  }
+}
+
+// NUEVA FUNCIÓN PARA EL HISTORIAL
+let modalHistorialCamiones;
+async function cargarHistorialCamionesRecibidos() {
+  if(!modalHistorialCamiones) modalHistorialCamiones = new bootstrap.Modal(document.getElementById('modalHistorialCamiones'));
+  const tbody = document.getElementById('tablaHistorialCamiones');
+  tbody.innerHTML = '<tr><td colspan="6" class="text-center py-3 text-muted">Cargando historial...</td></tr>';
+  modalHistorialCamiones.show();
+  
+  try {
+    const r = await postAPI({ accion: 'obtenerHistorialCamiones' });
+    if(!r.exito) throw new Error(r.mensaje);
+    
+    tbody.innerHTML = '';
+    if(r.datos.length === 0) return tbody.innerHTML = '<tr><td colspan="6" class="text-center py-3">No hay camiones recibidos en el historial.</td></tr>';
+    
+    r.datos.forEach(d => {
+      tbody.innerHTML += `<tr>
+        <td><b>${d.fechaLlegada}</b></td>
+        <td>${d.vehiculo}</td>
+        <td>${d.guiaAerea}</td>
+        <td>${d.valijas} Val / ${d.piezas} Pzs</td>
+        <td>${d.recibio}</td>
+        <td>${d.precinto}</td>
+      </tr>`;
+    });
+  } catch(e) { 
+    tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">${e.message}</td></tr>`; 
+  }
 }
 
 // 2. ENTREGAR A MRW (HACIA ESTADOS)
