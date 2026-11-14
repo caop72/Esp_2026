@@ -1342,19 +1342,24 @@ async function cargarValijasMRW() {
 }
 
 function abrirModalEntregarMRW(guia, piezas) {
-  document.getElementById('mrwGuia').textContent = guia;
-  document.getElementById('mrwPiezas').textContent = piezas;
-  document.getElementById('mrwEstadoDestino').value = '';
-  document.getElementById('mrwChofer').value = '';
-  document.getElementById('mrwPlaca').value = '';
-  document.getElementById('mrwFoto').value = '';
+  // Asignamos los valores a los campos del modal
+  document.getElementById('mrwGuiaTxt').textContent = guia;
+  document.getElementById('mrwPiezasTxt').textContent = piezas;
+  document.getElementById('mrwEstadoDestinoInp').value = '';
+  document.getElementById('mrwChoferInp').value = '';
+  document.getElementById('mrwPlacaInp').value = '';
+  document.getElementById('mrwFotoInp').value = '';
   
-  // Parche de seguridad para forzar la apertura del modal
-  if (!modalEntregarMRW) {
-    modalEntregarMRW = new bootstrap.Modal(document.getElementById('modalEntregarMRW'));
+  // Forzamos la creación del modal si no existe, y lo mostramos
+  const elementoModal = document.getElementById('modalEntregarMRW');
+  if(elementoModal) {
+    if(!modalEntregarMRW) {
+      modalEntregarMRW = new bootstrap.Modal(elementoModal);
+    }
+    modalEntregarMRW.show();
+  } else {
+    console.error("El modal con ID 'modalEntregarMRW' no existe en el HTML.");
   }
-  
-  modalEntregarMRW.show();
 }
 
 async function confirmarEntregaMRW() {
