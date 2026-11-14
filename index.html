@@ -790,7 +790,7 @@ function iniciarApp(r) {
     mostrar('btnInformeOPT');
     modalRecepcion = new bootstrap.Modal(document.getElementById('modalRecepcion'));
     modalEntrega = new bootstrap.Modal(document.getElementById('modalEntrega'));
-    modalInforme = new bootstrap.Modal(document.getElementById('modalInforme'));
+    modalInforme = new bootstrap.Modal(document.getElementById('modalInforme')); 
     cargarEstadisticasOPT();
     cargarPorRecibir(); 
     cargarCustodia();
@@ -800,13 +800,10 @@ function iniciarApp(r) {
     mostrar('btnInformeCNC'); // <-- AÑADIDO AQUÍ
     modalInformeCNC = new bootstrap.Modal(document.getElementById('modalInformeCNC'));
     cargarCNC();
-
   } else if (r.rol === 'DIR_OPER') {
     mostrar('appOperaciones'); 
     mostrar('btnReporteOperaciones');
     iniciarOperaciones();
-  }
-    
   } else if (r.rol === 'GERENTE_ESTADO') {
     mostrar('appGerente'); 
     mostrar('btnInformeGerente');
