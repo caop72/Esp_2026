@@ -701,7 +701,7 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbzx_AeJRGOOXphA0N5sUFEM
 const estadoApp = { rol: null, requiereEstado: false, requiereOPT: false, estadoSel: null, optSel: null, subRolSel: null };
 const ROLES_CON_ESTADO = ['GERENCIA_ESTADO', 'JEFE_OPT', 'ANALISTA_OPT'];
 const ROLES_CON_OPT = ['JEFE_OPT', 'ANALISTA_OPT'];
-let modalRecepcion, modalEntrega, modalInforme, modalClasificar, modalDespachar, modalInformeGerente, modalInformeCNC, modalOperaciones, modalAsignarEstado, modalAliado, modalDespachoCamion;
+let modalRecepcion, modalEntrega, modalInforme, modalClasificar, modalDespachar, modalInformeGerente, modalInformeCNC, modalOperaciones, modalAsignarEstado, modalAliado, modalDespachoCamion, modalRecibirCamion, modalEntregarMRW;
 let chartRegiones = null; 
 let datosGlobalesCNC = { opts: [], regiones: [] }; // Variable para el CNC
 
@@ -1381,6 +1381,12 @@ function abrirModalEntregarMRW(guia, piezas) {
   document.getElementById('mrwChofer').value = '';
   document.getElementById('mrwPlaca').value = '';
   document.getElementById('mrwFoto').value = '';
+  
+  // Parche de seguridad para forzar la apertura del modal
+  if (!modalEntregarMRW) {
+    modalEntregarMRW = new bootstrap.Modal(document.getElementById('modalEntregarMRW'));
+  }
+  
   modalEntregarMRW.show();
 }
 
