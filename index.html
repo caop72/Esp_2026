@@ -510,7 +510,7 @@ function iniciarApp(r) {
     cargarEstadisticasOPT(); cargarPorRecibir(); cargarCustodia(); cargarHistorialEntregas();
   } else if (r.rol === 'DIR_CNC' || r.rol === 'COORD_CNC') {
     mostrar('appCNC'); mostrar('btnInformeCNC'); modalInformeCNC = new bootstrap.Modal(document.getElementById('modalInformeCNC')); cargarCNC();
-  } else if (r.rol === 'DIR_OPER') {
+  } else if (r.rol === 'DIR_OPER' || r.rol === 'GER_OPER') {
     mostrar('appOperaciones'); 
     modalOperaciones = new bootstrap.Modal(document.getElementById('modalOperaciones'));
     cargarPanelOperaciones();
@@ -521,10 +521,6 @@ function iniciarApp(r) {
   } else if (r.rol === 'GERENTE_ESTADO') {
     mostrar('appGerente'); mostrar('btnInformeGerente');
     iniciarGerente();
-  } else if (r.rol === 'GER_OPER') {
-    mostrar('appOperaciones'); 
-    modalOperaciones = new bootstrap.Modal(document.getElementById('modalOperaciones'));
-    cargarPanelOperaciones(); 
   } else {
     mostrar('appObservatorio'); cargarObservatorio();
   }
