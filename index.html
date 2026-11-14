@@ -1974,7 +1974,7 @@ async function generarReporteOperaciones() {
 }
 
 // ==========================================
-// LÓGICA CONTROL DEL ALIADO (ALFREDO)
+// LÓGICA AUDITORÍA DEL ALIADO (ALFREDO)
 // ==========================================
 let modalAliado;
 
@@ -1992,25 +1992,24 @@ async function cargarPanelAliado() {
     if (!r.exito) throw new Error(r.mensaje);
     
     const fmt = (num) => Number(num || 0).toLocaleString('es-VE');
-    
-    let totValijas = 0, totPiezas = 0, totKg = 0, totNovedades = 0;
+    let totValijas = 0, totPiezas = 0, totKg = 0, totIncumplimientos = 0;
     
     tbody.innerHTML = '';
     r.datos.forEach(d => {
-      totValijas += Number(d.valRec) || 0;
-      totPiezas += Number(d.pzRec) || 0;
+      totValijas += Number(d.valEnt) || 0;
+      totPiezas += Number(d.pzEnt) || 0;
       totKg += Number(d.kg) || 0;
-      if (d.estado !== 'Conforme') totNovedades++;
+      if (d.estado !== 'Conforme') totIncumplimientos++;
       
       let badge = d.estado === 'Conforme' ? 'bg-success' : 'bg-warning text-dark';
       
       tbody.innerHTML += `
         <tr>
           <td><b>${d.guia}</b></td>
-          <td>${d.origen}</td>
-          <td>${d.fechaLlegada ? new Date(d.fechaLlegada).toLocaleDateString() : '—'}</td>
-          <td>${d.valDecl} / <b>${d.valRec}</b></td>
-          <td>${fmt(d.pzDecl)} / <b>${fmt(d.pzRec)}</b></td>
+          <td>${d.fechaVuelo ? new Date(d.fechaVuelo).toLocaleDateString() : '—'}</td>
+          <td>${d.fechaEntrega ? new Date(d.fechaEntrega).toLocaleDateString() : '—'}</td>
+          <td>${d.valDecl} / <b>${d.valEnt}</b></td>
+          <td>${fmt(d.pzDecl)} / <b>${fmt(d.pzEnt)}</b></td>
           <td>${d.kg} kg</td>
           <td><span class="badge ${badge}">${d.estado}</span></td>
           <td><small>${d.novedad || '—'}</small></td>
@@ -2021,7 +2020,7 @@ async function cargarPanelAliado() {
     document.getElementById('aliadoKpiValijas').textContent = fmt(totValijas);
     document.getElementById('aliadoKpiPiezas').textContent = fmt(totPiezas);
     document.getElementById('aliadoKpiKg').textContent = fmt(totKg) + ' kg';
-    document.getElementById('aliadoKpiNovedades').textContent = fmt(totNovedades);
+    document.getElementById('aliadoKpiNovedades').textContent = fmt(totIncumplimientos);
     
   } catch (e) {
     tbody.innerHTML = `<tr><td colspan="8" class="text-center text-danger">${e.message}</td></tr>`;
@@ -2032,11 +2031,11 @@ function abrirModalAliado() {
   document.getElementById('aliadoGuia').value = '';
   document.getElementById('aliadoOrigen').value = 'España';
   document.getElementById('aliadoFechaVuelo').value = '';
-  document.getElementById('aliadoFechaLlegada').value = new Date().toISOString().slice(0, 16);
+  document.getElementById('aliadoFechaEntrega').value = new Date().toISOString().slice(0, 16);
   document.getElementById('aliadoValDecl').value = '';
-  document.getElementById('aliadoValRec').value = '';
+  document.getElementById('aliadoValEnt').value = '';
   document.getElementById('aliadoPzDecl').value = '';
-  document.getElementById('aliadoPzRec').value = '';
+  document.getElementById('aliadoPzEnt').value = '';
   document.getElementById('aliadoKg').value = '';
   document.getElementById('aliadoEstado').value = 'Conforme';
   document.getElementById('aliadoNovedad').value = '';
@@ -2045,30 +2044,30 @@ function abrirModalAliado() {
 
 async function guardarRecepcionAliado() {
   const payload = {
-    accion: 'registrarRecepcionAliado',
-    idRegistro: 'ALI-' + Math.floor(Math.random() * 10000),
+    accion: 'registrarAuditoriaAliado',
+    idAuditoria: 'AUD-' + Math.floor(Math.random() * 10000),
     guiaAerea: document.getElementById('aliadoGuia').value,
     paisOrigen: document.getElementById('aliadoOrigen').value,
-    fechaVuelo: document.getElementById('aliadoFechaVuelo').value,
-    fechaLlegada: document.getElementById('aliadoFechaLlegada').value,
+    fechaLlegadaVuelo: document.getElementById('aliadoFechaVuelo').value,
+    fechaEntregaMRW: document.getElementById('aliadoFechaEntrega').value,
     valijasDeclaradas: document.getElementById('aliadoValDecl').value,
-    valijasRecibidas: document.getElementById('aliadoValRec').value,
+    valijasEntregadas: document.getElementById('aliadoValEnt').value,
     piezasDeclaradas: document.getElementById('aliadoPzDecl').value,
-    piezasRecibidas: document.getElementById('aliadoPzRec').value,
-    kgRecibidos: document.getElementById('aliadoKg').value,
-    estadoRecepcion: document.getElementById('aliadoEstado').value,
+    piezasEntregadas: document.getElementById('aliadoPzEnt').value,
+    kgEntregados: document.getElementById('aliadoKg').value,
+    estadoAuditoria: document.getElementById('aliadoEstado').value,
     novedad: document.getElementById('aliadoNovedad').value
   };
   
-  if (!payload.guiaAerea || !payload.valijasRecibidas) {
-    return Swal.fire('Atención', 'Complete la Guía Aérea y las Valijas Recibidas.', 'warning');
+  if (!payload.guiaAerea || !payload.valijasEntregadas) {
+    return Swal.fire('Atención', 'Complete la Guía Aérea y las Valijas Entregadas.', 'warning');
   }
   
   Swal.fire({ title: 'Registrando...', didOpen: () => Swal.showLoading() });
   const r = await postAPI(payload);
   if (r.exito) {
     modalAliado.hide();
-    Swal.fire('Registrado', 'La recepción ha sido guardada.', 'success');
+    Swal.fire('Auditoría Registrada', 'La entrega de MRW ha sido auditada.', 'success');
     cargarPanelAliado();
   } else Swal.fire('Error', r.mensaje, 'error');
 }
