@@ -1280,31 +1280,26 @@ async function cargarCamionesPorRecibir() {
 }
 
 function abrirModalRecibirCamion(id, vehiculo, precinto, guia) {
-  document.getElementById('recCamVehiculo').textContent = vehiculo;
-  document.getElementById('recCamPrecinto').textContent = precinto;
-  document.getElementById('recCamCarga').textContent = 'Guía Aérea: ' + guia;
-  document.getElementById('recCamIntacto').value = 'SI';
-  document.getElementById('recCamObs').value = '';
-  document.getElementById('recCamFoto').value = '';
+  document.getElementById('recCamVehiculoTxt').textContent = vehiculo;
+  document.getElementById('recCamPrecintoTxt').textContent = precinto;
+  document.getElementById('recCamCargaTxt').textContent = 'Guía Aérea: ' + guia;
+  document.getElementById('recCamIntactoInp').value = 'SI';
+  document.getElementById('recCamObsInp').value = '';
+  document.getElementById('recCamFotoInp').value = '';
+  
+  if(!modalRecibirCamion) modalRecibirCamion = new bootstrap.Modal(document.getElementById('modalRecibirCamion'));
   modalRecibirCamion.show();
 }
 
 async function confirmarRecepcionCamion() {
-  const intacto = document.getElementById('recCamIntacto').value;
-  const obs = document.getElementById('recCamObs').value;
-  const foto = document.getElementById('recCamFoto').files[0];
+  const intacto = document.getElementById('recCamIntactoInp').value;
+  const obs = document.getElementById('recCamObsInp').value;
+  const foto = document.getElementById('recCamFotoInp').files[0];
   
   if (!foto) return Swal.fire('Atención', 'Debe adjuntar la foto de recepción.', 'warning');
   
   Swal.fire({ title: 'Confirmando recepción...', didOpen: () => Swal.showLoading() });
-  
-  const r = await postAPI({ 
-    accion: 'confirmarRecepcionCamion', 
-    idDespacho: document.getElementById('recCamVehiculo').textContent, // Simulando ID
-    intacto: intacto, 
-    observaciones: obs, 
-    foto: 'url_simulada' 
-  });
+  const r = await postAPI({ accion: 'confirmarRecepcionCamion', intacto: intacto, obs: obs, foto: 'url_simulada' });
   
   if (r.exito) {
     modalRecibirCamion.hide();
@@ -1342,7 +1337,6 @@ async function cargarValijasMRW() {
 }
 
 function abrirModalEntregarMRW(guia, piezas) {
-  // Asignamos los valores a los campos del modal
   document.getElementById('mrwGuiaTxt').textContent = guia;
   document.getElementById('mrwPiezasTxt').textContent = piezas;
   document.getElementById('mrwEstadoDestinoInp').value = '';
@@ -1350,41 +1344,24 @@ function abrirModalEntregarMRW(guia, piezas) {
   document.getElementById('mrwPlacaInp').value = '';
   document.getElementById('mrwFotoInp').value = '';
   
-  // Forzamos la creación del modal si no existe, y lo mostramos
-  const elementoModal = document.getElementById('modalEntregarMRW');
-  if(elementoModal) {
-    if(!modalEntregarMRW) {
-      modalEntregarMRW = new bootstrap.Modal(elementoModal);
-    }
-    modalEntregarMRW.show();
-  } else {
-    console.error("El modal con ID 'modalEntregarMRW' no existe en el HTML.");
-  }
+  if(!modalEntregarMRW) modalEntregarMRW = new bootstrap.Modal(document.getElementById('modalEntregarMRW'));
+  modalEntregarMRW.show();
 }
 
 async function confirmarEntregaMRW() {
-  const guia = document.getElementById('mrwGuia').textContent;
-  const piezas = document.getElementById('mrwPiezas').textContent;
-  const estado = document.getElementById('mrwEstadoDestino').value;
-  const chofer = document.getElementById('mrwChofer').value;
-  const placa = document.getElementById('mrwPlaca').value;
-  const foto = document.getElementById('mrwFoto').files[0];
+  const guia = document.getElementById('mrwGuiaTxt').textContent;
+  const piezas = document.getElementById('mrwPiezasTxt').textContent;
+  const estado = document.getElementById('mrwEstadoDestinoInp').value;
+  const chofer = document.getElementById('mrwChoferInp').value;
+  const placa = document.getElementById('mrwPlacaInp').value;
+  const foto = document.getElementById('mrwFotoInp').files[0];
   
   if (!estado || !chofer || !placa || !foto) {
     return Swal.fire('Atención', 'Complete todos los campos y adjunte la foto.', 'warning');
   }
   
   Swal.fire({ title: 'Entregando a MRW...', didOpen: () => Swal.showLoading() });
-  
-  const r = await postAPI({ 
-    accion: 'registrarEntregaMRW', 
-    guiaAerea: guia, 
-    piezas: piezas, 
-    estadoDestino: estado, 
-    choferMRW: chofer, 
-    placaMRW: placa, 
-    foto: 'url_simulada' 
-  });
+  const r = await postAPI({ accion: 'registrarEntregaMRW', guiaAerea: guia, piezas: piezas, estadoDestino: estado, choferMRW: chofer, placaMRW: placa, foto: 'url_simulada' });
   
   if(r.exito) {
     modalEntregarMRW.hide();
