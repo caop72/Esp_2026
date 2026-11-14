@@ -254,32 +254,63 @@
       </div>
     </div>
 
-    <!-- PANEL GERENCIA DE OPERACIONES (RECEPCIÓN DE VUELOS) -->
+    <!-- PANEL GERENCIA DE OPERACIONES (RECEPCIÓN DE VUELOS Y DESPACHO TERRESTRE) -->
     <div id="appOperaciones" class="oculto">
-      <h4 class="text-primary mb-3 fw-bold"><i class="bi bi-airplane"></i> Gerencia de Operaciones: Recepción de Vuelos</h4>
-      <div class="alert alert-info py-2 small"><i class="bi bi-info-circle"></i> Registro de la carga recibida en el aeropuerto y su traslado al CPC.</div>
+      <h4 class="text-primary mb-3 fw-bold"><i class="bi bi-airplane"></i> Gerencia de Operaciones</h4>
+      <div class="alert alert-info py-2 small"><i class="bi bi-info-circle"></i> Registro de vuelos internacionales y cadena de custodia para despacho al CPC.</div>
       
-      <div class="row g-2 mb-4">
-        <div class="col-6 col-md-3"><div class="stat-mini bg-primary bg-opacity-10"><small class="text-primary fw-bold">Vuelos Recibidos</small><h3 class="text-primary" id="opKpiVuelos">0</h3><small class="text-muted">En Aeropuerto</small></div></div>
-        <div class="col-6 col-md-3"><div class="stat-mini bg-success bg-opacity-10"><small class="text-success fw-bold">Piezas Recibidas</small><h3 class="text-success" id="opKpiPiezas">0</h3><small class="text-muted">Total</small></div></div>
-        <div class="col-6 col-md-3"><div class="stat-mini bg-warning bg-opacity-25"><small class="text-warning fw-bold">Kg Recibidos</small><h3 class="text-warning" id="opKpiKg">0</h3><small class="text-muted">Total</small></div></div>
-        <div class="col-6 col-md-3"><div class="stat-mini bg-danger bg-opacity-10"><small class="text-danger fw-bold">Novedades</small><h3 class="text-danger" id="opKpiNovedades">0</h3><small class="text-muted">Detectadas</small></div></div>
-      </div>
+      <!-- Pestañas -->
+      <ul class="nav nav-tabs mb-3" id="tabsOperaciones" role="tablist">
+        <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-vuelos" type="button"><i class="bi bi-airplane-fill text-primary"></i> 1. Recepción de Vuelos</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-despacho-terrestre" type="button"><i class="bi bi-truck text-success"></i> 2. Despacho a CPC (Camiones)</button></li>
+      </ul>
 
-      <div class="card shadow-sm">
-        <div class="card-header bg-white d-flex justify-content-between py-3">
-          <h6 class="mb-0 fw-bold">Vuelos Recibidos</h6>
-          <button class="btn btn-primary btn-sm fw-bold" onclick="abrirModalOperaciones()"><i class="bi bi-plus-circle"></i> Registrar Vuelo</button>
+      <div class="tab-content">
+        <!-- PESTAÑA 1: VUELOS -->
+        <div class="tab-pane fade show active" id="tab-vuelos">
+          <div class="row g-2 mb-4">
+            <div class="col-6 col-md-3"><div class="stat-mini bg-primary bg-opacity-10"><small class="text-primary fw-bold">Vuelos Recibidos</small><h3 class="text-primary" id="opKpiVuelos">0</h3><small class="text-muted">En Aeropuerto</small></div></div>
+            <div class="col-6 col-md-3"><div class="stat-mini bg-success bg-opacity-10"><small class="text-success fw-bold">Piezas Recibidas</small><h3 class="text-success" id="opKpiPiezas">0</h3><small class="text-muted">Total</small></div></div>
+            <div class="col-6 col-md-3"><div class="stat-mini bg-warning bg-opacity-25"><small class="text-warning fw-bold">Kg Recibidos</small><h3 class="text-warning" id="opKpiKg">0</h3><small class="text-muted">Total</small></div></div>
+            <div class="col-6 col-md-3"><div class="stat-mini bg-danger bg-opacity-10"><small class="text-danger fw-bold">Novedades</small><h3 class="text-danger" id="opKpiNovedades">0</h3><small class="text-muted">Detectadas</small></div></div>
+          </div>
+
+          <div class="card shadow-sm">
+            <div class="card-header bg-white d-flex justify-content-between py-3">
+              <h6 class="mb-0 fw-bold">Vuelos Recibidos</h6>
+              <button class="btn btn-primary btn-sm fw-bold" onclick="abrirModalOperaciones()"><i class="bi bi-plus-circle"></i> Registrar Vuelo</button>
+            </div>
+            <div class="card-body p-0 table-responsive">
+              <table class="table table-hover mb-0 align-middle">
+                <thead class="table-light">
+                  <tr><th>Guía Aérea</th><th>Llegada Vuelo</th><th>Precinto</th><th>Valijas</th><th>Piezas</th><th>Kg</th><th>Estado</th></tr>
+                </thead>
+                <tbody id="tablaOperaciones">
+                  <tr><td colspan="7" class="text-center py-3">Cargando...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
-        <div class="card-body p-0 table-responsive">
-          <table class="table table-hover mb-0 align-middle">
-            <thead class="table-light">
-              <tr><th>Guía Aérea</th><th>Llegada Vuelo</th><th>Salida a CPC</th><th>Precinto</th><th>Vehículo</th><th>Conductor</th><th>Valijas</th><th>Piezas</th><th>Kg</th><th>Estado</th></tr>
-            </thead>
-            <tbody id="tablaOperaciones">
-              <tr><td colspan="10" class="text-center py-3">Cargando...</td></tr>
-            </tbody>
-          </table>
+
+        <!-- PESTAÑA 2: DESPACHO TERRESTRE -->
+        <div class="tab-pane fade" id="tab-despacho-terrestre">
+          <div class="card shadow-sm">
+            <div class="card-header bg-white d-flex justify-content-between py-3">
+              <h6 class="mb-0 fw-bold">Despachos hacia el CPC (Camiones)</h6>
+              <button class="btn btn-success btn-sm fw-bold" onclick="abrirModalDespachoCamion()"><i class="bi bi-truck"></i> Asignar Camión / Carga</button>
+            </div>
+            <div class="card-body p-0 table-responsive">
+              <table class="table table-hover mb-0 align-middle">
+                <thead class="table-light">
+                  <tr><th>Vehículo / Conductor</th><th>Precinto</th><th>Carga Asignada</th><th>Cadena de Custodia</th><th>Salida CPC</th><th>Foto</th></tr>
+                </thead>
+                <tbody id="tablaDespachoCamiones">
+                  <tr><td colspan="6" class="text-center py-3 text-muted">Cargando...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -388,6 +419,7 @@
   </div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-primary fw-bold" onclick="generarInformeCNC()">Generar e Imprimir</button></div></div></div>
 </div>
 
+<!-- MODAL REGISTRAR VUELO -->
 <div class="modal fade" id="modalOperaciones" tabindex="-1">
   <div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header bg-primary text-white"><h5 class="modal-title fw-bold">Registrar Recepción de Vuelo</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body">
     <div class="row g-3">
@@ -396,8 +428,6 @@
       <div class="col-md-4"><label class="form-label fw-bold">Precinto</label><input type="text" class="form-control" id="opPrecinto" placeholder="N° Precinto" required></div>
       <div class="col-md-6"><label class="form-label fw-bold">Llegada Vuelo</label><input type="datetime-local" class="form-control" id="opFechaLlegada" required></div>
       <div class="col-md-6"><label class="form-label fw-bold">Salida hacia CPC</label><input type="datetime-local" class="form-control" id="opFechaSalida" required></div>
-      <div class="col-md-6"><label class="form-label fw-bold">Vehículo (Placa)</label><input type="text" class="form-control" id="opVehiculo" placeholder="Ej: A12BC3D" required></div>
-      <div class="col-md-6"><label class="form-label fw-bold">Conductor</label><input type="text" class="form-control" id="opConductor" placeholder="Nombre y Cédula" required></div>
       <div class="col-md-4"><label class="form-label fw-bold">Valijas</label><input type="number" class="form-control" id="opValijas" required></div>
       <div class="col-md-4"><label class="form-label fw-bold">Piezas</label><input type="number" class="form-control" id="opPiezas" required></div>
       <div class="col-md-4"><label class="form-label fw-bold">Kg</label><input type="number" step="0.1" class="form-control" id="opKg" required></div>
@@ -406,6 +436,98 @@
       <div class="col-12"><label class="form-label fw-bold">Novedad</label><textarea class="form-control" id="opNovedad" rows="2"></textarea></div>
     </div>
   </div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-primary fw-bold" onclick="guardarVueloOperaciones()">Registrar Vuelo</button></div></div></div>
+</div>
+
+<!-- MODAL DESPACHO DE CAMIONES (ACTA DE ENTREGA CPI -> CPC) -->
+<div class="modal fade" id="modalDespachoCamion" tabindex="-1" data-bs-backdrop="static">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title fw-bold"><i class="bi bi-truck"></i> Despacho Terrestre (CPI -> CPC)</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row g-3">
+          <!-- TRAZABILIDAD DEL VUELO -->
+          <div class="col-12">
+            <div class="bg-light p-3 rounded border">
+              <h6 class="fw-bold text-primary mb-2"><i class="bi bi-airplane"></i> 1. Trazabilidad de la Carga (Vuelo)</h6>
+              <div class="row g-2">
+                <div class="col-md-6">
+                  <label class="form-label fw-bold">Guía Aérea / Vuelo de Origen *</label>
+                  <select class="form-select" id="camGuiaOrigen" required><option value="">-- Seleccione Vuelo --</option></select>
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label fw-bold">Valijas a cargar *</label>
+                  <input type="number" class="form-control" id="camValijas" required min="1">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label fw-bold">Piezas a cargar *</label>
+                  <input type="number" class="form-control" id="camPiezas" required min="1">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- DATOS DEL VEHÍCULO Y CONDUCTOR -->
+          <div class="col-12 mt-3">
+            <div class="bg-light p-3 rounded border">
+              <h6 class="fw-bold text-primary mb-2"><i class="bi bi-truck"></i> 2. Datos del Transporte</h6>
+              <div class="row g-2">
+                <div class="col-md-3"><label class="form-label fw-bold">Vehículo (Placa) *</label><input type="text" class="form-control" id="camVehiculo" required></div>
+                <div class="col-md-3"><label class="form-label fw-bold">Conductor *</label><input type="text" class="form-control" id="camConductor" required></div>
+                <div class="col-md-3"><label class="form-label fw-bold">Cédula Conductor *</label><input type="text" class="form-control" id="camCedulaConductor" required></div>
+                <div class="col-md-3"><label class="form-label fw-bold">Precinto de Seguridad *</label><input type="text" class="form-control" id="camPrecinto" required></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- CADENA DE CUSTODIA (RESPONSABLES DEL CPI) -->
+          <div class="col-12 mt-3">
+            <div class="bg-light p-3 rounded border border-warning">
+              <h6 class="fw-bold text-warning text-dark mb-2"><i class="bi bi-person-badge"></i> 3. Control de Custodia (CPI)</h6>
+              <div class="row g-2">
+                <div class="col-md-6">
+                  <label class="form-label fw-bold">Responsable de la Entrega (Aeropuerto/CPI) *</label>
+                  <input type="text" class="form-control" id="camEntregaNombre" placeholder="Nombre del Representante CPI" required>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label fw-bold">Cédula del Representante CPI (Entrega) *</label>
+                  <input type="text" class="form-control" id="camEntregaCedula" placeholder="V-12345678" required>
+                </div>
+                <div class="col-md-6 mt-3">
+                  <label class="form-label fw-bold">Responsable de la Recepción (Camión/CPC) *</label>
+                  <input type="text" class="form-control" id="camRecibeNombre" placeholder="Nombre de quien recibe" required>
+                </div>
+                <div class="col-md-6 mt-3">
+                  <label class="form-label fw-bold">Cédula de quien Recibe *</label>
+                  <input type="text" class="form-control" id="camRecibeCedula" placeholder="V-12345678" required>
+                </div>
+              </div>
+              <div class="mt-2 text-muted small">
+                <i class="bi bi-info-circle"></i> El representante del CPI certifica la entrega física de la carga al transportista.
+              </div>
+            </div>
+          </div>
+
+          <!-- FECHAS Y FOTO -->
+          <div class="col-md-6 mt-3">
+            <label class="form-label fw-bold">Fecha y Hora de Salida (CPC) *</label>
+            <input type="datetime-local" class="form-control" id="camFechaSalida" required>
+          </div>
+          <div class="col-md-6 mt-3">
+            <label class="form-label fw-bold text-danger">📸 Foto del Camión / Precinto *</label>
+            <input type="file" class="form-control" id="camFoto" accept="image/*" required>
+          </div>
+
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button class="btn btn-success fw-bold" onclick="guardarDespachoCamion()">REGISTRAR DESPACHO</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <div class="modal fade" id="modalAsignarEstado" tabindex="-1">
@@ -441,9 +563,9 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbzx_AeJRGOOXphA0N5sUFEM
 const estadoApp = { rol: null, requiereEstado: false, requiereOPT: false, estadoSel: null, optSel: null, subRolSel: null };
 const ROLES_CON_ESTADO = ['GERENCIA_ESTADO', 'JEFE_OPT', 'ANALISTA_OPT'];
 const ROLES_CON_OPT = ['JEFE_OPT', 'ANALISTA_OPT'];
-let modalRecepcion, modalEntrega, modalInforme, modalClasificar, modalDespachar, modalInformeGerente, modalInformeCNC, modalOperaciones, modalAsignarEstado, modalAliado;
+let modalRecepcion, modalEntrega, modalInforme, modalClasificar, modalDespachar, modalInformeGerente, modalInformeCNC, modalOperaciones, modalAsignarEstado, modalAliado, modalDespachoCamion;
 let chartRegiones = null; 
-let datosGlobalesCNC = { opts: [], regiones: [] }; // ⬅️ AQUI SE DECLARA LA VARIABLE QUE FALTABA
+let datosGlobalesCNC = { opts: [], regiones: [] }; // Variable para el CNC
 
 function ocultar(id) { document.getElementById(id).classList.add('oculto'); }
 function mostrar(id) { document.getElementById(id).classList.remove('oculto'); }
@@ -516,7 +638,9 @@ function iniciarApp(r) {
   } else if (r.rol === 'DIR_OPER' || r.rol === 'GER_OPER') {
     mostrar('appOperaciones'); 
     modalOperaciones = new bootstrap.Modal(document.getElementById('modalOperaciones'));
+    modalDespachoCamion = new bootstrap.Modal(document.getElementById('modalDespachoCamion'));
     cargarPanelOperaciones();
+    cargarTablaDespachos();
   } else if (r.rol === 'COORD_ALIANZA') {
     mostrar('appAliado'); 
     modalAliado = new bootstrap.Modal(document.getElementById('modalAliado'));
@@ -530,11 +654,11 @@ function iniciarApp(r) {
 }
 
 // ==========================================
-// LÓGICA GERENCIA DE OPERACIONES (VUELOS)
+// LÓGICA GERENCIA DE OPERACIONES (VUELOS Y CAMIONES)
 // ==========================================
 async function cargarPanelOperaciones() {
   const tbody = document.getElementById('tablaOperaciones');
-  tbody.innerHTML = '<tr><td colspan="10" class="text-center py-3 text-muted">Cargando vuelos...</td></tr>';
+  tbody.innerHTML = '<tr><td colspan="7" class="text-center py-3 text-muted">Cargando vuelos...</td></tr>';
   
   try {
     const r = await postAPI({ accion: 'obtenerDatosOperaciones' });
@@ -544,62 +668,146 @@ async function cargarPanelOperaciones() {
     let totVuelos = 0, totPiezas = 0, totKg = 0, totNovedades = 0;
     tbody.innerHTML = '';
     
-    // Función auxiliar para formatear fechas de forma segura
     const formatFecha = (f) => {
       if (!f) return '—';
       let d = new Date(f);
-      if (isNaN(d.getTime())) return f; // Si no es fecha válida, muestra el texto original
+      if (isNaN(d.getTime())) return f; 
       return d.toLocaleString('es-VE', { dateStyle: 'short', timeStyle: 'short' });
     };
 
     r.datos.forEach(d => {
-      totVuelos++;
-      totPiezas += Number(d.piezas) || 0;
-      totKg += Number(d.kg) || 0;
+      totVuelos++; totPiezas += Number(d.piezas) || 0; totKg += Number(d.kg) || 0;
       if (d.estado !== 'Conforme' && d.estado !== 'Recibido') totNovedades++;
-
       let badge = (d.estado === 'Conforme' || d.estado === 'Recibido') ? 'bg-success' : 'bg-warning text-dark';
       
-      tbody.innerHTML += `
-        <tr>
+      tbody.innerHTML += `<tr>
           <td><b>${d.guia || '—'}</b></td>
           <td>${formatFecha(d.fechaLlegada)}</td>
-          <td>${formatFecha(d.fechaSalida)}</td>
           <td>${d.precinto || '—'}</td>
-          <td>${d.vehiculo || '—'}</td>
-          <td>${d.conductor || '—'}</td>
           <td>${fmt(d.valijas)}</td>
           <td>${fmt(d.piezas)}</td>
           <td>${fmt(d.kg)} kg</td>
           <td><span class="badge ${badge}">${d.estado}</span></td>
-        </tr>`;
+      </tr>`;
     });
     
-    // Actualizar los KPIs superiores
     document.getElementById('opKpiVuelos').textContent = totVuelos;
     document.getElementById('opKpiPiezas').textContent = fmt(totPiezas);
     document.getElementById('opKpiKg').textContent = fmt(totKg);
     document.getElementById('opKpiNovedades').textContent = totNovedades;
-
-  } catch (e) { 
-    tbody.innerHTML = `<tr><td colspan="10" class="text-center text-danger">${e.message}</td></tr>`; 
-  }
+  } catch (e) { tbody.innerHTML = `<tr><td colspan="7" class="text-center text-danger">${e.message}</td></tr>`; }
 }
 
 function abrirModalOperaciones() {
   document.getElementById('opGuia').value = ''; document.getElementById('opOrigen').value = 'España'; document.getElementById('opPrecinto').value = '';
   document.getElementById('opFechaLlegada').value = new Date().toISOString().slice(0, 16); document.getElementById('opFechaSalida').value = new Date().toISOString().slice(0, 16);
-  document.getElementById('opVehiculo').value = ''; document.getElementById('opConductor').value = ''; document.getElementById('opValijas').value = ''; document.getElementById('opPiezas').value = ''; document.getElementById('opKg').value = '';
+  document.getElementById('opValijas').value = ''; document.getElementById('opPiezas').value = ''; document.getElementById('opKg').value = '';
   document.getElementById('opEstado').value = 'Conforme'; document.getElementById('opNovedad').value = ''; document.getElementById('opFoto').value = '';
   modalOperaciones.show();
 }
 
 async function guardarVueloOperaciones() {
-  const payload = { accion: 'registrarVueloOperaciones', idVuelo: 'VUELO-' + Math.floor(Math.random() * 10000), guiaAerea: document.getElementById('opGuia').value, paisOrigen: document.getElementById('opOrigen').value, fechaLlegadaAero: document.getElementById('opFechaLlegada').value, precinto: document.getElementById('opPrecinto').value, vehiculo: document.getElementById('opVehiculo').value, conductor: document.getElementById('opConductor').value, fechaSalidaCPC: document.getElementById('opFechaSalida').value, valijas: document.getElementById('opValijas').value, piezas: document.getElementById('opPiezas').value, kg: document.getElementById('opKg').value, estado: document.getElementById('opEstado').value, novedad: document.getElementById('opNovedad').value, foto: "https://drive.google.com/foto_simulada", gps: "10.123, -66.456" };
+  const payload = { 
+    accion: 'registrarVueloOperaciones', 
+    idVuelo: 'VUELO-' + Math.floor(Math.random() * 10000), 
+    guiaAerea: document.getElementById('opGuia').value, 
+    paisOrigen: document.getElementById('opOrigen').value, 
+    fechaLlegadaAero: document.getElementById('opFechaLlegada').value, 
+    precinto: document.getElementById('opPrecinto').value, 
+    fechaSalidaCPC: document.getElementById('opFechaSalida').value, 
+    valijas: document.getElementById('opValijas').value, 
+    piezas: document.getElementById('opPiezas').value, 
+    kg: document.getElementById('opKg').value, 
+    estado: document.getElementById('opEstado').value, 
+    novedad: document.getElementById('opNovedad').value, 
+    foto: "https://drive.google.com/foto_simulada", 
+    gps: "10.123, -66.456" 
+  };
   if (!payload.guiaAerea || !payload.valijas) return Swal.fire('Atención', 'Complete los campos obligatorios.', 'warning');
   Swal.fire({ title: 'Guardando...', didOpen: () => Swal.showLoading() });
   const r = await postAPI(payload);
-  if (r.exito) { modalOperaciones.hide(); Swal.fire('Vuelo Registrado', 'La carga ha sido sellada y despachada al CPC.', 'success'); cargarPanelOperaciones(); } else Swal.fire('Error', r.mensaje, 'error');
+  if (r.exito) { modalOperaciones.hide(); Swal.fire('Vuelo Registrado', 'La carga ha sido registrada.', 'success'); cargarPanelOperaciones(); } else Swal.fire('Error', r.mensaje, 'error');
+}
+
+// DESPACHO DE CAMIONES
+function abrirModalDespachoCamion() {
+  if(!modalDespachoCamion) modalDespachoCamion = new bootstrap.Modal(document.getElementById('modalDespachoCamion'));
+  
+  document.getElementById('camVehiculo').value = ''; document.getElementById('camConductor').value = ''; document.getElementById('camCedulaConductor').value = ''; document.getElementById('camPrecinto').value = '';
+  document.getElementById('camFechaSalida').value = new Date().toISOString().slice(0, 16);
+  document.getElementById('camValijas').value = ''; document.getElementById('camPiezas').value = '';
+  document.getElementById('camEntregaNombre').value = ''; document.getElementById('camEntregaCedula').value = '';
+  document.getElementById('camRecibeNombre').value = ''; document.getElementById('camRecibeCedula').value = '';
+  document.getElementById('camFoto').value = '';
+  
+  const selectGuia = document.getElementById('camGuiaOrigen');
+  selectGuia.innerHTML = '<option value="">-- Seleccione Vuelo --</option>';
+  postAPI({accion: 'obtenerDatosOperaciones'}).then(r => {
+    if(r.exito) {
+      r.datos.forEach(v => selectGuia.innerHTML += `<option value="${v.guia}">${v.guia} (${v.fechaLlegada ? v.fechaLlegada.split('T')[0] : 's/f'})</option>`);
+    }
+  });
+  
+  modalDespachoCamion.show();
+}
+
+async function guardarDespachoCamion() {
+  const payload = {
+    accion: 'registrarDespachoCamion',
+    guiaAerea: document.getElementById('camGuiaOrigen').value,
+    valijas: document.getElementById('camValijas').value,
+    piezas: document.getElementById('camPiezas').value,
+    vehiculo: document.getElementById('camVehiculo').value,
+    conductor: document.getElementById('camConductor').value,
+    cedulaConductor: document.getElementById('camCedulaConductor').value,
+    precinto: document.getElementById('camPrecinto').value,
+    entregaNombre: document.getElementById('camEntregaNombre').value,
+    entregaCedula: document.getElementById('camEntregaCedula').value,
+    recibeNombre: document.getElementById('camRecibeNombre').value,
+    recibeCedula: document.getElementById('camRecibeCedula').value,
+    fechaSalidaCPC: document.getElementById('camFechaSalida').value,
+    foto: "https://drive.google.com/foto_simulada"
+  };
+  
+  if (!payload.guiaAerea || !payload.vehiculo || !payload.precinto || !payload.entregaNombre || !payload.recibeNombre || !document.getElementById('camFoto').files[0]) {
+    return Swal.fire('Atención', 'Complete todos los campos obligatorios y adjunte la foto.', 'warning');
+  }
+  
+  Swal.fire({ title: 'Registrando cadena de custodia...', didOpen: () => Swal.showLoading() });
+  const r = await postAPI(payload);
+  
+  if (r.exito) { 
+    modalDespachoCamion.hide(); 
+    Swal.fire('Despacho Creado', 'El camión ha sido registrado con su carga y cadena de custodia.', 'success'); 
+    cargarTablaDespachos(); 
+  } else {
+    Swal.fire('Error', r.mensaje, 'error'); 
+  }
+}
+
+async function cargarTablaDespachos() {
+  const tbody = document.getElementById('tablaDespachoCamiones');
+  tbody.innerHTML = '<tr><td colspan="6" class="text-center py-3 text-muted">Cargando despachos...</td></tr>';
+  try {
+    const r = await postAPI({ accion: 'obtenerDespachosCamiones' });
+    if (!r.exito) throw new Error(r.mensaje);
+    tbody.innerHTML = '';
+    if(r.datos.length === 0) return tbody.innerHTML = '<tr><td colspan="6" class="text-center py-3">Sin despachos registrados.</td></tr>';
+    
+    r.datos.forEach(d => {
+      tbody.innerHTML += `<tr>
+        <td><b>${d.vehiculo}</b><br><small>${d.conductor}</small></td>
+        <td>${d.precinto}</td>
+        <td>Guía: ${d.guiaAerea}<br><small>${d.valijas} Val | ${d.piezas} Pzs</small></td>
+        <td>
+          <small class="d-block"><b>Entregó:</b> ${d.entregaNombre}</small>
+          <small class="d-block"><b>Recibió:</b> ${d.recibeNombre}</small>
+        </td>
+        <td>${d.fechaSalida}</td>
+        <td><i class="bi bi-image text-success"></i></td>
+      </tr>`;
+    });
+  } catch(e) { tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">${e.message}</td></tr>`; }
 }
 
 // ==========================================
@@ -815,7 +1023,6 @@ async function cargarCNC() {
     if (!r.exito) throw new Error(r.mensaje);
     if (!r.detalleRegion || !r.detalleOPT) throw new Error("Backend desactualizado.");
     
-    // ⬇️ ESTA ES LA LÍNEA MÁGICA QUE FALTABA ⬇️
     datosGlobalesCNC.opts = r.detalleOPT; 
     datosGlobalesCNC.regiones = r.detalleRegion;
     
@@ -867,32 +1074,25 @@ async function cargarEstados() { try { const r = await postAPI({accion: 'obtener
 async function cargarOPTs(estado) { try { const r = await postAPI({accion: 'obtenerOPTsPorEstado', estado: estado}); if (r.exito) { const sel = document.getElementById('selOPT'); sel.innerHTML = '<option value="">-- Seleccione OPT --</option>'; r.opts.forEach(o => sel.innerHTML += `<option value="${o.codigo}">${o.nombre}</option>`); mostrar('pasoOPT'); } } catch(e) { console.error(e); } }
 function postAPI(payload) { return fetch(API_URL, { method: 'POST', body: JSON.stringify(payload), headers: { 'Content-Type': 'text/plain;charset=utf-8' } }).then(r => r.json()); }
 function formatNum_(num, decimals = 0) { if (num === undefined || num === null || isNaN(num)) return '0'; let n = Number(num); let str = n.toFixed(decimals); let partes = str.split('.'); partes[0] = partes[0].replace(/\B(?=(\d{3})+(?!\d))/g, "."); return partes.join(','); }
+
 // ==========================================
 // LÓGICA PARA EL INFORME DEL CNC
 // ==========================================
 function abrirModalInformeCNC() {
-  // Inicializar el modal si no se ha hecho antes
   if (!modalInformeCNC) {
     modalInformeCNC = new bootstrap.Modal(document.getElementById('modalInformeCNC'));
   }
-  // Poner fechas de hoy por defecto
   const hoy = new Date().toISOString().split('T')[0];
   document.getElementById('infoCNCFechaInicio').value = hoy;
   document.getElementById('infoCNCFechaFin').value = hoy;
-  
   modalInformeCNC.show();
 }
 
 function generarInformeCNC() {
   const desde = document.getElementById('infoCNCFechaInicio').value;
   const hasta = document.getElementById('infoCNCFechaFin').value;
-  
-  if (!desde || !hasta) {
-    return Swal.fire('Atención', 'Debe seleccionar ambas fechas.', 'warning');
-  }
+  if (!desde || !hasta) return Swal.fire('Atención', 'Debe seleccionar ambas fechas.', 'warning');
 
-  // Como los datos del CNC ya están en pantalla y no tenemos una función de PDF en backend,
-  // generamos un reporte imprimible usando el navegador.
   let contenidoHTML = `
     <html>
     <head>
@@ -910,42 +1110,30 @@ function generarInformeCNC() {
     <body>
       <h1>Centro Nacional de Control (CNC)</h1>
       <p style="text-align: center;">Reporte generado desde: <b>${desde}</b> hasta: <b>${hasta}</b></p>
-      
       <div style="text-align: center; margin-bottom: 20px;">
         <div class="kpi-box"><b>Tiempo Promedio</b><br>${document.getElementById('cncKpiTiempo').innerText} hrs</div>
         <div class="kpi-box"><b>Entregadas Hoy</b><br>${document.getElementById('cncKpiEntregadas').innerText}</div>
         <div class="kpi-box"><b>En Custodia</b><br>${document.getElementById('cncKpiCustodia').innerText}</div>
         <div class="kpi-box"><b>En Riesgo</b><br>${document.getElementById('cncKpiRiesgo').innerText}</div>
       </div>
-
       <h3>Efectividad por Región</h3>
       <table>
         <tr><th>Región</th><th>T. Prom (hrs)</th><th>Custodia</th><th>En Riesgo</th><th>% Efectividad</th></tr>
         ${document.getElementById('tablaCNC_Estados').innerHTML}
       </table>
-
       <h3>Alertas por OPT</h3>
       <table>
         <tr><th>Oficina (OPT)</th><th>T. Prom (hrs)</th><th>Custodia</th><th>Riesgo</th><th>Incid.</th><th>% Efectividad</th></tr>
         ${document.getElementById('tablaCNC_OPTs').innerHTML}
       </table>
-
-      <div class="footer">
-        IPOSTEL - Observatorio Estratégico Postal - Elecciones España 2026
-      </div>
-      <script>
-        window.onload = function() { window.print(); }
-      <\/script>
+      <div class="footer">IPOSTEL - Observatorio Estratégico Postal - Elecciones España 2026</div>
+      <script>window.onload = function() { window.print(); }<\/script>
     </body>
     </html>
   `;
-
-  // Abrir en una nueva ventana para imprimir/guardar PDF
   const ventana = window.open('', '_blank');
   ventana.document.write(contenidoHTML);
   ventana.document.close();
-  
-  // Cerrar el modal
   modalInformeCNC.hide();
 }
 </script>
