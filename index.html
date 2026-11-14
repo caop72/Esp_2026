@@ -125,7 +125,7 @@
       </div>
     </div>
 
-    <!-- PANEL JEFE OPT (AEROPUERTO) -->
+        <!-- PANEL JEFE OPT (AEROPUERTO) -->
     <div id="appOPT" class="oculto">
       <div class="row g-2 mb-3">
         <div class="col-6 col-md-3"><div class="stat-mini bg-warning bg-opacity-25"><small class="text-warning fw-bold">Por Recibir</small><h3 class="text-warning" id="statRecibir">0</h3></div></div>
@@ -229,6 +229,7 @@
         </div>
       </div>
     </div>
+
     <!-- PANEL CNC (MONITOREO EN VIVO) -->
     <div id="appCNC" class="oculto">
       <h4 class="text-primary mb-3 fw-bold"><i class="bi bi-globe-americas"></i> Centro Nacional de Control (CNC)</h4>
@@ -337,15 +338,7 @@
       </div>
     </div>
 
-    
-    <!-- OTROS PANELES -->
-    <div id="appObservatorio" class="oculto">
-      <h5 class="text-primary mb-3">Observatorio Estratégico (KPIs)</h5>
-      <div id="dashboardObservatorio">Cargando datos...</div>
-    </div>
-  </div>
-</div>
-      <!-- PANEL CONTROL DEL ALIADO (ALFREDO) -->
+    <!-- PANEL CONTROL DEL ALIADO (ALFREDO) -->
     <div id="appAliado" class="oculto">
       <h4 class="text-primary mb-3 fw-bold"><i class="bi bi-clipboard-check"></i> Control del Aliado (MRW)</h4>
       
@@ -406,7 +399,7 @@
         </div>
       </div>
     </div>
-  
+
     <!-- PANEL DIRECTOR DE OPERACIONES (CPC) -->
     <div id="appOperaciones" class="oculto">
       <h4 class="text-primary mb-3 fw-bold"><i class="bi bi-truck"></i> Centro Postal de Caracas (CPC) - Operaciones</h4>
@@ -449,6 +442,12 @@
           </table>
         </div>
       </div>
+    </div>
+
+    <!-- OTROS PANELES -->
+    <div id="appObservatorio" class="oculto">
+      <h5 class="text-primary mb-3">Observatorio Estratégico (KPIs)</h5>
+      <div id="dashboardObservatorio">Cargando datos...</div>
     </div>
   
 <!-- MODAL RECEPCIÓN (OPT) -->
@@ -904,23 +903,24 @@ function iniciarApp(r) {
     cargarHistorialEntregas();
   } else if (r.rol === 'DIR_CNC' || r.rol === 'COORD_CNC') {
     mostrar('appCNC'); 
-    mostrar('btnInformeCNC'); // <-- AÑADIDO AQUÍ
+    mostrar('btnInformeCNC'); 
     modalInformeCNC = new bootstrap.Modal(document.getElementById('modalInformeCNC'));
     cargarCNC();
   } else if (r.rol === 'DIR_OPER') {
     mostrar('appOperaciones'); 
     mostrar('btnReporteOperaciones');
     iniciarOperaciones();
- } else if (r.rol === 'COORD_ALIANZA') {
+  } else if (r.rol === 'COORD_ALIANZA') {
     mostrar('appAliado'); 
-    mostrar('btnControlAliado');
+    // Se elimina la línea mostrar('btnControlAliado') porque el botón ya no está en la barra superior
     iniciarAliado();
   } else if (r.rol === 'GERENTE_ESTADO') {
     mostrar('appGerente'); 
     mostrar('btnInformeGerente');
     iniciarGerente();
   } else {
-    mostrar('appObservatorio'); cargarObservatorio();
+    mostrar('appObservatorio'); 
+    cargarObservatorio();
   }
 }
 
