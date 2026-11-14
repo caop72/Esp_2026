@@ -672,15 +672,33 @@
         <h5 class="modal-title fw-bold"><i class="bi bi-clock-history"></i> Historial de Camiones Recibidos</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
-      <div class="modal-body p-0 table-responsive">
-        <table class="table table-hover mb-0 align-middle">
-          <thead class="table-light">
-            <tr><th>Fecha/Hora Llegada</th><th>Vehículo</th><th>Guía / Vuelo</th><th>Carga (Val/Pzs)</th><th>Recibió</th><th>Precinto</th></tr>
-          </thead>
-          <tbody id="tablaHistorialCamiones">
-            <tr><td colspan="6" class="text-center py-3">Cargando...</td></tr>
-          </tbody>
-        </table>
+      <div class="modal-body">
+        <!-- Filtros y KPIs -->
+        <div class="row g-2 mb-3 align-items-end bg-light p-2 rounded border">
+          <div class="col-md-3"><label class="form-label fw-bold mb-0 small">Desde</label><input type="date" class="form-control form-control-sm" id="histFechaInicio"></div>
+          <div class="col-md-3"><label class="form-label fw-bold mb-0 small">Hasta</label><input type="date" class="form-control form-control-sm" id="histFechaFin"></div>
+          <div class="col-md-2"><button class="btn btn-primary btn-sm w-100 fw-bold" onclick="filtrarHistorial()">Filtrar</button></div>
+          
+          <div class="col-md-4">
+            <div class="d-flex justify-content-between text-center bg-white border rounded p-1 shadow-sm">
+              <div><small class="text-muted d-block" style="font-size:0.7rem;">Camiones</small><b id="kpiHistCamiones">0</b></div>
+              <div><small class="text-muted d-block" style="font-size:0.7rem;">Valijas</small><b id="kpiHistValijas">0</b></div>
+              <div><small class="text-muted d-block" style="font-size:0.7rem;">Piezas</small><b id="kpiHistPiezas">0</b></div>
+              <div><small class="text-danger d-block" style="font-size:0.7rem;">Incidencias</small><b class="text-danger" id="kpiHistIncidencias">0</b></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+          <table class="table table-sm table-hover mb-0 align-middle">
+            <thead class="table-light" style="position: sticky; top: 0; z-index: 1;">
+              <tr><th>Fecha/Hora Llegada</th><th>Vehículo</th><th>Guía / Vuelo</th><th>Carga (Val/Pzs)</th><th>Recibió</th><th>Precinto</th><th>Novedad</th></tr>
+            </thead>
+            <tbody id="tablaHistorialCamiones">
+              <tr><td colspan="7" class="text-center py-3">Cargando...</td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
       <div class="modal-footer">
         <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
