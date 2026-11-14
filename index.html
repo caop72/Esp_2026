@@ -481,7 +481,7 @@ async function verificarUsuario() {
   mostrar('pasoCredenciales'); mostrar('boxLoginExistente'); mostrar('btnIngresar'); mostrar('btnVolver');
 }
 
-async function enviarAlBackend() {
+async function enviarAlBackend() { 
   const rol = estadoApp.rol;
   let payload = { accion: 'loginArbol', rol: rol, clave: document.getElementById('inpClave').value.trim() };
   if (['PRESIDENCIA', 'DESPACHO', 'OBSERVATORIO'].includes(rol)) { if (rol === 'PRESIDENCIA') payload.usuario = 'Presidencia'; if (rol === 'DESPACHO') payload.usuario = 'Despacho'; if (rol === 'OBSERVATORIO') payload.usuario = 'Observatorio'; }
