@@ -329,6 +329,7 @@
             <div class="card-header bg-white d-flex justify-content-between py-3">
               <h6 class="mb-0 fw-bold">Camiones de IPOSTEL (Maiquetía)</h6>
               <button class="btn btn-primary btn-sm fw-bold" onclick="cargarCamionesPorRecibir()"><i class="bi bi-arrow-clockwise"></i> Actualizar</button>
+              <button class="btn btn-outline-secondary btn-sm fw-bold me-2" onclick="cargarHistorialCamionesRecibidos()"><i class="bi bi-clock-history"></i> Ver Historial</button>
             </div>
             <div class="card-body p-0 table-responsive">
               <table class="table table-hover mb-0 align-middle">
@@ -663,7 +664,30 @@
     </div>
   </div>
 </div>
-
+<!-- MODAL: HISTORIAL DE CAMIONES RECIBIDOS -->
+<div class="modal fade" id="modalHistorialCamiones" tabindex="-1">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header bg-dark text-white">
+        <h5 class="modal-title fw-bold"><i class="bi bi-clock-history"></i> Historial de Camiones Recibidos</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-0 table-responsive">
+        <table class="table table-hover mb-0 align-middle">
+          <thead class="table-light">
+            <tr><th>Fecha/Hora Llegada</th><th>Vehículo</th><th>Guía / Vuelo</th><th>Carga (Val/Pzs)</th><th>Recibió</th><th>Precinto</th></tr>
+          </thead>
+          <tbody id="tablaHistorialCamiones">
+            <tr><td colspan="6" class="text-center py-3">Cargando...</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
 <!-- MODAL: CREAR PAQUETE / MÁSTER -->
 <div class="modal fade" id="modalCrearMaster" tabindex="-1" data-bs-backdrop="static">
   <div class="modal-dialog">
