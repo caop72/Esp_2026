@@ -800,6 +800,13 @@ function iniciarApp(r) {
     mostrar('btnInformeCNC'); // <-- AÑADIDO AQUÍ
     modalInformeCNC = new bootstrap.Modal(document.getElementById('modalInformeCNC'));
     cargarCNC();
+
+  } else if (r.rol === 'DIR_OPER') {
+    mostrar('appOperaciones'); 
+    mostrar('btnReporteOperaciones');
+    iniciarOperaciones();
+  }
+    
   } else if (r.rol === 'GERENTE_ESTADO') {
     mostrar('appGerente'); 
     mostrar('btnInformeGerente');
