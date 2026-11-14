@@ -125,7 +125,7 @@
       </div>
     </div>
 
-        <!-- PANEL JEFE OPT (AEROPUERTO) -->
+    <!-- PANEL JEFE OPT (AEROPUERTO) -->
     <div id="appOPT" class="oculto">
       <div class="row g-2 mb-3">
         <div class="col-6 col-md-3"><div class="stat-mini bg-warning bg-opacity-25"><small class="text-warning fw-bold">Por Recibir</small><h3 class="text-warning" id="statRecibir">0</h3></div></div>
@@ -202,12 +202,12 @@
         <div class="tab-pane fade show active" id="tab-clasificar">
           <div class="card shadow-sm card-vector vector-recepcion">
             <div class="card-header bg-white d-flex justify-content-between py-3">
-              <h6 class="mb-0 fw-bold">Valijas Recibidas del Aliado (MRW)</h6>
+              <h6 class="mb-0 fw-bold">Másters Recibidas del Aliado</h6>
               <button class="btn btn-warning btn-sm fw-bold" onclick="cargarGerenteClasificar()"><i class="bi bi-arrow-clockwise"></i> Actualizar</button>
             </div>
             <div class="card-body p-0 table-responsive">
               <table class="table table-hover mb-0 align-middle">
-                <thead><tr><th>Guía</th><th>Origen</th><th>Piezas</th><th>Peso</th><th>Límite 24h</th><th>Acción</th></tr></thead>
+                <thead><tr><th>Máster ID</th><th>Origen</th><th>Piezas</th><th>Peso</th><th>Límite 24h</th><th>Acción</th></tr></thead>
                 <tbody id="tablaGerenteClasificar"><tr><td colspan="6" class="text-center py-3">Cargando...</td></tr></tbody>
               </table>
             </div>
@@ -236,44 +236,16 @@
       
       <!-- KPIs Críticos -->
       <div class="row g-2 mb-4">
-        <div class="col-6 col-md-3">
-          <div class="stat-mini bg-info bg-opacity-10">
-            <small class="text-info fw-bold">Tiempo Promedio Global</small>
-            <h3 class="text-info" id="cncKpiTiempo">0</h3>
-            <small class="text-muted">Horas (Nacional)</small>
-          </div>
-        </div>
-        <div class="col-6 col-md-3">
-          <div class="stat-mini bg-success bg-opacity-10">
-            <small class="text-success fw-bold">Entregadas Hoy (País)</small>
-            <h3 class="text-success" id="cncKpiEntregadas">0</h3>
-            <small class="text-muted">Piezas a nivel nacional</small>
-          </div>
-        </div>
-        <div class="col-6 col-md-3">
-          <div class="stat-mini bg-warning bg-opacity-25">
-            <small class="text-warning fw-bold">En Custodia (Nacional)</small>
-            <h3 class="text-warning" id="cncKpiCustodia">0</h3>
-            <small class="text-muted">Piezas esperando entrega</small>
-          </div>
-        </div>
-        <div class="col-6 col-md-3">
-          <div class="stat-mini bg-danger bg-opacity-10">
-            <small class="text-danger fw-bold">En Riesgo (SLA > 12h)</small>
-            <h3 class="text-danger" id="cncKpiRiesgo">0</h3>
-            <small class="text-muted">Piezas a punto de vencer</small>
-          </div>
-        </div>
+        <div class="col-6 col-md-3"><div class="stat-mini bg-info bg-opacity-10"><small class="text-info fw-bold">Tiempo Promedio Global</small><h3 class="text-info" id="cncKpiTiempo">0</h3><small class="text-muted">Horas (Nacional)</small></div></div>
+        <div class="col-6 col-md-3"><div class="stat-mini bg-success bg-opacity-10"><small class="text-success fw-bold">Entregadas Hoy (País)</small><h3 class="text-success" id="cncKpiEntregadas">0</h3><small class="text-muted">Piezas a nivel nacional</small></div></div>
+        <div class="col-6 col-md-3"><div class="stat-mini bg-warning bg-opacity-25"><small class="text-warning fw-bold">En Custodia (Nacional)</small><h3 class="text-warning" id="cncKpiCustodia">0</h3><small class="text-muted">Piezas esperando entrega</small></div></div>
+        <div class="col-6 col-md-3"><div class="stat-mini bg-danger bg-opacity-10"><small class="text-danger fw-bold">En Riesgo (SLA > 12h)</small><h3 class="text-danger" id="cncKpiRiesgo">0</h3><small class="text-muted">Piezas a punto de vencer</small></div></div>
       </div>
 
       <!-- Gráfico de Efectividad por Región -->
       <div class="card shadow-sm mb-4">
-        <div class="card-header bg-white py-3">
-          <h6 class="mb-0 fw-bold"><i class="bi bi-bar-chart-fill text-primary"></i> Efectividad por Región</h6>
-        </div>
-        <div class="card-body">
-          <canvas id="graficoRegiones" height="80"></canvas>
-        </div>
+        <div class="card-header bg-white py-3"><h6 class="mb-0 fw-bold"><i class="bi bi-bar-chart-fill text-primary"></i> Efectividad por Región</h6></div>
+        <div class="card-body"><canvas id="graficoRegiones" height="80"></canvas></div>
       </div>
 
       <div class="row">
@@ -286,19 +258,8 @@
             </div>
             <div class="card-body p-0 table-responsive">
               <table class="table table-hover mb-0 align-middle">
-                <thead class="table-light">
-                  <tr>
-                    <th>Región</th>
-                    <th class="text-center">Última Sync</th>
-                    <th class="text-center">T. Prom (hrs)</th>
-                    <th class="text-center">Custodia</th>
-                    <th class="text-center">En Riesgo</th>
-                    <th class="text-center">% Efectividad</th>
-                  </tr>
-                </thead>
-                <tbody id="tablaCNC_Estados">
-                  <tr><td colspan="6" class="text-center py-3">Cargando regiones...</td></tr>
-                </tbody>
+                <thead class="table-light"><tr><th>Región</th><th class="text-center">Última Sync</th><th class="text-center">T. Prom (hrs)</th><th class="text-center">Custodia</th><th class="text-center">En Riesgo</th><th class="text-center">% Efectividad</th></tr></thead>
+                <tbody id="tablaCNC_Estados"><tr><td colspan="6" class="text-center py-3">Cargando regiones...</td></tr></tbody>
               </table>
             </div>
           </div>
@@ -317,20 +278,8 @@
             </div>
             <div class="card-body p-0 table-responsive">
               <table class="table table-hover mb-0 align-middle">
-                <thead class="table-light">
-                  <tr>
-                    <th>Oficina (OPT)</th>
-                    <th class="text-center">Última Sync</th>
-                    <th class="text-center">T. Prom (hrs)</th>
-                    <th class="text-center">Custodia</th>
-                    <th class="text-center">Riesgo</th>
-                    <th class="text-center">Incid.</th>
-                    <th style="width: 20%;">% Efectividad</th>
-                  </tr>
-                </thead>
-                <tbody id="tablaCNC_OPTs">
-                  <tr><td colspan="7" class="text-center py-3">Cargando alertas...</td></tr>
-                </tbody>
+                <thead class="table-light"><tr><th>Oficina (OPT)</th><th class="text-center">Última Sync</th><th class="text-center">T. Prom (hrs)</th><th class="text-center">Custodia</th><th class="text-center">Riesgo</th><th class="text-center">Incid.</th><th style="width: 20%;">% Efectividad</th></tr></thead>
+                <tbody id="tablaCNC_OPTs"><tr><td colspan="7" class="text-center py-3">Cargando alertas...</td></tr></tbody>
               </table>
             </div>
           </div>
@@ -340,69 +289,33 @@
 
     <!-- PANEL CONTROL DEL ALIADO (ALFREDO) -->
     <div id="appAliado" class="oculto">
-      <h4 class="text-primary mb-3 fw-bold"><i class="bi bi-clipboard-check"></i> Control del Aliado (MRW)</h4>
+      <h4 class="text-primary mb-3 fw-bold"><i class="bi bi-clipboard-check"></i> Auditoría del Aliado (MRW)</h4>
+      <div class="alert alert-info py-2 small"><i class="bi bi-info-circle"></i> Supervisión de tiempos y volumetría de la carga entregada por MRW.</div>
       
       <div class="row g-2 mb-4">
-        <div class="col-6 col-md-3">
-          <div class="stat-mini bg-primary bg-opacity-10">
-            <small class="text-primary fw-bold">Valijas Recibidas</small>
-            <h3 class="text-primary" id="aliadoKpiValijas">0</h3>
-            <small class="text-muted">Hoy</small>
-          </div>
-        </div>
-        <div class="col-6 col-md-3">
-          <div class="stat-mini bg-success bg-opacity-10">
-            <small class="text-success fw-bold">Piezas Recibidas</small>
-            <h3 class="text-success" id="aliadoKpiPiezas">0</h3>
-            <small class="text-muted">Hoy</small>
-          </div>
-        </div>
-        <div class="col-6 col-md-3">
-          <div class="stat-mini bg-warning bg-opacity-25">
-            <small class="text-warning fw-bold">Kg Recibidos</small>
-            <h3 class="text-warning" id="aliadoKpiKg">0</h3>
-            <small class="text-muted">Hoy</small>
-          </div>
-        </div>
-        <div class="col-6 col-md-3">
-          <div class="stat-mini bg-danger bg-opacity-10">
-            <small class="text-danger fw-bold">Novedades</small>
-            <h3 class="text-danger" id="aliadoKpiNovedades">0</h3>
-            <small class="text-muted">Detectadas</small>
-          </div>
-        </div>
+        <div class="col-6 col-md-3"><div class="stat-mini bg-primary bg-opacity-10"><small class="text-primary fw-bold">Valijas Entregadas</small><h3 class="text-primary" id="aliadoKpiValijas">0</h3><small class="text-muted">Por MRW</small></div></div>
+        <div class="col-6 col-md-3"><div class="stat-mini bg-success bg-opacity-10"><small class="text-success fw-bold">Piezas Entregadas</small><h3 class="text-success" id="aliadoKpiPiezas">0</h3><small class="text-muted">Por MRW</small></div></div>
+        <div class="col-6 col-md-3"><div class="stat-mini bg-warning bg-opacity-25"><small class="text-warning fw-bold">Kg Recibidos</small><h3 class="text-warning" id="aliadoKpiKg">0</h3><small class="text-muted">Por MRW</small></div></div>
+        <div class="col-6 col-md-3"><div class="stat-mini bg-danger bg-opacity-10"><small class="text-danger fw-bold">Incumplimientos</small><h3 class="text-danger" id="aliadoKpiNovedades">0</h3><small class="text-muted">De MRW</small></div></div>
       </div>
 
       <div class="card shadow-sm">
         <div class="card-header bg-white d-flex justify-content-between py-3">
-          <h6 class="mb-0 fw-bold">Registro de Recepción de Carga (MRW)</h6>
-          <button class="btn btn-primary btn-sm fw-bold" onclick="abrirModalAliado()"><i class="bi bi-plus-circle"></i> Registrar Arribo</button>
+          <h6 class="mb-0 fw-bold">Auditoría de Entregas (MRW)</h6>
+          <button class="btn btn-primary btn-sm fw-bold" onclick="abrirModalAliado()"><i class="bi bi-plus-circle"></i> Registrar Auditoría</button>
         </div>
         <div class="card-body p-0 table-responsive">
           <table class="table table-hover mb-0 align-middle">
-            <thead class="table-light">
-              <tr>
-                <th>Guía Aérea</th>
-                <th>Origen</th>
-                <th>Llegada</th>
-                <th>Valijas (Decl/Rec)</th>
-                <th>Piezas (Decl/Rec)</th>
-                <th>Kg</th>
-                <th>Estado</th>
-                <th>Novedad</th>
-              </tr>
-            </thead>
-            <tbody id="tablaAliado">
-              <tr><td colspan="8" class="text-center py-3">Cargando...</td></tr>
-            </tbody>
+            <thead class="table-light"><tr><th>Guía Aérea</th><th>Llegada Vuelo</th><th>Entrega MRW</th><th>Valijas (D/E)</th><th>Piezas (D/E)</th><th>Kg</th><th>Estado</th><th>Novedad</th></tr></thead>
+            <tbody id="tablaAliado"><tr><td colspan="8" class="text-center py-3">Cargando...</td></tr></tbody>
           </table>
         </div>
       </div>
     </div>
 
-    <!-- PANEL DIRECTOR DE OPERACIONES (CPC) -->
+    <!-- PANEL GERENCIA DE OPERACIONES (CPC) -->
     <div id="appOperaciones" class="oculto">
-      <h4 class="text-primary mb-3 fw-bold"><i class="bi bi-truck"></i> Centro Postal de Caracas (CPC) - Operaciones</h4>
+      <h4 class="text-primary mb-3 fw-bold"><i class="bi bi-truck"></i> Gerencia de Operaciones (CPC)</h4>
       
       <div class="row g-2 mb-4">
         <div class="col-6 col-md-3"><div class="stat-mini bg-primary bg-opacity-10"><small class="text-primary fw-bold">Valijas Recibidas</small><h3 class="text-primary" id="cpcKpiValijas">0</h3><small class="text-muted">Del exterior</small></div></div>
@@ -411,37 +324,58 @@
         <div class="col-6 col-md-3"><div class="stat-mini bg-danger bg-opacity-10"><small class="text-danger fw-bold">Nudos Críticos</small><h3 class="text-danger" id="cpcKpiNudos">0</h3><small class="text-muted">Detectados</small></div></div>
       </div>
 
-      <div class="card shadow-sm mb-4">
-        <div class="card-header bg-white d-flex justify-content-between py-3">
-          <h6 class="mb-0 fw-bold">Despachos Internacionales</h6>
-          <div>
-            <button class="btn btn-primary btn-sm fw-bold" onclick="abrirModalRegistrarDespacho()"><i class="bi bi-plus-circle"></i> Registrar Arribo</button>
-            <button class="btn btn-outline-primary btn-sm fw-bold" onclick="cargarPanelOperaciones()"><i class="bi bi-arrow-clockwise"></i> Actualizar</button>
+      <ul class="nav nav-tabs mb-3" id="tabsOperaciones" role="tablist">
+        <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-aeropuerto" type="button"><i class="bi bi-airplane"></i> 1. Recepción de Vuelos</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-distribucion" type="button"><i class="bi bi-box-seam"></i> 2. Clasificación y Despacho</button></li>
+      </ul>
+
+      <div class="tab-content">
+        <div class="tab-pane fade show active" id="tab-aeropuerto">
+          <div class="card shadow-sm">
+            <div class="card-header bg-white d-flex justify-content-between py-3">
+              <h6 class="mb-0 fw-bold">Vuelos Recibidos (Aeropuerto)</h6>
+              <button class="btn btn-primary btn-sm fw-bold" onclick="abrirModalRegistrarDespacho()"><i class="bi bi-plus-circle"></i> Registrar Vuelo</button>
+            </div>
+            <div class="card-body p-0 table-responsive">
+              <table class="table table-hover mb-0 align-middle">
+                <thead class="table-light"><tr><th>ID</th><th>Guía Aérea</th><th>Llegada Aero</th><th>Llegada CPC</th><th>Precinto</th><th>Valijas</th><th>Piezas</th><th>Kg</th><th>Novedad</th></tr></thead>
+                <tbody id="tablaCPCDespachos"><tr><td colspan="9" class="text-center py-3">Cargando...</td></tr></tbody>
+              </table>
+            </div>
           </div>
         </div>
-        <div class="card-body p-0 table-responsive">
-          <table class="table table-hover mb-0 align-middle">
-            <thead class="table-light">
-              <tr><th>ID</th><th>Guía Aérea</th><th>Llegada CPC</th><th>Valijas</th><th>Piezas</th><th>Kg</th><th>Novedad</th><th>Acción</th></tr>
-            </thead>
-            <tbody id="tablaCPCDespachos"><tr><td colspan="8" class="text-center py-3">Cargando...</td></tr></tbody>
-          </table>
-        </div>
-      </div>
 
-      <div class="card shadow-sm">
-        <div class="card-header bg-white d-flex justify-content-between py-3">
-          <h6 class="mb-0 fw-bold">Distribución por Estado</h6>
-        </div>
-        <div class="card-body p-0 table-responsive">
-          <table class="table table-hover mb-0 align-middle">
-            <thead class="table-light">
-              <tr><th>Estado Destino</th><th>Valijas</th><th>Piezas</th><th>Llegada Estimada</th></tr>
-            </thead>
-            <tbody id="tablaCPCDistribucion"><tr><td colspan="4" class="text-center py-3">Cargando...</td></tr></tbody>
-          </table>
+        <div class="tab-pane fade" id="tab-distribucion">
+          <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white d-flex justify-content-between py-3">
+              <h6 class="mb-0 fw-bold">Vuelos Pendientes de Asignar Máster</h6>
+              <button class="btn btn-outline-primary btn-sm fw-bold" onclick="cargarPanelOperaciones()"><i class="bi bi-arrow-clockwise"></i> Actualizar</button>
+            </div>
+            <div class="card-body p-0 table-responsive">
+              <table class="table table-hover mb-0 align-middle">
+                <thead class="table-light"><tr><th>ID Vuelo</th><th>Guía Aérea</th><th>Valijas</th><th>Piezas</th><th>Acción</th></tr></thead>
+                <tbody id="tablaCPCPendientes"><tr><td colspan="5" class="text-center py-3">Cargando...</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+          
+          <div class="card shadow-sm">
+            <div class="card-header bg-white py-3"><h6 class="mb-0 fw-bold">Másters Despachadas a Estados</h6></div>
+            <div class="card-body p-0 table-responsive">
+              <table class="table table-hover mb-0 align-middle">
+                <thead class="table-light"><tr><th>Máster ID</th><th>Estado Destino</th><th>Valijas</th><th>Piezas</th><th>Llegada Estimada</th></tr></thead>
+                <tbody id="tablaCPCDistribucion"><tr><td colspan="5" class="text-center py-3">Cargando...</td></tr></tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </div>
+    </div>
+
+    <!-- PANEL OBSERVATORIO -->
+    <div id="appObservatorio" class="oculto">
+      <h5 class="text-primary mb-3">Observatorio Estratégico (KPIs)</h5>
+      <div id="dashboardObservatorio">Cargando datos...</div>
     </div>
 
     <!-- OTROS PANELES -->
