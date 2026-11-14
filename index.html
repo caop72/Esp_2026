@@ -772,13 +772,22 @@ function iniciarApp(r) {
     modalInforme = new bootstrap.Modal(document.getElementById('modalInforme')); 
     cargarEstadisticasOPT(); cargarPorRecibir(); cargarCustodia(); cargarHistorialEntregas();
   } else if (r.rol === 'DIR_CNC' || r.rol === 'COORD_CNC') {
-    mostrar('appCNC'); mostrar('btnInformeCNC'); modalInformeCNC = new bootstrap.Modal(document.getElementById('modalInformeCNC')); cargarCNC();
+    mostrar('appCNC'); mostrar('btnInformeCNC'); 
+    modalInformeCNC = new bootstrap.Modal(document.getElementById('modalInformeCNC')); 
+    cargarCNC();
   } else if (r.rol === 'DIR_OPER' || r.rol === 'GER_OPER') {
     mostrar('appOperaciones'); 
     modalOperaciones = new bootstrap.Modal(document.getElementById('modalOperaciones'));
     modalDespachoCamion = new bootstrap.Modal(document.getElementById('modalDespachoCamion'));
     cargarPanelOperaciones();
     cargarTablaDespachos();
+  } else if (r.rol === 'COORD_ENCAMINAMIENTO') {
+    // ⬇️ NUEVO BLOQUE PARA MARIELA ⬇️
+    mostrar('appEncaminamiento'); 
+    modalRecibirCamion = new bootstrap.Modal(document.getElementById('modalRecibirCamion'));
+    modalEntregarMRW = new bootstrap.Modal(document.getElementById('modalEntregarMRW'));
+    cargarCamionesPorRecibir();
+    cargarValijasMRW();
   } else if (r.rol === 'COORD_ALIANZA') {
     mostrar('appAliado'); 
     modalAliado = new bootstrap.Modal(document.getElementById('modalAliado'));
