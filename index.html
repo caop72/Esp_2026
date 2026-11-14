@@ -1416,6 +1416,11 @@ function abrirModalRecibirCamion(id, vehiculo, conductor, precinto, guia, valija
 
 async function confirmarRecepcionCamion() {
   const vehiculo = document.getElementById('recCamVehiculoTxt').textContent;
+  const guia = document.getElementById('recCamGuiaTxt').textContent;
+  const valijas = document.getElementById('recCamValijasTxt').textContent;
+  const piezas = document.getElementById('recCamPiezasTxt').textContent;
+  const precinto = document.getElementById('recCamPrecintoTxt').textContent;
+  
   const horaLlegada = document.getElementById('recCamHoraLlegadaInp').value;
   const intacto = document.getElementById('recCamIntactoInp').value;
   const obs = document.getElementById('recCamObsInp').value;
@@ -1425,10 +1430,13 @@ async function confirmarRecepcionCamion() {
   
   Swal.fire({ title: 'Confirmando recepción...', didOpen: () => Swal.showLoading() });
   
-  // Enviamos el vehículo como identificador y la hora de llegada al backend
   const r = await postAPI({ 
     accion: 'confirmarRecepcionCamion', 
-    vehiculo: vehiculo, 
+    vehiculo: vehiculo,
+    guiaAerea: guia,
+    valijas: valijas,
+    piezas: piezas,
+    precinto: precinto,
     horaLlegada: horaLlegada,
     intacto: intacto, 
     obs: obs, 
@@ -1437,30 +1445,48 @@ async function confirmarRecepcionCamion() {
   
   if (r.exito) {
     modalRecibirCamion.hide();
-    Swal.fire('Recibido', 'El camión ha sido recibido y registrado en el historial.', 'success');
-    cargarCamionesPorRecibir(); // Actualiza la lista y hace desaparecer el camión
-    cargarValijasMRW();
+    Swal.fire('Recibido', 'El camión ha sido recibido y movido al historial.', 'success');
+    cargarCamionesPorRecibir(); // Esto lo hará desaparecer de la lista
   } else { 
     Swal.fire('Error', r.mensaje, 'error'); 
   }
 }
 
-// NUEVA FUNCIÓN PARA EL HISTORIAL
 let modalHistorialCamiones;
 async function cargarHistorialCamionesRecibidos() {
   if(!modalHistorialCamiones) modalHistorialCamiones = new bootstrap.Modal(document.getElementById('modalHistorialCamiones'));
-  const tbody = document.getElementById('tablaHistorialCamiones');
-  tbody.innerHTML = '<tr><td colspan="6" class="text-center py-3 text-muted">Cargando historial...</td></tr>';
+  
+  // Poner fechas de hoy por defecto
+  const hoy = new Date().toISOString().split('T')[0];
+  document.getElementById('histFechaInicio').value = hoy;
+  document.getElementById('histFechaFin').value = hoy;
+  
   modalHistorialCamiones.show();
+  filtrarHistorial();
+}
+
+async function filtrarHistorial() {
+  const tbody = document.getElementById('tablaHistorialCamiones');
+  tbody.innerHTML = '<tr><td colspan="7" class="text-center py-3 text-muted">Filtrando...</td></tr>';
+  
+  const desde = document.getElementById('histFechaInicio').value;
+  const hasta = document.getElementById('histFechaFin').value;
   
   try {
-    const r = await postAPI({ accion: 'obtenerHistorialCamiones' });
+    const r = await postAPI({ accion: 'obtenerHistorialCamiones', fechaInicio: desde, fechaFin: hasta });
     if(!r.exito) throw new Error(r.mensaje);
     
+    // Actualizar KPIs
+    document.getElementById('kpiHistCamiones').textContent = r.kpis.totCamiones || 0;
+    document.getElementById('kpiHistValijas').textContent = r.kpis.totValijas || 0;
+    document.getElementById('kpiHistPiezas').textContent = r.kpis.totPiezas || 0;
+    document.getElementById('kpiHistIncidencias').textContent = r.kpis.totIncidencias || 0;
+
     tbody.innerHTML = '';
-    if(r.datos.length === 0) return tbody.innerHTML = '<tr><td colspan="6" class="text-center py-3">No hay camiones recibidos en el historial.</td></tr>';
+    if(r.datos.length === 0) return tbody.innerHTML = '<tr><td colspan="7" class="text-center py-3">No hay registros en este rango de fechas.</td></tr>';
     
     r.datos.forEach(d => {
+      let badgeNovedad = d.novedad === 'Sin Novedad' ? 'bg-success' : 'bg-danger';
       tbody.innerHTML += `<tr>
         <td><b>${d.fechaLlegada}</b></td>
         <td>${d.vehiculo}</td>
@@ -1468,36 +1494,11 @@ async function cargarHistorialCamionesRecibidos() {
         <td>${d.valijas} Val / ${d.piezas} Pzs</td>
         <td>${d.recibio}</td>
         <td>${d.precinto}</td>
+        <td><span class="badge ${badgeNovedad}">${d.novedad}</span></td>
       </tr>`;
     });
   } catch(e) { 
-    tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">${e.message}</td></tr>`; 
-  }
-}
-
-// 2. ENTREGAR A MRW (HACIA ESTADOS)
-async function cargarValijasMRW() {
-  const tbody = document.getElementById('tablaValijasMRW');
-  if(!tbody) return;
-  tbody.innerHTML = '<tr><td colspan="4" class="text-center py-3 text-muted">Cargando Másters...</td></tr>';
-  
-  try {
-     const r = await postAPI({ accion: 'obtenerValijasCPC' });
-     if(!r.exito) throw new Error(r.mensaje);
-     
-     tbody.innerHTML = '';
-     if(r.datos.length === 0) return tbody.innerHTML = '<tr><td colspan="4" class="text-center py-3">No hay Másters listos para MRW.</td></tr>';
-     
-     r.datos.forEach(d => {
-       tbody.innerHTML += `<tr>
-         <td><b>${d.guiaAerea}</b></td>
-         <td>${d.valijas} Val | ${d.piezas} Pzs</td>
-         <td>${d.fecha}</td>
-         <td><button class="btn btn-sm btn-warning fw-bold" onclick="abrirModalEntregarMRW('${d.guiaAerea}', '${d.piezas}')">Entregar a MRW</button></td>
-       </tr>`;
-     });
-  } catch(e) { 
-    tbody.innerHTML = `<tr><td colspan="4" class="text-center text-danger">${e.message}</td></tr>`; 
+    tbody.innerHTML = `<tr><td colspan="7" class="text-center text-danger">${e.message}</td></tr>`; 
   }
 }
 
