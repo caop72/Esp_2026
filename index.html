@@ -490,39 +490,7 @@
     </div>
   </div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-primary fw-bold" onclick="guardarVueloOperaciones()">Registrar Vuelo</button></div></div></div>
 </div>
-
 <!-- MODAL DESPACHO DE CAMIONES (ACTA DE ENTREGA CPI -> CPC) -->
-<div class="modal fade" id="modalDespachoCamion" tabindex="-1" data-bs-backdrop="static">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header bg-success text-white">
-        <h5 class="modal-title fw-bold"><i class="bi bi-truck"></i> Despacho Terrestre (CPI -> CPC)</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        <div class="row g-3">
-          <!-- TRAZABILIDAD DEL VUELO -->
-          <div class="col-12">
-            <div class="bg-light p-3 rounded border">
-              <h6 class="fw-bold text-primary mb-2"><i class="bi bi-airplane"></i> 1. Trazabilidad de la Carga (Vuelo)</h6>
-              <div class="row g-2">
-                <div class="col-md-6">
-                  <label class="form-label fw-bold">Guía Aérea / Vuelo de Origen *</label>
-                  <select class="form-select" id="camGuiaOrigen" required><option value="">-- Seleccione Vuelo --</option></select>
-                </div>
-                <div class="col-md-3">
-                  <label class="form-label fw-bold">Valijas a cargar *</label>
-                  <input type="number" class="form-control" id="camValijas" required min="1">
-                </div>
-                <div class="col-md-3">
-                  <label class="form-label fw-bold">Piezas a cargar *</label>
-                  <input type="number" class="form-control" id="camPiezas" required min="1">
-                </div>
-              </div>
-            </div>
-          </div>
-
-       <!-- MODAL DESPACHO DE CAMIONES (ACTA DE ENTREGA CPI -> CPC) -->
 <div class="modal fade" id="modalDespachoCamion" tabindex="-1" data-bs-backdrop="static">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
@@ -624,13 +592,13 @@
       </div>
       <div class="modal-body">
         <div class="bg-light p-2 rounded mb-3 border">
-          <b>Vehículo:</b> <span id="recCamVehiculo"></span> | <b>Precinto:</b> <span id="recCamPrecinto"></span><br>
-          <b>Carga:</b> <span id="recCamCarga"></span>
+          <b>Vehículo:</b> <span id="recCamVehiculoTxt"></span> | <b>Precinto:</b> <span id="recCamPrecintoTxt"></span><br>
+          <b>Carga:</b> <span id="recCamCargaTxt"></span>
         </div>
         <div class="row g-3">
-          <div class="col-md-6"><label class="form-label fw-bold">¿Precinto Intacto? *</label><select class="form-select" id="recCamIntacto"><option value="SI">✅ Sí</option><option value="NO">❌ No (Reportar Novedad)</option></select></div>
-          <div class="col-md-6"><label class="form-label fw-bold text-danger">📸 Foto de Recepción *</label><input type="file" class="form-control" id="recCamFoto" accept="image/*" required></div>
-          <div class="col-12"><label class="form-label fw-bold">Observaciones (Opcional)</label><textarea class="form-control" id="recCamObs" rows="2"></textarea></div>
+          <div class="col-md-6"><label class="form-label fw-bold">¿Precinto Intacto? *</label><select class="form-select" id="recCamIntactoInp"><option value="SI">✅ Sí</option><option value="NO">❌ No (Reportar Novedad)</option></select></div>
+          <div class="col-md-6"><label class="form-label fw-bold text-danger">📸 Foto de Recepción *</label><input type="file" class="form-control" id="recCamFotoInp" accept="image/*" required></div>
+          <div class="col-12"><label class="form-label fw-bold">Observaciones (Opcional)</label><textarea class="form-control" id="recCamObsInp" rows="2"></textarea></div>
         </div>
       </div>
       <div class="modal-footer">
@@ -651,13 +619,13 @@
       </div>
       <div class="modal-body">
         <div class="bg-light p-2 rounded mb-3 border">
-          <b>Guía Aérea:</b> <span id="mrwGuia"></span> | <b>Piezas:</b> <span id="mrwPiezas"></span>
+          <b>Guía Aérea:</b> <span id="mrwGuiaTxt"></span> | <b>Piezas:</b> <span id="mrwPiezasTxt"></span>
         </div>
         <div class="row g-3">
-          <div class="col-md-6"><label class="form-label fw-bold">Estado Destino *</label><select class="form-select" id="mrwEstadoDestino"><option value="">Seleccione...</option><option value="Anzoátegui">Anzoátegui</option><option value="Caracas">Caracas</option><option value="Zulia">Zulia</option><option value="Lara">Lara</option></select></div>
-          <div class="col-md-6"><label class="form-label fw-bold">Persona que retira (MRW) *</label><input type="text" class="form-control" id="mrwChofer" placeholder="Nombre del chofer de MRW"></div>
-          <div class="col-md-6"><label class="form-label fw-bold">Vehículo MRW (Placa) *</label><input type="text" class="form-control" id="mrwPlaca" placeholder="Ej: A12BC3D"></div>
-          <div class="col-md-6"><label class="form-label fw-bold text-danger">📸 Foto de Entrega *</label><input type="file" class="form-control" id="mrwFoto" accept="image/*" required></div>
+          <div class="col-md-6"><label class="form-label fw-bold">Estado Destino *</label><select class="form-select" id="mrwEstadoDestinoInp"><option value="">Seleccione...</option><option value="Anzoátegui">Anzoátegui</option><option value="Caracas">Caracas</option><option value="Zulia">Zulia</option><option value="Lara">Lara</option></select></div>
+          <div class="col-md-6"><label class="form-label fw-bold">Persona que retira (MRW) *</label><input type="text" class="form-control" id="mrwChoferInp" placeholder="Nombre del chofer de MRW"></div>
+          <div class="col-md-6"><label class="form-label fw-bold">Vehículo MRW (Placa) *</label><input type="text" class="form-control" id="mrwPlacaInp" placeholder="Ej: A12BC3D"></div>
+          <div class="col-md-6"><label class="form-label fw-bold text-danger">📸 Foto de Entrega *</label><input type="file" class="form-control" id="mrwFotoInp" accept="image/*" required></div>
         </div>
       </div>
       <div class="modal-footer">
@@ -695,7 +663,6 @@
     </div>
   </div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-primary fw-bold" onclick="guardarAuditoriaAliado()">Registrar Auditoría</button></div></div></div>
 </div>
-
 <script>
 const API_URL = 'https://script.google.com/macros/s/AKfycbzx_AeJRGOOXphA0N5sUFEMJbDBwsyzfElr0hH38dmzUmFt9dy1NJ7w3MjMycrWzoI2/exec';
 const estadoApp = { rol: null, requiereEstado: false, requiereOPT: false, estadoSel: null, optSel: null, subRolSel: null };
