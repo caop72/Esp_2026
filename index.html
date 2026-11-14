@@ -11,22 +11,18 @@
 <style>
   :root { --ipostel-azul: #003366; --ipostel-rojo: #c8102e; --ipostel-amarillo: #ffc72c; --ipostel-gris: #f4f6f9; }
   body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; min-height: 100vh; background-color: var(--ipostel-gris); }
-  
-  /* ESTILOS LOGIN (INTACTOS) */
   #pantallaBienvenida { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, var(--ipostel-azul) 0%, #001a33 100%); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; color: white; transition: opacity 0.6s ease; }
   .logo-bienvenida { font-size: 4rem; margin-bottom: 20px; }
   #pantallaBienvenida h1 { font-size: 2.8rem; font-weight: 800; text-align: center; line-height: 1.1; }
   #pantallaBienvenida h1 span { color: var(--ipostel-amarillo); display: block; font-size: 1.5rem; margin-top: 5px; letter-spacing: 2px; }
   .btn-bienvenida { background: var(--ipostel-rojo); border: none; color: white; padding: 12px 50px; border-radius: 30px; font-weight: 700; font-size: 1.1rem; }
   #pantallaLogin, #pantallaApp { display: none; min-height: 100vh; padding: 40px 20px; background: linear-gradient(135deg, var(--ipostel-azul) 0%, #001a33 100%); }
-  .card-ipostel { background: #fff; color: #222; border-radius: 12px; box-shadow: 0 8px 25px rgba(0,0,0,0.2); width: 100%; max-width: 1000px; margin: auto; padding: 30px; border-top: 5px solid var(--ipostel-rojo); }
+  .card-ipostel { background: #fff; color: #222; border-radius: 12px; box-shadow: 0 8px 25px rgba(0,0,0,0.2); width: 100%; max-width: 1200px; margin: auto; padding: 30px; border-top: 5px solid var(--ipostel-rojo); }
   .titulo { color: var(--ipostel-azul); font-weight: 800; }
   .btn-ipostel { background: var(--ipostel-azul); color: #fff; font-weight: 600; border: none; padding: 12px; border-radius: 8px; }
   .form-control, .form-select { border-radius: 8px; border: 1px solid #ced4da; }
   .oculto { display: none !important; }
   .box-clave { background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #e9ecef; }
-
-  /* ESTILOS PANEL AEROPUERTO (OPT) */
   .nav-tabs .nav-link { color: var(--ipostel-azul); font-weight: 700; border: none; border-bottom: 3px solid transparent; }
   .nav-tabs .nav-link.active { background: transparent; border-bottom-color: var(--ipostel-amarillo); color: var(--ipostel-azul); }
   .card-vector { border-left: 5px solid; }
@@ -56,7 +52,6 @@
       <h2 class="titulo">Control Electoral</h2>
       <span class="subtitulo">Seleccione su rol para continuar</span>
     </div>
-
     <div id="pasoRol" class="mb-3">
       <label class="form-label text-primary fw-bold">Seleccione su Rol</label>
       <select id="selRol" class="form-select fw-bold" onchange="cambiarRol()">
@@ -71,29 +66,24 @@
         <option value="ANALISTA_OPT">Analista de OPT</option>
       </select>
     </div>
-
     <div id="pasoSubRol" class="mb-3 oculto">
       <label class="form-label">Seleccione opción</label>
       <select id="selSubRol" class="form-select" onchange="verificarUsuario()"><option value="">-- Seleccione --</option></select>
     </div>
-
     <div id="pasoEstado" class="mb-3 oculto">
       <label class="form-label">Estado</label>
       <select id="selEstado" class="form-select" onchange="cambiarEstado()"><option value="">-- Seleccione Estado --</option></select>
     </div>
-
     <div id="pasoOPT" class="mb-3 oculto">
       <label class="form-label">Oficina Postal (OPT)</label>
       <select id="selOPT" class="form-select" onchange="verificarUsuario()"><option value="">-- Seleccione OPT --</option></select>
     </div>
-
     <div id="pasoCredenciales" class="oculto">
       <div id="boxLoginExistente" class="mb-3 box-clave oculto">
         <label class="form-label">Clave de Acceso</label>
         <input id="inpClave" type="password" class="form-control" placeholder="••••">
       </div>
     </div>
-
     <div class="mt-3">
       <button id="btnIngresar" class="btn btn-ipostel w-100 mb-2 oculto" onclick="enviarAlBackend()">🔑 Ingresar al Sistema</button>
       <button id="btnVolver" class="btn btn-outline-secondary w-100 oculto" onclick="volverAtras()">⬅ Volver / Cancelar</button>
@@ -106,21 +96,9 @@
     <div class="d-flex justify-content-between align-items-center mb-3 bg-dark text-white p-3 rounded">
       <h5 class="m-0" id="lblBienvenida">Cargando...</h5>
       <div>
-        <button id="btnReporteOperaciones" class="btn btn-sm btn-outline-secondary me-2 oculto" onclick="abrirModalReporteOperaciones()">
-            <i class="bi bi-file-earmark-excel"></i> Reporte Diario
-        </button>
-        <button id="btnInformeCNC" class="btn btn-sm btn-outline-primary me-2 oculto" onclick="abrirModalInformeCNC()">
-            <i class="bi bi-file-earmark-pdf"></i> Generar Informe CNC
-        </button>
-        <button id="btnInformeGerente" class="btn btn-sm btn-outline-info me-2 oculto" onclick="abrirModalInformeGerente()">
-            <i class="bi bi-file-earmark-bar-graph"></i> Informe de Estado
-        </button>
-        <button id="btnInformeOPT" class="btn btn-sm btn-outline-warning me-2 oculto" onclick="abrirModalInforme()">
-            <i class="bi bi-file-earmark-bar-graph"></i> Generar Informe
-        </button>
-        <button id="btnControlAliado" class="btn btn-sm btn-outline-light me-2 oculto" onclick="cargarPanelAliado()">
-            <i class="bi bi-arrow-clockwise"></i> Actualizar
-        </button>
+        <button id="btnInformeCNC" class="btn btn-sm btn-outline-primary me-2 oculto" onclick="abrirModalInformeCNC()"><i class="bi bi-file-earmark-pdf"></i> Informe CNC</button>
+        <button id="btnInformeGerente" class="btn btn-sm btn-outline-info me-2 oculto" onclick="abrirModalInformeGerente()"><i class="bi bi-file-earmark-bar-graph"></i> Informe de Estado</button>
+        <button id="btnInformeOPT" class="btn btn-sm btn-outline-warning me-2 oculto" onclick="abrirModalInforme()"><i class="bi bi-file-earmark-bar-graph"></i> Informe OPT</button>
         <button class="btn btn-sm btn-outline-light" onclick="location.reload()">Salir</button>
       </div>
     </div>
@@ -133,13 +111,11 @@
         <div class="col-6 col-md-3"><div class="stat-mini bg-success bg-opacity-10"><small class="text-success fw-bold">Entregados Hoy</small><h3 class="text-success" id="statEntregados">0</h3></div></div>
         <div class="col-6 col-md-3"><div class="stat-mini bg-danger bg-opacity-10"><small class="text-danger fw-bold">Incidencias</small><h3 class="text-danger" id="statRetrasados">0</h3></div></div>
       </div>
-
       <ul class="nav nav-tabs mb-3" id="tabsOPT" role="tablist">
         <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-recepcion" type="button"><i class="bi bi-inbox-fill text-warning"></i> Recibido del Estado</button></li>
         <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-custodia" type="button"><i class="bi bi-box-seam-fill text-primary"></i> En Custodia</button></li>
         <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-historial" type="button"><i class="bi bi-clock-history"></i> Historial Entregas</button></li>
       </ul>
-
       <div class="tab-content">
         <div class="tab-pane fade show active" id="tab-recepcion">
           <div class="card shadow-sm card-vector vector-recepcion">
@@ -192,12 +168,10 @@
       <div class="alert alert-warning py-2 small">
         <i class="bi bi-clock-history"></i> <b>Control SLA:</b> Tiene 24h para clasificar las valijas recibidas del Aliado y 24h para despacharlas a las OPT.
       </div>
-
       <ul class="nav nav-tabs mb-3" id="tabsGerente" role="tablist">
         <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-clasificar" type="button"><i class="bi bi-box-seam text-warning"></i> 1. Por Clasificar (Del Aliado)</button></li>
         <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-despachar" type="button"><i class="bi bi-send text-success"></i> 2. Por Despachar (A las OPT)</button></li>
       </ul>
-
       <div class="tab-content">
         <div class="tab-pane fade show active" id="tab-clasificar">
           <div class="card shadow-sm card-vector vector-recepcion">
@@ -233,23 +207,17 @@
     <!-- PANEL CNC (MONITOREO EN VIVO) -->
     <div id="appCNC" class="oculto">
       <h4 class="text-primary mb-3 fw-bold"><i class="bi bi-globe-americas"></i> Centro Nacional de Control (CNC)</h4>
-      
-      <!-- KPIs Críticos -->
       <div class="row g-2 mb-4">
         <div class="col-6 col-md-3"><div class="stat-mini bg-info bg-opacity-10"><small class="text-info fw-bold">Tiempo Promedio Global</small><h3 class="text-info" id="cncKpiTiempo">0</h3><small class="text-muted">Horas (Nacional)</small></div></div>
         <div class="col-6 col-md-3"><div class="stat-mini bg-success bg-opacity-10"><small class="text-success fw-bold">Entregadas Hoy (País)</small><h3 class="text-success" id="cncKpiEntregadas">0</h3><small class="text-muted">Piezas a nivel nacional</small></div></div>
         <div class="col-6 col-md-3"><div class="stat-mini bg-warning bg-opacity-25"><small class="text-warning fw-bold">En Custodia (Nacional)</small><h3 class="text-warning" id="cncKpiCustodia">0</h3><small class="text-muted">Piezas esperando entrega</small></div></div>
         <div class="col-6 col-md-3"><div class="stat-mini bg-danger bg-opacity-10"><small class="text-danger fw-bold">En Riesgo (SLA > 12h)</small><h3 class="text-danger" id="cncKpiRiesgo">0</h3><small class="text-muted">Piezas a punto de vencer</small></div></div>
       </div>
-
-      <!-- Gráfico de Efectividad por Región -->
       <div class="card shadow-sm mb-4">
         <div class="card-header bg-white py-3"><h6 class="mb-0 fw-bold"><i class="bi bi-bar-chart-fill text-primary"></i> Efectividad por Región</h6></div>
         <div class="card-body"><canvas id="graficoRegiones" height="80"></canvas></div>
       </div>
-
       <div class="row">
-        <!-- Tabla de Control por Región -->
         <div class="col-md-12 mb-4">
           <div class="card shadow-sm border-primary">
             <div class="card-header bg-primary text-white d-flex justify-content-between py-3">
@@ -264,8 +232,6 @@
             </div>
           </div>
         </div>
-
-        <!-- Tabla de Alertas por OPT -->
         <div class="col-md-12">
           <div class="card shadow-sm border-danger">
             <div class="card-header bg-danger text-white d-flex justify-content-between py-3">
@@ -287,10 +253,40 @@
       </div>
     </div>
 
+    <!-- PANEL GERENCIA DE OPERACIONES (RECEPCIÓN DE VUELOS) -->
+    <div id="appOperaciones" class="oculto">
+      <h4 class="text-primary mb-3 fw-bold"><i class="bi bi-airplane"></i> Gerencia de Operaciones: Recepción de Vuelos</h4>
+      <div class="alert alert-info py-2 small"><i class="bi bi-info-circle"></i> Registro de la carga recibida en el aeropuerto y su traslado al CPC.</div>
+      
+      <div class="row g-2 mb-4">
+        <div class="col-6 col-md-3"><div class="stat-mini bg-primary bg-opacity-10"><small class="text-primary fw-bold">Vuelos Recibidos</small><h3 class="text-primary" id="opKpiVuelos">0</h3><small class="text-muted">En Aeropuerto</small></div></div>
+        <div class="col-6 col-md-3"><div class="stat-mini bg-success bg-opacity-10"><small class="text-success fw-bold">Piezas Recibidas</small><h3 class="text-success" id="opKpiPiezas">0</h3><small class="text-muted">Total</small></div></div>
+        <div class="col-6 col-md-3"><div class="stat-mini bg-warning bg-opacity-25"><small class="text-warning fw-bold">Kg Recibidos</small><h3 class="text-warning" id="opKpiKg">0</h3><small class="text-muted">Total</small></div></div>
+        <div class="col-6 col-md-3"><div class="stat-mini bg-danger bg-opacity-10"><small class="text-danger fw-bold">Novedades</small><h3 class="text-danger" id="opKpiNovedades">0</h3><small class="text-muted">Detectadas</small></div></div>
+      </div>
+
+      <div class="card shadow-sm">
+        <div class="card-header bg-white d-flex justify-content-between py-3">
+          <h6 class="mb-0 fw-bold">Vuelos Recibidos</h6>
+          <button class="btn btn-primary btn-sm fw-bold" onclick="abrirModalOperaciones()"><i class="bi bi-plus-circle"></i> Registrar Vuelo</button>
+        </div>
+        <div class="card-body p-0 table-responsive">
+          <table class="table table-hover mb-0 align-middle">
+            <thead class="table-light">
+              <tr><th>Guía Aérea</th><th>Llegada Vuelo</th><th>Salida a CPC</th><th>Precinto</th><th>Vehículo</th><th>Conductor</th><th>Valijas</th><th>Piezas</th><th>Kg</th><th>Estado</th></tr>
+            </thead>
+            <tbody id="tablaOperaciones">
+              <tr><td colspan="10" class="text-center py-3">Cargando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
     <!-- PANEL AUDITORÍA DEL ALIADO (ALFREDO) -->
     <div id="appAliado" class="oculto">
       <h4 class="text-primary mb-3 fw-bold"><i class="bi bi-clipboard-check"></i> Auditoría del Aliado (MRW)</h4>
-      <div class="alert alert-info py-2 small"><i class="bi bi-info-circle"></i> Supervisión de tiempos y volumetría de la carga entregada por MRW.</div>
+      <div class="alert alert-info py-2 small"><i class="bi bi-info-circle"></i> Supervisión de tiempos y volumetría de la carga entregada por MRW a los estados.</div>
       
       <div class="row g-2 mb-4">
         <div class="col-6 col-md-3"><div class="stat-mini bg-primary bg-opacity-10"><small class="text-primary fw-bold">Valijas Entregadas</small><h3 class="text-primary" id="aliadoKpiValijas">0</h3><small class="text-muted">Por MRW</small></div></div>
@@ -306,80 +302,11 @@
         </div>
         <div class="card-body p-0 table-responsive">
           <table class="table table-hover mb-0 align-middle">
-            <thead class="table-light">
-              <tr>
-                <th>Guía Aérea</th>
-                <th>Llegada Vuelo</th>
-                <th>Entrega MRW</th>
-                <th>Valijas (D/E)</th>
-                <th>Piezas (D/E)</th>
-                <th>Kg</th>
-                <th>Estado</th>
-                <th>Novedad</th>
-              </tr>
-            </thead>
+            <thead class="table-light"><tr><th>Guía Aérea</th><th>Llegada Vuelo</th><th>Entrega MRW</th><th>Valijas (D/E)</th><th>Piezas (D/E)</th><th>Kg</th><th>Estado</th><th>Novedad</th></tr></thead>
             <tbody id="tablaAliado">
               <tr><td colspan="8" class="text-center py-3">Cargando...</td></tr>
             </tbody>
           </table>
-        </div>
-      </div>
-    </div>
-    <!-- PANEL GERENCIA DE OPERACIONES (CPC) -->
-    <div id="appOperaciones" class="oculto">
-      <h4 class="text-primary mb-3 fw-bold"><i class="bi bi-truck"></i> Gerencia de Operaciones (CPC)</h4>
-      
-      <div class="row g-2 mb-4">
-        <div class="col-6 col-md-3"><div class="stat-mini bg-primary bg-opacity-10"><small class="text-primary fw-bold">Valijas Recibidas</small><h3 class="text-primary" id="cpcKpiValijas">0</h3><small class="text-muted">Del exterior</small></div></div>
-        <div class="col-6 col-md-3"><div class="stat-mini bg-info bg-opacity-10"><small class="text-info fw-bold">Piezas Recibidas</small><h3 class="text-info" id="cpcKpiPiezas">0</h3><small class="text-muted">Total en país</small></div></div>
-        <div class="col-6 col-md-3"><div class="stat-mini bg-warning bg-opacity-25"><small class="text-warning fw-bold">Pendiente por Distribuir</small><h3 class="text-warning" id="cpcKpiPendientes">0</h3><small class="text-muted">Piezas en CPC</small></div></div>
-        <div class="col-6 col-md-3"><div class="stat-mini bg-danger bg-opacity-10"><small class="text-danger fw-bold">Nudos Críticos</small><h3 class="text-danger" id="cpcKpiNudos">0</h3><small class="text-muted">Detectados</small></div></div>
-      </div>
-
-      <ul class="nav nav-tabs mb-3" id="tabsOperaciones" role="tablist">
-        <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-aeropuerto" type="button"><i class="bi bi-airplane"></i> 1. Recepción de Vuelos</button></li>
-        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-distribucion" type="button"><i class="bi bi-box-seam"></i> 2. Clasificación y Despacho</button></li>
-      </ul>
-
-      <div class="tab-content">
-        <div class="tab-pane fade show active" id="tab-aeropuerto">
-          <div class="card shadow-sm">
-            <div class="card-header bg-white d-flex justify-content-between py-3">
-              <h6 class="mb-0 fw-bold">Vuelos Recibidos (Aeropuerto)</h6>
-              <button class="btn btn-primary btn-sm fw-bold" onclick="abrirModalRegistrarDespacho()"><i class="bi bi-plus-circle"></i> Registrar Vuelo</button>
-            </div>
-            <div class="card-body p-0 table-responsive">
-              <table class="table table-hover mb-0 align-middle">
-                <thead class="table-light"><tr><th>ID</th><th>Guía Aérea</th><th>Llegada Aero</th><th>Llegada CPC</th><th>Precinto</th><th>Valijas</th><th>Piezas</th><th>Kg</th><th>Novedad</th></tr></thead>
-                <tbody id="tablaCPCDespachos"><tr><td colspan="9" class="text-center py-3">Cargando...</td></tr></tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-
-        <div class="tab-pane fade" id="tab-distribucion">
-          <div class="card shadow-sm mb-4">
-            <div class="card-header bg-white d-flex justify-content-between py-3">
-              <h6 class="mb-0 fw-bold">Vuelos Pendientes de Asignar Máster</h6>
-              <button class="btn btn-outline-primary btn-sm fw-bold" onclick="cargarPanelOperaciones()"><i class="bi bi-arrow-clockwise"></i> Actualizar</button>
-            </div>
-            <div class="card-body p-0 table-responsive">
-              <table class="table table-hover mb-0 align-middle">
-                <thead class="table-light"><tr><th>ID Vuelo</th><th>Guía Aérea</th><th>Valijas</th><th>Piezas</th><th>Acción</th></tr></thead>
-                <tbody id="tablaCPCPendientes"><tr><td colspan="5" class="text-center py-3">Cargando...</td></tr></tbody>
-              </table>
-            </div>
-          </div>
-          
-          <div class="card shadow-sm">
-            <div class="card-header bg-white py-3"><h6 class="mb-0 fw-bold">Másters Despachadas a Estados</h6></div>
-            <div class="card-body p-0 table-responsive">
-              <table class="table table-hover mb-0 align-middle">
-                <thead class="table-light"><tr><th>Máster ID</th><th>Estado Destino</th><th>Valijas</th><th>Piezas</th><th>Llegada Estimada</th></tr></thead>
-                <tbody id="tablaCPCDistribucion"><tr><td colspan="5" class="text-center py-3">Cargando...</td></tr></tbody>
-              </table>
-            </div>
-          </div>
         </div>
       </div>
     </div>
@@ -389,414 +316,131 @@
       <h5 class="text-primary mb-3">Observatorio Estratégico (KPIs)</h5>
       <div id="dashboardObservatorio">Cargando datos...</div>
     </div>
+  </div>
+</div>
 
-    <!-- OTROS PANELES -->
-    <div id="appObservatorio" class="oculto">
-      <h5 class="text-primary mb-3">Observatorio Estratégico (KPIs)</h5>
-      <div id="dashboardObservatorio">Cargando datos...</div>
-    </div>
-  
-<!-- MODAL RECEPCIÓN (OPT) -->
+<!-- MODALES (OPT) -->
 <div class="modal fade" id="modalRecepcion" tabindex="-1">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header bg-warning text-dark"><h5 class="modal-title fw-bold"><i class="bi bi-box-arrow-in-down"></i> Confirmar Recepción</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-      <div class="modal-body">
-        <div class="alert alert-info small"><i class="bi bi-info-circle"></i> Al confirmar, usted certifica que las piezas llegaron a la taquilla.</div>
-        <div class="row g-3">
-          <div class="col-md-6"><label class="form-label fw-bold">Guía/Valija</label><input type="text" class="form-control" id="recCodigo" readonly></div>
-          <div class="col-md-6"><label class="form-label fw-bold">Piezas</label><input type="text" class="form-control" id="recPiezas" readonly></div>
-          <div class="col-md-6"><label class="form-label fw-bold">¿Conforme? *</label><select class="form-select" id="recConforme"><option value="">Seleccione...</option><option value="SI">✅ Sí, todo conforme</option><option value="PARCIAL">⚠️ Parcial</option><option value="NO">❌ No</option></select></div>
-          <div class="col-md-6"><label class="form-label fw-bold">Precinto</label><input type="text" class="form-control" id="recPrecinto" placeholder="N° de precinto"></div>
-          <div class="col-12"><label class="form-label fw-bold">Observaciones</label><textarea class="form-control" id="recObs" rows="2"></textarea></div>
-          <div class="col-12 mt-2">
-            <label class="form-label fw-bold text-danger">📸 Foto de la Valija *</label>
-            <input type="file" class="form-control" id="fotoRecepcion" accept="image/*" capture="environment" required>
-            <div class="row mt-2">
-              <div class="col-6"><input type="text" class="form-control form-control-sm bg-light" id="recHora" readonly placeholder="Hora captura..."></div>
-              <div class="col-6"><input type="text" class="form-control form-control-sm bg-light" id="recGPS" readonly placeholder="GPS..."></div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-warning fw-bold" onclick="confirmarRecepcion()">Confirmar Recepción</button></div>
+  <div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header bg-warning text-dark"><h5 class="modal-title fw-bold">Confirmar Recepción</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body">
+    <div class="row g-3">
+      <div class="col-md-6"><label class="form-label fw-bold">Guía/Valija</label><input type="text" class="form-control" id="recCodigo" readonly></div>
+      <div class="col-md-6"><label class="form-label fw-bold">Piezas</label><input type="text" class="form-control" id="recPiezas" readonly></div>
+      <div class="col-md-6"><label class="form-label fw-bold">¿Conforme? *</label><select class="form-select" id="recConforme"><option value="">Seleccione...</option><option value="SI">✅ Sí</option><option value="NO">❌ No</option></select></div>
+      <div class="col-md-6"><label class="form-label fw-bold">Precinto</label><input type="text" class="form-control" id="recPrecinto"></div>
+      <div class="col-12"><label class="form-label fw-bold">Observaciones</label><textarea class="form-control" id="recObs" rows="2"></textarea></div>
+      <div class="col-12"><label class="form-label fw-bold text-danger">📸 Foto *</label><input type="file" class="form-control" id="fotoRecepcion" accept="image/*" required></div>
     </div>
-  </div>
+  </div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-warning fw-bold" onclick="confirmarRecepcion()">Confirmar</button></div></div></div>
 </div>
 
-<!-- MODAL ENTREGA (OPT) -->
 <div class="modal fade" id="modalEntrega" tabindex="-1" data-bs-backdrop="static">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header bg-primary text-white"><h5 class="modal-title fw-bold"><i class="bi bi-file-earmark-text"></i> Acta de Entrega de Voto</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
-      <div class="modal-body">
-        <div class="upae-disclaimer mb-3"><i class="bi bi-exclamation-triangle-fill"></i> <b>Advertencia:</b> Esta acción genera un registro inmutable. Verifique la identidad del elector.</div>
-        <div class="bg-light p-2 rounded mb-3 border"><small class="text-muted">Voto:</small> <b id="entCodigo" class="text-primary fs-5"></b> <span class="mx-2">|</span> <small class="text-muted">Piezas:</small> <b id="entPiezas"></b></div>
-        <form id="formEntregaUPAE">
-          <div class="row g-3">
-            <div class="col-md-8"><label class="form-label fw-bold">Quien retira *</label><input type="text" class="form-control" id="entNombreReceptor" required></div>
-            <div class="col-md-4"><label class="form-label fw-bold">Cédula *</label><input type="text" class="form-control" id="entCedulaReceptor" required></div>
-            <div class="col-md-6"><label class="form-label fw-bold">Relación *</label><select class="form-select" id="entRelacion" required><option value="">Seleccione...</option><option value="Titular">Titular</option><option value="Familiar">Familiar</option><option value="Autorizado">Autorizado</option></select></div>
-            <div class="col-md-6"><label class="form-label fw-bold text-danger">Estado del sobre *</label><select class="form-select border-danger" id="entEstadoPaquete" required><option value="">Seleccione...</option><option value="Intacto">✅ Intacto</option><option value="Abierto">⚠️ Abierto</option><option value="Danado">❌ Dañado</option></select></div>
-            <div class="col-12 mt-2">
-              <label class="form-label fw-bold text-danger">📸 Foto del Elector / Sobre *</label>
-              <input type="file" class="form-control" id="fotoEntrega" accept="image/*" capture="environment" required>
-              <div class="row mt-2">
-                <div class="col-6"><input type="text" class="form-control form-control-sm bg-light" id="entHora" readonly placeholder="Hora captura..."></div>
-                <div class="col-6"><input type="text" class="form-control form-control-sm bg-light" id="entGPS" readonly placeholder="GPS..."></div>
-              </div>
-            </div>
-            <div class="col-12"><div class="form-check"><input class="form-check-input" type="checkbox" id="entDeclaracion" required><label class="form-check-label small fw-bold" for="entDeclaracion">Declaro bajo fe de juramento que he verificado la identidad.</label></div></div>
-          </div>
-        </form>
-      </div>
-      <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-primary fw-bold" onclick="confirmarEntregaUPAE()">REGISTRAR ENTREGA (INMUTABLE)</button></div>
+  <div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header bg-primary text-white"><h5 class="modal-title fw-bold">Acta de Entrega</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body">
+    <div class="bg-light p-2 rounded mb-3 border"><b id="entCodigo"></b> | Piezas: <b id="entPiezas"></b></div>
+    <div class="row g-3">
+      <div class="col-md-8"><label class="form-label fw-bold">Quien retira *</label><input type="text" class="form-control" id="entNombreReceptor" required></div>
+      <div class="col-md-4"><label class="form-label fw-bold">Cédula *</label><input type="text" class="form-control" id="entCedulaReceptor" required></div>
+      <div class="col-md-6"><label class="form-label fw-bold">Relación *</label><select class="form-select" id="entRelacion" required><option value="">Seleccione...</option><option value="Titular">Titular</option><option value="Familiar">Familiar</option></select></div>
+      <div class="col-md-6"><label class="form-label fw-bold text-danger">Estado del sobre *</label><select class="form-select border-danger" id="entEstadoPaquete" required><option value="">Seleccione...</option><option value="Intacto">✅ Intacto</option><option value="Abierto">⚠️ Abierto</option></select></div>
+      <div class="col-12"><label class="form-label fw-bold text-danger">📸 Foto *</label><input type="file" class="form-control" id="fotoEntrega" accept="image/*" required></div>
     </div>
-  </div>
+  </div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-primary fw-bold" onclick="confirmarEntregaUPAE()">REGISTRAR ENTREGA</button></div></div></div>
 </div>
 
-<!-- MODAL INFORME OPT -->
 <div class="modal fade" id="modalInforme" tabindex="-1">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header bg-dark text-white">
-        <h5 class="modal-title fw-bold"><i class="bi bi-file-earmark-text"></i> Cierre Diario / Informe</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        <p class="text-muted small">Seleccione el período a reportar. Por defecto se selecciona el día de hoy.</p>
-        <div class="row g-3">
-          <div class="col-6">
-            <label class="form-label fw-bold">Desde</label>
-            <input type="date" class="form-control" id="infoFechaInicio">
-          </div>
-          <div class="col-6">
-            <label class="form-label fw-bold">Hasta</label>
-            <input type="date" class="form-control" id="infoFechaFin">
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-        <button class="btn btn-warning fw-bold" onclick="generarInforme()">
-            <i class="bi bi-printer"></i> Generar e Imprimir
-        </button>
-      </div>
+  <div class="modal-dialog"><div class="modal-content"><div class="modal-header bg-dark text-white"><h5 class="modal-title fw-bold">Cierre Diario / Informe</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body">
+    <div class="row g-3">
+      <div class="col-6"><label class="form-label fw-bold">Desde</label><input type="date" class="form-control" id="infoFechaInicio"></div>
+      <div class="col-6"><label class="form-label fw-bold">Hasta</label><input type="date" class="form-control" id="infoFechaFin"></div>
     </div>
-  </div>
+  </div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-warning fw-bold" onclick="generarInforme()">Generar e Imprimir</button></div></div></div>
 </div>
 
-<!-- MODAL CREAR PAQUETE (GERENTE) -->
 <div class="modal fade" id="modalClasificar" tabindex="-1">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header bg-warning text-dark">
-        <h5 class="modal-title fw-bold">Crear Paquete desde Valija</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        <div class="alert alert-info small">Extraiga las piezas de la valija y asígnelas a una OPT. Un mismo paquete puede llevar certificados y ordinarios.</div>
-        <div class="mb-3"><label class="form-label fw-bold">Valija Origen</label><input type="text" class="form-control" id="clasificarGuia" readonly></div>
-        <div class="mb-3">
-            <label class="form-label fw-bold">ID del Nuevo Paquete</label>
-            <input type="text" class="form-control" id="paqueteId" placeholder="Ej: PKT-ANZ-001" required>
-        </div>
-        <div class="mb-3">
-          <label class="form-label fw-bold">OPT Destino</label>
-          <select class="form-select" id="paqueteDestino" required>
-            <option value="">-- Seleccione --</option>
-            <option value="OPT-ORI-ANZ-001">Barcelona</option>
-            <option value="OPT-ORI-ANZ-002">Puerto La Cruz</option>
-            <option value="OPT-ORI-ANZ-003">Anaco</option>
-            <option value="OPT-ORI-ANZ-004">Cantaura</option>
-          </select>
-        </div>
-        <div class="row">
-          <div class="col-6">
-            <label class="form-label fw-bold text-primary">Certificados</label>
-            <input type="number" class="form-control" id="paqueteCertificados" min="0" value="0" required>
-          </div>
-          <div class="col-6">
-            <label class="form-label fw-bold text-info">Ordinarios</label>
-            <input type="number" class="form-control" id="paqueteOrdinarios" min="0" value="0" required>
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-        <button class="btn btn-warning fw-bold" onclick="confirmarClasificacion()">Crear Paquete</button>
-      </div>
+  <div class="modal-dialog"><div class="modal-content"><div class="modal-header bg-warning text-dark"><h5 class="modal-title fw-bold">Crear Paquete desde Máster</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body">
+    <div class="mb-3"><label class="form-label fw-bold">Máster Origen</label><input type="text" class="form-control" id="clasificarGuia" readonly></div>
+    <div class="mb-3"><label class="form-label fw-bold">ID del Nuevo Paquete</label><input type="text" class="form-control" id="paqueteId" placeholder="Ej: PKT-ANZ-001" required></div>
+    <div class="mb-3"><label class="form-label fw-bold">OPT Destino</label><select class="form-select" id="paqueteDestino" required><option value="">-- Seleccione --</option><option value="OPT-ORI-ANZ-001">Barcelona</option><option value="OPT-ORI-ANZ-002">Puerto La Cruz</option><option value="OPT-ORI-ANZ-003">Anaco</option><option value="OPT-ORI-ANZ-004">Cantaura</option></select></div>
+    <div class="row">
+      <div class="col-6"><label class="form-label fw-bold text-primary">Certificados</label><input type="number" class="form-control" id="paqueteCertificados" min="0" value="0" required></div>
+      <div class="col-6"><label class="form-label fw-bold text-info">Ordinarios</label><input type="number" class="form-control" id="paqueteOrdinarios" min="0" value="0" required></div>
     </div>
-  </div>
+  </div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button><button class="btn btn-warning fw-bold" onclick="confirmarClasificacion()">Crear Paquete</button></div></div></div>
 </div>
 
-<!-- MODAL DESPACHAR (GERENTE) -->
 <div class="modal fade" id="modalDespachar" tabindex="-1">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header bg-success text-white">
-        <h5 class="modal-title fw-bold">Despachar Paquete a la OPT</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        <div class="mb-3">
-          <label class="form-label fw-bold">ID Paquete</label>
-          <input type="text" class="form-control" id="despacharGuia" readonly>
-        </div>
-        <div class="mb-3">
-          <label class="form-label fw-bold text-primary">Persona que recibe en la OPT *</label>
-          <input type="text" class="form-control" id="despacharRecibe" placeholder="Ej: Juan Pérez (Jefe de Anaco)" required>
-        </div>
-        <div class="mb-3">
-            <label class="form-label fw-bold text-danger">📸 Foto de la Entrega *</label>
-            <input type="file" class="form-control" id="despacharFoto" accept="image/*" required>
-            <input type="text" class="form-control form-control-sm bg-light mt-2" id="despacharGPS" readonly placeholder="GPS...">
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-        <button class="btn btn-success fw-bold" onclick="confirmarDespacho()">Confirmar Entrega a OPT</button>
-      </div>
-    </div>
-  </div>
+  <div class="modal-dialog"><div class="modal-content"><div class="modal-header bg-success text-white"><h5 class="modal-title fw-bold">Despachar Paquete a la OPT</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body">
+    <div class="mb-3"><label class="form-label fw-bold">ID Paquete</label><input type="text" class="form-control" id="despacharGuia" readonly></div>
+    <div class="mb-3"><label class="form-label fw-bold text-primary">Persona que recibe en la OPT *</label><input type="text" class="form-control" id="despacharRecibe" required></div>
+    <div class="mb-3"><label class="form-label fw-bold text-danger">📸 Foto de la Entrega *</label><input type="file" class="form-control" id="despacharFoto" accept="image/*" required><input type="text" class="form-control form-control-sm bg-light mt-2" id="despacharGPS" readonly placeholder="GPS..."></div>
+  </div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-success fw-bold" onclick="confirmarDespacho()">Confirmar Entrega</button></div></div></div>
 </div>
 
-<!-- MODAL INFORME GERENTE -->
 <div class="modal fade" id="modalInformeGerente" tabindex="-1">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header bg-dark text-white">
-        <h5 class="modal-title fw-bold"><i class="bi bi-file-earmark-text"></i> Informe de Gerencia</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        <p class="text-muted small">Seleccione el período a reportar. Por defecto el día de hoy.</p>
-        <div class="row g-3">
-          <div class="col-6">
-            <label class="form-label fw-bold">Desde</label>
-            <input type="date" class="form-control" id="infoGerFechaInicio">
-          </div>
-          <div class="col-6">
-            <label class="form-label fw-bold">Hasta</label>
-            <input type="date" class="form-control" id="infoGerFechaFin">
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-        <button class="btn btn-info fw-bold text-white" onclick="generarInformeGerente()">
-            <i class="bi bi-printer"></i> Generar Informe
-        </button>
-      </div>
-    </div>
-  </div>
+  <div class="modal-dialog"><div class="modal-content"><div class="modal-header bg-dark text-white"><h5 class="modal-title fw-bold">Informe de Gerencia</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body">
+    <div class="row g-3"><div class="col-6"><label class="form-label fw-bold">Desde</label><input type="date" class="form-control" id="infoGerFechaInicio"></div><div class="col-6"><label class="form-label fw-bold">Hasta</label><input type="date" class="form-control" id="infoGerFechaFin"></div></div>
+  </div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-info fw-bold text-white" onclick="generarInformeGerente()">Generar Informe</button></div></div></div>
 </div>
 
-<!-- MODAL INFORME CNC -->
 <div class="modal fade" id="modalInformeCNC" tabindex="-1">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header bg-dark text-white">
-        <h5 class="modal-title fw-bold"><i class="bi bi-file-earmark-text"></i> Informe Consolidado CNC</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        <p class="text-muted small">Seleccione el período a reportar. Por defecto el día de hoy.</p>
-        <div class="row g-3">
-          <div class="col-6">
-            <label class="form-label fw-bold">Desde</label>
-            <input type="date" class="form-control" id="infoCNCFechaInicio">
-          </div>
-          <div class="col-6">
-            <label class="form-label fw-bold">Hasta</label>
-            <input type="date" class="form-control" id="infoCNCFechaFin">
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-        <button class="btn btn-primary fw-bold" onclick="generarInformeCNC()">
-            <i class="bi bi-printer"></i> Generar e Imprimir
-        </button>
-      </div>
-    </div>
-  </div>
+  <div class="modal-dialog"><div class="modal-content"><div class="modal-header bg-dark text-white"><h5 class="modal-title fw-bold">Informe Consolidado CNC</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body">
+    <div class="row g-3"><div class="col-6"><label class="form-label fw-bold">Desde</label><input type="date" class="form-control" id="infoCNCFechaInicio"></div><div class="col-6"><label class="form-label fw-bold">Hasta</label><input type="date" class="form-control" id="infoCNCFechaFin"></div></div>
+  </div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-primary fw-bold" onclick="generarInformeCNC()">Generar e Imprimir</button></div></div></div>
 </div>
 
-<!-- MODAL REGISTRAR DESPACHO INTERNACIONAL -->
-<div class="modal fade" id="modalRegistrarDespacho" tabindex="-1">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header bg-primary text-white"><h5 class="modal-title fw-bold">Registrar Arribo Internacional</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
-      <div class="modal-body">
-        <div class="row g-3">
-          <div class="col-md-4"><label class="form-label fw-bold">ID Despacho</label><input type="text" class="form-control" id="cpcIdDespacho"></div>
-          <div class="col-md-4"><label class="form-label fw-bold">Guía Aérea</label><input type="text" class="form-control" id="cpcGuia"></div>
-          <div class="col-md-4"><label class="form-label fw-bold">Total Kg</label><input type="number" step="0.1" class="form-control" id="cpcKg"></div>
-          <div class="col-md-6"><label class="form-label fw-bold">Fecha Despacho Origen</label><input type="datetime-local" class="form-control" id="cpcFechaOrigen"></div>
-          <div class="col-md-6"><label class="form-label fw-bold">Fecha Llegada CPC</label><input type="datetime-local" class="form-control" id="cpcFechaCPC"></div>
-          <div class="col-md-6"><label class="form-label fw-bold">Total Valijas</label><input type="number" class="form-control" id="cpcValijas"></div>
-          <div class="col-md-6"><label class="form-label fw-bold">Total Piezas</label><input type="number" class="form-control" id="cpcPiezas"></div>
-          <div class="col-md-4"><label class="form-label fw-bold">Inicio Apertura</label><input type="datetime-local" class="form-control" id="cpcInicioApertura"></div>
-          <div class="col-md-4"><label class="form-label fw-bold">Fin Clasificación</label><input type="datetime-local" class="form-control" id="cpcFinClasif"></div>
-          <div class="col-md-4"><label class="form-label fw-bold">Salida hacia Estados</label><input type="datetime-local" class="form-control" id="cpcSalida"></div>
-          <div class="col-md-6"><label class="form-label fw-bold">Novedades de Arribo</label><textarea class="form-control" id="cpcNovedad" rows="2"></textarea></div>
-          <div class="col-md-6"><label class="form-label fw-bold">Nudos Críticos</label><textarea class="form-control" id="cpcNudos" rows="2"></textarea></div>
-        </div>
-      </div>
-      <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-primary fw-bold" onclick="guardarDespachoInternacional()">Guardar Despacho</button></div>
+<div class="modal fade" id="modalOperaciones" tabindex="-1">
+  <div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header bg-primary text-white"><h5 class="modal-title fw-bold">Registrar Recepción de Vuelo</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body">
+    <div class="row g-3">
+      <div class="col-md-4"><label class="form-label fw-bold">Guía Aérea</label><input type="text" class="form-control" id="opGuia" required></div>
+      <div class="col-md-4"><label class="form-label fw-bold">País Origen</label><input type="text" class="form-control" id="opOrigen" value="España" required></div>
+      <div class="col-md-4"><label class="form-label fw-bold">Precinto</label><input type="text" class="form-control" id="opPrecinto" placeholder="N° Precinto" required></div>
+      <div class="col-md-6"><label class="form-label fw-bold">Llegada Vuelo</label><input type="datetime-local" class="form-control" id="opFechaLlegada" required></div>
+      <div class="col-md-6"><label class="form-label fw-bold">Salida hacia CPC</label><input type="datetime-local" class="form-control" id="opFechaSalida" required></div>
+      <div class="col-md-6"><label class="form-label fw-bold">Vehículo (Placa)</label><input type="text" class="form-control" id="opVehiculo" placeholder="Ej: A12BC3D" required></div>
+      <div class="col-md-6"><label class="form-label fw-bold">Conductor</label><input type="text" class="form-control" id="opConductor" placeholder="Nombre y Cédula" required></div>
+      <div class="col-md-4"><label class="form-label fw-bold">Valijas</label><input type="number" class="form-control" id="opValijas" required></div>
+      <div class="col-md-4"><label class="form-label fw-bold">Piezas</label><input type="number" class="form-control" id="opPiezas" required></div>
+      <div class="col-md-4"><label class="form-label fw-bold">Kg</label><input type="number" step="0.1" class="form-control" id="opKg" required></div>
+      <div class="col-md-6"><label class="form-label fw-bold">Estado</label><select class="form-select" id="opEstado"><option value="Conforme">✅ Conforme</option><option value="Retraso">⚠️ Retraso</option><option value="Faltante">⚠️ Faltante</option></select></div>
+      <div class="col-md-6"><label class="form-label fw-bold text-danger">📸 Foto *</label><input type="file" class="form-control" id="opFoto" accept="image/*" required></div>
+      <div class="col-12"><label class="form-label fw-bold">Novedad</label><textarea class="form-control" id="opNovedad" rows="2"></textarea></div>
     </div>
-  </div>
+  </div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-primary fw-bold" onclick="guardarVueloOperaciones()">Registrar Vuelo</button></div></div></div>
 </div>
 
-<!-- MODAL ASIGNAR DISTRIBUCIÓN A ESTADO -->
 <div class="modal fade" id="modalAsignarEstado" tabindex="-1">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header bg-success text-white"><h5 class="modal-title fw-bold">Asignar Valijas a Estado</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
-      <div class="modal-body">
-        <div class="mb-3"><label class="form-label fw-bold">ID Despacho</label><input type="text" class="form-control" id="distIdDespacho" readonly></div>
-        <div class="mb-3">
-          <label class="form-label fw-bold">Estado Destino</label>
-          <select class="form-select" id="distEstado" required>
-            <option value="">-- Seleccione --</option>
-            <option value="Anzoátegui">Anzoátegui</option>
-            <option value="Aragua">Aragua</option>
-            <option value="Carabobo">Carabobo</option>
-            <option value="Caracas">Caracas</option>
-            <option value="Lara">Lara</option>
-            <option value="Miranda">Miranda</option>
-            <option value="Táchira">Táchira</option>
-            <option value="Zulia">Zulia</option>
-          </select>
-        </div>
-        <div class="row">
-          <div class="col-6"><label class="form-label fw-bold">Valijas</label><input type="number" class="form-control" id="distValijas"></div>
-          <div class="col-6"><label class="form-label fw-bold">Piezas</label><input type="number" class="form-control" id="distPiezas"></div>
-        </div>
-        <div class="mt-3"><label class="form-label fw-bold">Fecha Estimada Llegada</label><input type="datetime-local" class="form-control" id="distFechaEst"></div>
-      </div>
-      <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-success fw-bold" onclick="guardarAsignacionEstado()">Asignar Valijas</button></div>
-    </div>
-  </div>
+  <div class="modal-dialog"><div class="modal-content"><div class="modal-header bg-success text-white"><h5 class="modal-title fw-bold">Asignar Máster a Estado</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body">
+    <div class="mb-3"><label class="form-label fw-bold">ID Vuelo</label><input type="text" class="form-control" id="distIdDespacho" readonly></div>
+    <div class="mb-3"><label class="form-label fw-bold">ID Máster</label><input type="text" class="form-control" id="distMasterId" placeholder="Ej: MST-ANZ-001" required></div>
+    <div class="mb-3"><label class="form-label fw-bold">Estado Destino</label><select class="form-select" id="distEstado" required><option value="">-- Seleccione --</option><option value="Anzoátegui">Anzoátegui</option><option value="Aragua">Aragua</option><option value="Carabobo">Carabobo</option><option value="Caracas">Caracas</option><option value="Lara">Lara</option><option value="Miranda">Miranda</option><option value="Táchira">Táchira</option><option value="Zulia">Zulia</option></select></div>
+    <div class="row"><div class="col-6"><label class="form-label fw-bold">Valijas</label><input type="number" class="form-control" id="distValijas"></div><div class="col-6"><label class="form-label fw-bold">Piezas</label><input type="number" class="form-control" id="distPiezas"></div></div>
+    <div class="mt-3"><label class="form-label fw-bold">Fecha Estimada Llegada</label><input type="datetime-local" class="form-control" id="distFechaEst"></div>
+  </div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-success fw-bold" onclick="guardarAsignacionEstado()">Asignar Máster</button></div></div></div>
 </div>
 
-<!-- MODAL REPORTE OPERACIONES -->
-<div class="modal fade" id="modalReporteOperaciones" tabindex="-1">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header bg-dark text-white">
-        <h5 class="modal-title fw-bold"><i class="bi bi-file-earmark-excel"></i> Reporte Diario de Operaciones</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        <p class="text-muted small">Seleccione el período. Se generará un archivo Excel para descargar.</p>
-        <div class="row g-3">
-          <div class="col-6"><label class="form-label fw-bold">Desde</label><input type="date" class="form-control" id="infoOpFechaInicio"></div>
-          <div class="col-6"><label class="form-label fw-bold">Hasta</label><input type="date" class="form-control" id="infoOpFechaFin"></div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-        <button class="btn btn-success fw-bold" onclick="generarReporteOperaciones()"><i class="bi bi-download"></i> Generar Reporte</button>
-      </div>
-    </div>
-  </div>
-</div>
-<!-- MODAL REGISTRO ALIADO -->
 <div class="modal fade" id="modalAliado" tabindex="-1">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header bg-primary text-white">
-        <h5 class="modal-title fw-bold">Registrar Recepción de Carga</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        <div class="row g-3">
-          <div class="col-md-6"><label class="form-label fw-bold">Guía Aérea</label><input type="text" class="form-control" id="aliadoGuia" placeholder="000-12345678"></div>
-          <div class="col-md-6"><label class="form-label fw-bold">País Origen</label><input type="text" class="form-control" id="aliadoOrigen" value="España"></div>
-          
-          <div class="col-md-6"><label class="form-label fw-bold">Fecha Vuelo</label><input type="date" class="form-control" id="aliadoFechaVuelo"></div>
-          <div class="col-md-6"><label class="form-label fw-bold">Fecha Llegada</label><input type="datetime-local" class="form-control" id="aliadoFechaLlegada"></div>
-
-          <div class="col-md-6"><label class="form-label fw-bold">Valijas Declaradas</label><input type="number" class="form-control" id="aliadoValDecl"></div>
-          <div class="col-md-6"><label class="form-label fw-bold">Valijas Recibidas</label><input type="number" class="form-control" id="aliadoValRec"></div>
-
-          <div class="col-md-6"><label class="form-label fw-bold">Piezas Declaradas</label><input type="number" class="form-control" id="aliadoPzDecl"></div>
-          <div class="col-md-6"><label class="form-label fw-bold">Piezas Recibidas</label><input type="number" class="form-control" id="aliadoPzRec"></div>
-
-          <div class="col-md-6"><label class="form-label fw-bold">Kg Recibidos</label><input type="number" step="0.1" class="form-control" id="aliadoKg"></div>
-          <div class="col-md-6">
-            <label class="form-label fw-bold">Estado de Recepción</label>
-            <select class="form-select" id="aliadoEstado">
-              <option value="Conforme">✅ Conforme (Todo OK)</option>
-              <option value="Faltante">⚠️ Faltante</option>
-              <option value="Sobrante">⚠️ Sobrante</option>
-            </select>
-          </div>
-
-          <div class="col-12"><label class="form-label fw-bold">Novedad / Observación</label><textarea class="form-control" id="aliadoNovedad" rows="2"></textarea></div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-        <button class="btn btn-primary fw-bold" onclick="guardarRecepcionAliado()">Registrar</button>
-      </div>
+  <div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header bg-primary text-white"><h5 class="modal-title fw-bold">Registrar Auditoría (MRW)</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body">
+    <div class="row g-3">
+      <div class="col-md-4"><label class="form-label fw-bold">Guía Aérea</label><input type="text" class="form-control" id="aliadoGuia"></div>
+      <div class="col-md-4"><label class="form-label fw-bold">País Origen</label><input type="text" class="form-control" id="aliadoOrigen" value="España"></div>
+      <div class="col-md-6"><label class="form-label fw-bold">Llegada del Vuelo</label><input type="datetime-local" class="form-control" id="aliadoFechaVuelo"></div>
+      <div class="col-md-6"><label class="form-label fw-bold">Entrega de MRW (al CPC)</label><input type="datetime-local" class="form-control" id="aliadoFechaEntrega"></div>
+      <div class="col-md-6"><label class="form-label fw-bold">Valijas Declaradas</label><input type="number" class="form-control" id="aliadoValDecl"></div>
+      <div class="col-md-6"><label class="form-label fw-bold">Valijas Entregadas</label><input type="number" class="form-control" id="aliadoValEnt"></div>
+      <div class="col-md-6"><label class="form-label fw-bold">Piezas Declaradas</label><input type="number" class="form-control" id="aliadoPzDecl"></div>
+      <div class="col-md-6"><label class="form-label fw-bold">Piezas Entregadas</label><input type="number" class="form-control" id="aliadoPzEnt"></div>
+      <div class="col-md-6"><label class="form-label fw-bold">Kg Entregados</label><input type="number" step="0.1" class="form-control" id="aliadoKg"></div>
+      <div class="col-md-6"><label class="form-label fw-bold">Estado de la Auditoría</label><select class="form-select" id="aliadoEstado"><option value="Conforme">✅ Conforme</option><option value="Retraso">⚠️ Retraso</option><option value="Faltante">⚠️ Faltante</option></select></div>
+      <div class="col-12"><label class="form-label fw-bold">Novedad</label><textarea class="form-control" id="aliadoNovedad" rows="2"></textarea></div>
     </div>
-  </div>
+  </div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-primary fw-bold" onclick="guardarAuditoriaAliado()">Registrar Auditoría</button></div></div></div>
 </div>
-    
-<!-- MODAL AUDITORÍA ALIADO -->
-<div class="modal fade" id="modalAliado" tabindex="-1">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header bg-primary text-white">
-        <h5 class="modal-title fw-bold">Registrar Auditoría de Entrega (MRW)</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        <div class="row g-3">
-          <div class="col-md-4"><label class="form-label fw-bold">Guía Aérea</label><input type="text" class="form-control" id="aliadoGuia" placeholder="000-12345678"></div>
-          <div class="col-md-4"><label class="form-label fw-bold">País Origen</label><input type="text" class="form-control" id="aliadoOrigen" value="España"></div>
-          
-          <div class="col-md-6"><label class="form-label fw-bold">Llegada del Vuelo</label><input type="datetime-local" class="form-control" id="aliadoFechaVuelo"></div>
-          <div class="col-md-6"><label class="form-label fw-bold">Entrega de MRW (al CPC)</label><input type="datetime-local" class="form-control" id="aliadoFechaEntrega"></div>
-
-          <div class="col-md-6"><label class="form-label fw-bold">Valijas Declaradas</label><input type="number" class="form-control" id="aliadoValDecl"></div>
-          <div class="col-md-6"><label class="form-label fw-bold">Valijas Entregadas</label><input type="number" class="form-control" id="aliadoValEnt"></div>
-
-          <div class="col-md-6"><label class="form-label fw-bold">Piezas Declaradas</label><input type="number" class="form-control" id="aliadoPzDecl"></div>
-          <div class="col-md-6"><label class="form-label fw-bold">Piezas Entregadas</label><input type="number" class="form-control" id="aliadoPzEnt"></div>
-
-          <div class="col-md-6"><label class="form-label fw-bold">Kg Entregados</label><input type="number" step="0.1" class="form-control" id="aliadoKg"></div>
-          <div class="col-md-6">
-            <label class="form-label fw-bold">Estado de la Auditoría</label>
-            <select class="form-select" id="aliadoEstado">
-              <option value="Conforme">✅ Conforme (A tiempo)</option>
-              <option value="Retraso">⚠️ Retraso en la entrega</option>
-              <option value="Faltante">⚠️ Faltante de piezas</option>
-            </select>
-          </div>
-
-          <div class="col-12"><label class="form-label fw-bold">Novedades / Observaciones</label><textarea class="form-control" id="aliadoNovedad" rows="2"></textarea></div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-        <button class="btn btn-primary fw-bold" onclick="guardarRecepcionAliado()">Registrar Auditoría</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- INICIO DEL SCRIPT -->
 
 <script>
 const API_URL = 'https://script.google.com/macros/s/AKfycbzx_AeJRGOOXphA0N5sUFEMJbDBwsyzfElr0hH38dmzUmFt9dy1NJ7w3MjMycrWzoI2/exec';
 const estadoApp = { rol: null, requiereEstado: false, requiereOPT: false, estadoSel: null, optSel: null, subRolSel: null };
 const ROLES_CON_ESTADO = ['GERENCIA_ESTADO', 'JEFE_OPT', 'ANALISTA_OPT'];
 const ROLES_CON_OPT = ['JEFE_OPT', 'ANALISTA_OPT'];
-let modalRecepcion, modalEntrega, modalInforme, modalClasificar, modalDespachar, modalInformeGerente, modalInformeCNC;
+let modalRecepcion, modalEntrega, modalInforme, modalClasificar, modalDespachar, modalInformeGerente, modalInformeCNC, modalOperaciones, modalAsignarEstado, modalAliado;
 
 function ocultar(id) { document.getElementById(id).classList.add('oculto'); }
 function mostrar(id) { document.getElementById(id).classList.remove('oculto'); }
@@ -817,60 +461,34 @@ function cambiarRol() {
   if (!rol) return;
   estadoApp.requiereEstado = ROLES_CON_ESTADO.includes(rol);
   estadoApp.requiereOPT = ROLES_CON_OPT.includes(rol);
-
-  if (rol === 'DIRECCION') {
-    mostrar('pasoSubRol'); mostrar('btnVolver');
-    document.getElementById('selSubRol').innerHTML = `<option value="">-- Seleccione --</option><option value="CNC">Dirección CNC</option><option value="OPERACIONES">Dirección de Operaciones</option>`;
-  } else if (rol === 'COORDINADOR') {
-    mostrar('pasoSubRol'); mostrar('btnVolver');
-    document.getElementById('selSubRol').innerHTML = `<option value="">-- Seleccione --</option><option value="ENCAMINAMIENTO">Encaminamiento</option><option value="ALIANZA">Control del Aliado</option><option value="CNC_MICRO">CNC-Micro Entrega</option>`;
-  } else if (estadoApp.requiereEstado) {
-    mostrar('pasoEstado'); mostrar('btnVolver'); cargarEstados();
-  } else {
-    mostrar('pasoCredenciales'); mostrar('boxLoginExistente'); mostrar('btnIngresar');
-  }
+  if (rol === 'DIRECCION') { mostrar('pasoSubRol'); mostrar('btnVolver'); document.getElementById('selSubRol').innerHTML = `<option value="">-- Seleccione --</option><option value="CNC">Dirección CNC</option><option value="OPERACIONES">Dirección de Operaciones</option>`; }
+  else if (rol === 'COORDINADOR') { mostrar('pasoSubRol'); mostrar('btnVolver'); document.getElementById('selSubRol').innerHTML = `<option value="">-- Seleccione --</option><option value="ENCAMINAMIENTO">Encaminamiento</option><option value="ALIANZA">Control del Aliado</option><option value="CNC_MICRO">CNC-Micro Entrega</option>`; }
+  else if (estadoApp.requiereEstado) { mostrar('pasoEstado'); mostrar('btnVolver'); cargarEstados(); }
+  else { mostrar('pasoCredenciales'); mostrar('boxLoginExistente'); mostrar('btnIngresar'); }
 }
 
 function cambiarEstado() {
   estadoApp.estadoSel = document.getElementById('selEstado').value;
   ocultarTodo();
   if (!estadoApp.estadoSel) { mostrar('pasoEstado'); mostrar('btnVolver'); return; }
-  if (estadoApp.requiereOPT) {
-    mostrar('pasoEstado'); mostrar('pasoOPT'); mostrar('btnVolver'); cargarOPTs(estadoApp.estadoSel);
-  } else {
-    mostrar('pasoEstado'); mostrar('btnVolver'); verificarUsuario(); 
-  }
+  if (estadoApp.requiereOPT) { mostrar('pasoEstado'); mostrar('pasoOPT'); mostrar('btnVolver'); cargarOPTs(estadoApp.estadoSel); }
+  else { mostrar('pasoEstado'); mostrar('btnVolver'); verificarUsuario(); }
 }
 
 async function verificarUsuario() {
-  if (estadoApp.rol === 'DIRECCION' || estadoApp.rol === 'COORDINADOR') {
-    estadoApp.subRolSel = document.getElementById('selSubRol').value;
-    if (!estadoApp.subRolSel) return;
-  }
-  if (estadoApp.requiereOPT) {
-    estadoApp.optSel = document.getElementById('selOPT').value;
-    if (!estadoApp.optSel) { mostrar('pasoEstado'); mostrar('pasoOPT'); mostrar('btnVolver'); return; }
-  }
+  if (estadoApp.rol === 'DIRECCION' || estadoApp.rol === 'COORDINADOR') { estadoApp.subRolSel = document.getElementById('selSubRol').value; if (!estadoApp.subRolSel) return; }
+  if (estadoApp.requiereOPT) { estadoApp.optSel = document.getElementById('selOPT').value; if (!estadoApp.optSel) { mostrar('pasoEstado'); mostrar('pasoOPT'); mostrar('btnVolver'); return; } }
   mostrar('pasoCredenciales'); mostrar('boxLoginExistente'); mostrar('btnIngresar'); mostrar('btnVolver');
 }
 
 async function enviarAlBackend() {
   const rol = estadoApp.rol;
   let payload = { accion: 'loginArbol', rol: rol, clave: document.getElementById('inpClave').value.trim() };
-  
-  if (['PRESIDENCIA', 'DESPACHO', 'OBSERVATORIO'].includes(rol)) {
-    if (rol === 'PRESIDENCIA') payload.usuario = 'Presidencia';
-    if (rol === 'DESPACHO') payload.usuario = 'Despacho';
-    if (rol === 'OBSERVATORIO') payload.usuario = 'Observatorio';
-  } else if (rol === 'DIRECCION' || rol === 'COORDINADOR') {
-    payload.subRol = estadoApp.subRolSel;
-    if (rol === 'DIRECCION') payload.usuario = (estadoApp.subRolSel === 'CNC') ? 'Director_CNC' : 'Director_Operaciones';
-  } else if (estadoApp.requiereEstado) { payload.estado = estadoApp.estadoSel; }
+  if (['PRESIDENCIA', 'DESPACHO', 'OBSERVATORIO'].includes(rol)) { if (rol === 'PRESIDENCIA') payload.usuario = 'Presidencia'; if (rol === 'DESPACHO') payload.usuario = 'Despacho'; if (rol === 'OBSERVATORIO') payload.usuario = 'Observatorio'; }
+  else if (rol === 'DIRECCION' || rol === 'COORDINADOR') { payload.subRol = estadoApp.subRolSel; if (rol === 'DIRECCION') payload.usuario = (estadoApp.subRolSel === 'CNC') ? 'Director_CNC' : 'Director_Operaciones'; }
+  else if (estadoApp.requiereEstado) { payload.estado = estadoApp.estadoSel; }
   if (estadoApp.requiereOPT) { payload.codigoOPT = estadoApp.optSel; }
-
-  const btn = document.getElementById('btnIngresar');
-  btn.disabled = true; btn.textContent = 'Validando...';
-
+  const btn = document.getElementById('btnIngresar'); btn.disabled = true; btn.textContent = 'Validando...';
   try {
     const resp = await postAPI(payload);
     if (!resp.exito) { Swal.fire('Acceso denegado', resp.mensaje || 'No autorizado', 'error'); btn.disabled = false; btn.textContent = '🔑 Ingresar al Sistema'; return; }
@@ -884,36 +502,98 @@ function iniciarApp(r) {
   document.getElementById('lblBienvenida').innerText = `Rol: ${r.rol} | Estado: ${estadoApp.estadoSel || ''} | OPT: ${estadoApp.optSel || ''}`;
   
   if (r.rol === 'JEFE_OPT' || r.rol === 'ANALISTA_OPT') {
-    mostrar('appOPT'); 
-    mostrar('btnInformeOPT');
+    mostrar('appOPT'); mostrar('btnInformeOPT');
     modalRecepcion = new bootstrap.Modal(document.getElementById('modalRecepcion'));
     modalEntrega = new bootstrap.Modal(document.getElementById('modalEntrega'));
     modalInforme = new bootstrap.Modal(document.getElementById('modalInforme')); 
-    cargarEstadisticasOPT();
-    cargarPorRecibir(); 
-    cargarCustodia();
-    cargarHistorialEntregas();
+    cargarEstadisticasOPT(); cargarPorRecibir(); cargarCustodia(); cargarHistorialEntregas();
   } else if (r.rol === 'DIR_CNC' || r.rol === 'COORD_CNC') {
-    mostrar('appCNC'); 
-    mostrar('btnInformeCNC'); 
-    modalInformeCNC = new bootstrap.Modal(document.getElementById('modalInformeCNC'));
-    cargarCNC();
+    mostrar('appCNC'); mostrar('btnInformeCNC'); modalInformeCNC = new bootstrap.Modal(document.getElementById('modalInformeCNC')); cargarCNC();
   } else if (r.rol === 'DIR_OPER') {
     mostrar('appOperaciones'); 
-    mostrar('btnReporteOperaciones');
-    iniciarOperaciones();
+    modalOperaciones = new bootstrap.Modal(document.getElementById('modalOperaciones'));
+    cargarPanelOperaciones();
   } else if (r.rol === 'COORD_ALIANZA') {
     mostrar('appAliado'); 
-    // Se elimina la línea mostrar('btnControlAliado') porque el botón ya no está en la barra superior
-    iniciarAliado();
+    modalAliado = new bootstrap.Modal(document.getElementById('modalAliado'));
+    cargarPanelAliado();
   } else if (r.rol === 'GERENTE_ESTADO') {
-    mostrar('appGerente'); 
-    mostrar('btnInformeGerente');
+    mostrar('appGerente'); mostrar('btnInformeGerente');
     iniciarGerente();
   } else {
-    mostrar('appObservatorio'); 
-    cargarObservatorio();
+    mostrar('appObservatorio'); cargarObservatorio();
   }
+}
+
+// ==========================================
+// LÓGICA GERENCIA DE OPERACIONES (VUELOS)
+// ==========================================
+async function cargarPanelOperaciones() {
+  const tbody = document.getElementById('tablaOperaciones');
+  tbody.innerHTML = '<tr><td colspan="10" class="text-center py-3 text-muted">Cargando vuelos...</td></tr>';
+  try {
+    const r = await postAPI({ accion: 'obtenerDatosOperaciones' });
+    if (!r.exito) throw new Error(r.mensaje);
+    const fmt = (num) => Number(num || 0).toLocaleString('es-VE');
+    tbody.innerHTML = '';
+    r.datos.forEach(d => {
+      let badge = d.estado === 'Conforme' ? 'bg-success' : 'bg-warning text-dark';
+      tbody.innerHTML += `<tr><td><b>${d.guia}</b></td><td>${d.fechaLlegada ? new Date(d.fechaLlegada).toLocaleString() : '—'}</td><td>${d.fechaSalida ? new Date(d.fechaSalida).toLocaleString() : '—'}</td><td>${d.precinto || '—'}</td><td>${d.vehiculo || '—'}</td><td>${d.conductor || '—'}</td><td>${fmt(d.valijas)}</td><td>${fmt(d.piezas)}</td><td>${d.kg} kg</td><td><span class="badge ${badge}">${d.estado}</span></td></tr>`;
+    });
+  } catch (e) { tbody.innerHTML = `<tr><td colspan="10" class="text-center text-danger">${e.message}</td></tr>`; }
+}
+
+function abrirModalOperaciones() {
+  document.getElementById('opGuia').value = ''; document.getElementById('opOrigen').value = 'España'; document.getElementById('opPrecinto').value = '';
+  document.getElementById('opFechaLlegada').value = new Date().toISOString().slice(0, 16); document.getElementById('opFechaSalida').value = new Date().toISOString().slice(0, 16);
+  document.getElementById('opVehiculo').value = ''; document.getElementById('opConductor').value = ''; document.getElementById('opValijas').value = ''; document.getElementById('opPiezas').value = ''; document.getElementById('opKg').value = '';
+  document.getElementById('opEstado').value = 'Conforme'; document.getElementById('opNovedad').value = ''; document.getElementById('opFoto').value = '';
+  modalOperaciones.show();
+}
+
+async function guardarVueloOperaciones() {
+  const payload = { accion: 'registrarVueloOperaciones', idVuelo: 'VUELO-' + Math.floor(Math.random() * 10000), guiaAerea: document.getElementById('opGuia').value, paisOrigen: document.getElementById('opOrigen').value, fechaLlegadaAero: document.getElementById('opFechaLlegada').value, precinto: document.getElementById('opPrecinto').value, vehiculo: document.getElementById('opVehiculo').value, conductor: document.getElementById('opConductor').value, fechaSalidaCPC: document.getElementById('opFechaSalida').value, valijas: document.getElementById('opValijas').value, piezas: document.getElementById('opPiezas').value, kg: document.getElementById('opKg').value, estado: document.getElementById('opEstado').value, novedad: document.getElementById('opNovedad').value, foto: "https://drive.google.com/foto_simulada", gps: "10.123, -66.456" };
+  if (!payload.guiaAerea || !payload.valijas) return Swal.fire('Atención', 'Complete los campos obligatorios.', 'warning');
+  Swal.fire({ title: 'Guardando...', didOpen: () => Swal.showLoading() });
+  const r = await postAPI(payload);
+  if (r.exito) { modalOperaciones.hide(); Swal.fire('Vuelo Registrado', 'La carga ha sido sellada y despachada al CPC.', 'success'); cargarPanelOperaciones(); } else Swal.fire('Error', r.mensaje, 'error');
+}
+
+// ==========================================
+// LÓGICA AUDITORÍA DEL ALIADO (ALFREDO)
+// ==========================================
+async function cargarPanelAliado() {
+  const tbody = document.getElementById('tablaAliado');
+  tbody.innerHTML = '<tr><td colspan="8" class="text-center py-3 text-muted">Cargando...</td></tr>';
+  try {
+    const r = await postAPI({ accion: 'obtenerDatosAliado' });
+    if (!r.exito) throw new Error(r.mensaje);
+    const fmt = (num) => Number(num || 0).toLocaleString('es-VE');
+    let totValijas = 0, totPiezas = 0, totKg = 0, totIncumplimientos = 0;
+    tbody.innerHTML = '';
+    r.datos.forEach(d => {
+      totValijas += Number(d.valEnt) || 0; totPiezas += Number(d.pzEnt) || 0; totKg += Number(d.kg) || 0;
+      if (d.estado !== 'Conforme') totIncumplimientos++;
+      let badge = d.estado === 'Conforme' ? 'bg-success' : 'bg-warning text-dark';
+      tbody.innerHTML += `<tr><td><b>${d.guia}</b></td><td>${d.fechaVuelo ? new Date(d.fechaVuelo).toLocaleDateString() : '—'}</td><td>${d.fechaEntrega ? new Date(d.fechaEntrega).toLocaleDateString() : '—'}</td><td>${d.valDecl} / <b>${d.valEnt}</b></td><td>${fmt(d.pzDecl)} / <b>${fmt(d.pzEnt)}</b></td><td>${d.kg} kg</td><td><span class="badge ${badge}">${d.estado}</span></td><td><small>${d.novedad || '—'}</small></td></tr>`;
+    });
+    document.getElementById('aliadoKpiValijas').textContent = fmt(totValijas); document.getElementById('aliadoKpiPiezas').textContent = fmt(totPiezas); document.getElementById('aliadoKpiKg').textContent = fmt(totKg) + ' kg'; document.getElementById('aliadoKpiNovedades').textContent = fmt(totIncumplimientos);
+  } catch (e) { tbody.innerHTML = `<tr><td colspan="8" class="text-center text-danger">${e.message}</td></tr>`; }
+}
+
+function abrirModalAliado() {
+  document.getElementById('aliadoGuia').value = ''; document.getElementById('aliadoOrigen').value = 'España'; document.getElementById('aliadoFechaVuelo').value = ''; document.getElementById('aliadoFechaEntrega').value = new Date().toISOString().slice(0, 16);
+  document.getElementById('aliadoValDecl').value = ''; document.getElementById('aliadoValEnt').value = ''; document.getElementById('aliadoPzDecl').value = ''; document.getElementById('aliadoPzEnt').value = ''; document.getElementById('aliadoKg').value = '';
+  document.getElementById('aliadoEstado').value = 'Conforme'; document.getElementById('aliadoNovedad').value = '';
+  modalAliado.show();
+}
+
+async function guardarAuditoriaAliado() {
+  const payload = { accion: 'registrarAuditoriaAliado', idAuditoria: 'AUD-' + Math.floor(Math.random() * 10000), guiaAerea: document.getElementById('aliadoGuia').value, paisOrigen: document.getElementById('aliadoOrigen').value, fechaLlegadaVuelo: document.getElementById('aliadoFechaVuelo').value, fechaEntregaMRW: document.getElementById('aliadoFechaEntrega').value, valijasDeclaradas: document.getElementById('aliadoValDecl').value, valijasEntregadas: document.getElementById('aliadoValEnt').value, piezasDeclaradas: document.getElementById('aliadoPzDecl').value, piezasEntregadas: document.getElementById('aliadoPzEnt').value, kgEntregados: document.getElementById('aliadoKg').value, estadoAuditoria: document.getElementById('aliadoEstado').value, novedad: document.getElementById('aliadoNovedad').value };
+  if (!payload.guiaAerea || !payload.valijasEntregadas) return Swal.fire('Atención', 'Complete Guía Aérea y Valijas Entregadas.', 'warning');
+  Swal.fire({ title: 'Registrando...', didOpen: () => Swal.showLoading() });
+  const r = await postAPI(payload);
+  if (r.exito) { modalAliado.hide(); Swal.fire('Auditoría Registrada', 'La entrega de MRW ha sido auditada.', 'success'); cargarPanelAliado(); } else Swal.fire('Error', r.mensaje, 'error');
 }
 
 // ==========================================
@@ -921,352 +601,99 @@ function iniciarApp(r) {
 // ==========================================
 async function cargarEstadisticasOPT() {
   try {
-    const [rRecibir, rCustodia, rHistorial] = await Promise.all([
-      postAPI({accion: 'cargarPorRecibir', opt: estadoApp.optSel}),
-      postAPI({accion: 'cargarCustodia', opt: estadoApp.optSel}),
-      postAPI({accion: 'cargarHistorialEntregas', opt: estadoApp.optSel})
-    ]);
-    
+    const [rRecibir, rCustodia, rHistorial] = await Promise.all([postAPI({accion: 'cargarPorRecibir', opt: estadoApp.optSel}), postAPI({accion: 'cargarCustodia', opt: estadoApp.optSel}), postAPI({accion: 'cargarHistorialEntregas', opt: estadoApp.optSel})]);
     if (rRecibir.exito) document.getElementById('statRecibir').textContent = rRecibir.total;
     if (rCustodia.exito) document.getElementById('statCustodia').textContent = rCustodia.total;
-    
     if (rHistorial.exito) {
       const hoy = new Date().toLocaleDateString();
-      const entregadasHoy = rHistorial.datos.filter(d => {
-        if (!d.fechaEntrega) return false;
-        const f = new Date(d.fechaEntrega);
-        return f.toLocaleDateString() === hoy;
-      }).length;
-      document.getElementById('statEntregados').textContent = entregadasHoy;
-      const incidencias = rHistorial.datos.filter(d => ['Retrasado', 'Extraviado'].includes(d.estatus)).length;
-      document.getElementById('statRetrasados').textContent = incidencias;
+      document.getElementById('statEntregados').textContent = rHistorial.datos.filter(d => d.fechaEntrega && new Date(d.fechaEntrega).toLocaleDateString() === hoy).length;
+      document.getElementById('statRetrasados').textContent = rHistorial.datos.filter(d => ['Retrasado', 'Extraviado'].includes(d.estatus)).length;
     }
-  } catch (e) { console.error("Error en KPIs:", e); }
+  } catch (e) { console.error(e); }
 }
 
 async function cargarPorRecibir() {
-  const tbody = document.getElementById('tablaPorRecibir');
-  tbody.innerHTML = '<tr><td colspan="6" class="text-center py-3 text-muted">Cargando valijas...</td></tr>';
+  const tbody = document.getElementById('tablaPorRecibir'); tbody.innerHTML = '<tr><td colspan="6" class="text-center py-3 text-muted">Cargando...</td></tr>';
   try {
     const r = await postAPI({accion: 'cargarPorRecibir', opt: estadoApp.optSel});
     if (!r.exito) throw new Error(r.mensaje);
-    if (r.datos.length === 0) { tbody.innerHTML = '<tr><td colspan="6" class="text-center py-3 text-muted">No hay paquetes en tránsito.</td></tr>'; return; }
+    if (r.datos.length === 0) { tbody.innerHTML = '<tr><td colspan="6" class="text-center py-3 text-muted">No hay paquetes.</td></tr>'; return; }
     tbody.innerHTML = '';
     r.datos.forEach(item => {
-      let fecha = item.fechaSalida;
-      if (fecha && fecha.includes('T')) fecha = fecha.split('T')[0].split('-').reverse().join('/');
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td><span class="codigo-5d">${item.id}</span></td><td>Paquete</td><td>${item.piezas}</td><td>${fecha}</td><td><b>0</b></td><td><button class="btn btn-sm btn-warning fw-bold" onclick="abrirModalRecepcion('${item.id}', ${item.piezas})"><i class="bi bi-box-arrow-in-down"></i> Recibir</button></td>`;
-      tbody.appendChild(tr);
+      let fecha = item.fechaSalida; if (fecha && fecha.includes('T')) fecha = fecha.split('T')[0].split('-').reverse().join('/');
+      tbody.innerHTML += `<tr><td><span class="codigo-5d">${item.id}</span></td><td>Paquete</td><td>${item.piezas}</td><td>${fecha}</td><td><b>0</b></td><td><button class="btn btn-sm btn-warning fw-bold" onclick="abrirModalRecepcion('${item.id}', ${item.piezas})">Recibir</button></td></tr>`;
     });
-  } catch (e) { tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">Error: ${e.message}</td></tr>`; }
+  } catch (e) { tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">${e.message}</td></tr>`; }
 }
 
 function abrirModalRecepcion(codigo, piezas) {
-  document.getElementById('recCodigo').value = codigo;
-  document.getElementById('recPiezas').value = piezas;
-  document.getElementById('recConforme').value = '';
-  document.getElementById('recPrecinto').value = '';
-  document.getElementById('recObs').value = '';
-  document.getElementById('fotoRecepcion').value = '';
-  document.getElementById('recHora').value = '';
-  document.getElementById('recGPS').value = '';
+  document.getElementById('recCodigo').value = codigo; document.getElementById('recPiezas').value = piezas;
+  document.getElementById('recConforme').value = ''; document.getElementById('recPrecinto').value = ''; document.getElementById('recObs').value = ''; document.getElementById('fotoRecepcion').value = '';
   modalRecepcion.show();
 }
 
 async function confirmarRecepcion() {
-  const codigo = document.getElementById('recCodigo').value;
-  const conforme = document.getElementById('recConforme').value;
-  const precinto = document.getElementById('recPrecinto').value;
-  const obs = document.getElementById('recObs').value;
-  const foto = document.getElementById('fotoRecepcion').files[0];
-  const gps = document.getElementById('recGPS').value;
-  if (!conforme || !foto) return Swal.fire('Atención', 'Debe indicar si es conforme y subir la foto del paquete.', 'warning');
-  Swal.fire({title: 'Procesando recepción...', allowOutsideClick: false, didOpen: () => Swal.showLoading()});
+  const codigo = document.getElementById('recCodigo').value; const conforme = document.getElementById('recConforme').value;
+  const precinto = document.getElementById('recPrecinto').value; const obs = document.getElementById('recObs').value; const foto = document.getElementById('fotoRecepcion').files[0];
+  if (!conforme || !foto) return Swal.fire('Atención', 'Complete conforme y foto.', 'warning');
+  Swal.fire({title: 'Procesando...', didOpen: () => Swal.showLoading()});
   try {
-    const fotoUrl = "https://drive.google.com/foto_simulada_" + codigo; 
-    const r = await postAPI({ accion: 'guardarAccionOPT', tipoAccion: 'recepcion', idGuia: codigo, usuario: 'Jefe Anaco', precinto: precinto, observaciones: obs || 'Recibido conforme', gps: gps, foto: fotoUrl });
+    const r = await postAPI({ accion: 'guardarAccionOPT', tipoAccion: 'recepcion', idGuia: codigo, usuario: 'Jefe Anaco', precinto: precinto, observaciones: obs || 'Recibido conforme', gps: 'GPS', foto: "https://drive.google.com/foto" });
     if (!r.exito) throw new Error(r.mensaje);
-    modalRecepcion.hide();
-    Swal.fire('✅ Recepción Confirmada', 'El paquete ahora está en custodia.', 'success');
-    cargarEstadisticasOPT(); cargarPorRecibir(); cargarCustodia(); cargarHistorialEntregas();
-  } catch (e) { Swal.fire('Error', 'No se pudo guardar la recepción: ' + e.message, 'error'); }
+    modalRecepcion.hide(); Swal.fire('✅ Confirmada', 'En custodia.', 'success'); cargarEstadisticasOPT(); cargarPorRecibir(); cargarCustodia(); cargarHistorialEntregas();
+  } catch (e) { Swal.fire('Error', e.message, 'error'); }
 }
 
 async function cargarCustodia() {
-  const tbody = document.getElementById('tablaCustodia');
-  tbody.innerHTML = '<tr><td colspan="7" class="text-center py-3 text-muted">Cargando...</td></tr>';
-  
+  const tbody = document.getElementById('tablaCustodia'); tbody.innerHTML = '<tr><td colspan="7" class="text-center py-3 text-muted">Cargando...</td></tr>';
   try {
     const r = await postAPI({accion: 'cargarCustodia', opt: estadoApp.optSel});
     if (!r.exito) throw new Error(r.mensaje);
-
-    if (r.datos.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="7" class="text-center py-3 text-muted">No hay paquetes en custodia.</td></tr>';
-      return;
-    }
-
+    if (r.datos.length === 0) { tbody.innerHTML = '<tr><td colspan="7" class="text-center py-3 text-muted">Sin custodia.</td></tr>'; return; }
     tbody.innerHTML = '';
     r.datos.forEach(item => {
-      let fechaRec = item.fechaRecepcion;
-      if (fechaRec && fechaRec.includes('T')) fechaRec = fechaRec.split('T')[0].split('-').reverse().join('/');
-      
-      let badgeColor = 'bg-success';
-      if (item.semaforoColor === 'amarillo') badgeColor = 'bg-warning text-dark';
-      if (item.semaforoColor === 'rojo') badgeColor = 'bg-danger';
-      if (item.semaforoColor === 'negro') badgeColor = 'bg-dark';
-
-      const tr = document.createElement('tr');
-      if (item.semaforoColor === 'rojo') tr.className = 'fila-critica';
-      if (item.semaforoColor === 'amarillo') tr.className = 'fila-alerta';
-
+      let fechaRec = item.fechaRecepcion; if (fechaRec && fechaRec.includes('T')) fechaRec = fechaRec.split('T')[0].split('-').reverse().join('/');
+      let badgeColor = item.semaforoColor === 'amarillo' ? 'bg-warning text-dark' : (item.semaforoColor === 'rojo' ? 'bg-danger' : (item.semaforoColor === 'negro' ? 'bg-dark' : 'bg-success'));
       let detallePiezas = item.piezas;
-      if (item.observaciones && item.observaciones.includes('Cert')) {
-        detallePiezas = `<div style="font-size: 0.8rem;">
-          <span class="badge bg-primary">${item.observaciones.split('|')[0].trim()}</span><br>
-          <span class="badge bg-info text-dark">${item.observaciones.split('|')[1].trim()}</span>
-        </div>`;
-      }
-
-      tr.innerHTML = `
-        <td><span class="codigo-5d">${item.id}</span><br><small class="text-muted">${item.tipo}</small></td>
-        <td>-</td>
-        <td>${detallePiezas}</td>
-        <td>${fechaRec}</td>
-        <td><b>${item.diasCustodia}</b></td>
-        <td><span class="badge ${badgeColor}">${item.semaforoTexto}</span></td>
-        <td><button class="btn btn-sm btn-primary fw-bold" onclick="abrirModalEntrega('${item.id}', ${item.piezas})"><i class="bi bi-person-check"></i> Entregar</button></td>
-      `;
-      tbody.appendChild(tr);
+      if (item.observaciones && item.observaciones.includes('Cert')) detallePiezas = `<div style="font-size: 0.8rem;"><span class="badge bg-primary">${item.observaciones.split('|')[0].trim()}</span><br><span class="badge bg-info text-dark">${item.observaciones.split('|')[1].trim()}</span></div>`;
+      tbody.innerHTML += `<tr><td><span class="codigo-5d">${item.id}</span><br><small class="text-muted">${item.tipo}</small></td><td>-</td><td>${detallePiezas}</td><td>${fechaRec}</td><td><b>${item.diasCustodia}</b></td><td><span class="badge ${badgeColor}">${item.semaforoTexto}</span></td><td><button class="btn btn-sm btn-primary fw-bold" onclick="abrirModalEntrega('${item.id}', ${item.piezas})">Entregar</button></td></tr>`;
     });
-  } catch (e) {
-    tbody.innerHTML = `<tr><td colspan="7" class="text-center text-danger">Error: ${e.message}</td></tr>`;
-  }
+  } catch (e) { tbody.innerHTML = `<tr><td colspan="7" class="text-center text-danger">${e.message}</td></tr>`; }
 }
 
 function abrirModalEntrega(codigo, piezas) {
   document.getElementById('entCodigo').textContent = codigo;
-  
   let detalle = piezas;
   const filas = document.querySelectorAll('#tablaCustodia tr');
-  for(let f of filas) {
-      if(f.innerText.includes(codigo)) {
-          const celdas = f.querySelectorAll('td');
-          if(celdas[2] && celdas[2].innerText.includes('Cert')) {
-              detalle = celdas[2].innerText.replace('\n', ' - ');
-          }
-      }
-  }
+  for(let f of filas) { if(f.innerText.includes(codigo)) { const celdas = f.querySelectorAll('td'); if(celdas[2] && celdas[2].innerText.includes('Cert')) { detalle = celdas[2].innerText.replace('\n', ' - '); } } }
   document.getElementById('entPiezas').textContent = detalle;
-
-  document.getElementById('entNombreReceptor').value = '';
-  document.getElementById('entCedulaReceptor').value = '';
-  document.getElementById('entRelacion').value = '';
-  document.getElementById('entEstadoPaquete').value = '';
-  document.getElementById('fotoEntrega').value = '';
-  document.getElementById('entHora').value = '';
-  document.getElementById('entGPS').value = '';
-  document.getElementById('entDeclaracion').checked = false;
+  document.getElementById('entNombreReceptor').value = ''; document.getElementById('entCedulaReceptor').value = ''; document.getElementById('entRelacion').value = ''; document.getElementById('entEstadoPaquete').value = ''; document.getElementById('fotoEntrega').value = '';
   modalEntrega.show();
 }
 
 async function confirmarEntregaUPAE() {
-  const nombre = document.getElementById('entNombreReceptor').value;
-  const cedula = document.getElementById('entCedulaReceptor').value;
-  const relacion = document.getElementById('entRelacion').value;
-  const estadoSobre = document.getElementById('entEstadoPaquete').value;
-  const foto = document.getElementById('fotoEntrega').files[0];
-  const declaracion = document.getElementById('entDeclaracion').checked;
-  const gps = document.getElementById('entGPS').value;
-  const codigo = document.getElementById('entCodigo').textContent;
-  if (!nombre || !cedula || !relacion || !estadoSobre || !foto || !declaracion) return Swal.fire('Datos incompletos', 'Debe completar todos los campos y subir la foto.', 'warning');
-  Swal.fire({title: 'Registrando Acta...', allowOutsideClick: false, didOpen: () => Swal.showLoading()});
+  const nombre = document.getElementById('entNombreReceptor').value; const cedula = document.getElementById('entCedulaReceptor').value; const relacion = document.getElementById('entRelacion').value; const estadoSobre = document.getElementById('entEstadoPaquete').value; const foto = document.getElementById('fotoEntrega').files[0]; const codigo = document.getElementById('entCodigo').textContent;
+  if (!nombre || !cedula || !relacion || !estadoSobre || !foto) return Swal.fire('Datos incompletos', 'Complete todo y la foto.', 'warning');
+  Swal.fire({title: 'Registrando...', didOpen: () => Swal.showLoading()});
   try {
-    const fotoUrl = "https://drive.google.com/foto_entrega_simulada_" + codigo;
-    const r = await postAPI({ accion: 'guardarAccionOPT', tipoAccion: 'entrega', idGuia: codigo, nombreRecibe: nombre, cedulaRecibe: cedula, relacion: relacion, estadoSobre: estadoSobre, gpsEntrega: gps, fotoEntrega: fotoUrl });
+    const r = await postAPI({ accion: 'guardarAccionOPT', tipoAccion: 'entrega', idGuia: codigo, nombreRecibe: nombre, cedulaRecibe: cedula, relacion: relacion, estadoSobre: estadoSobre, gpsEntrega: 'GPS', fotoEntrega: "https://drive.google.com/foto" });
     if (!r.exito) throw new Error(r.mensaje);
-    modalEntrega.hide();
-    Swal.fire('✅ Entrega Registrada (Inmutable)', 'El acta ha sido guardada.', 'success');
-    cargarEstadisticasOPT(); cargarPorRecibir(); cargarCustodia(); cargarHistorialEntregas();
-  } catch (e) { Swal.fire('Error', 'No se pudo registrar la entrega: ' + e.message, 'error'); }
+    modalEntrega.hide(); Swal.fire('✅ Registrada', 'Acta guardada.', 'success'); cargarEstadisticasOPT(); cargarPorRecibir(); cargarCustodia(); cargarHistorialEntregas();
+  } catch (e) { Swal.fire('Error', e.message, 'error'); }
 }
 
 async function cargarHistorialEntregas() {
-  const tbody = document.getElementById('tablaHistorial');
-  tbody.innerHTML = '<tr><td colspan="7" class="text-center py-3 text-muted">Cargando historial...</td></tr>';
+  const tbody = document.getElementById('tablaHistorial'); tbody.innerHTML = '<tr><td colspan="7" class="text-center py-3 text-muted">Cargando...</td></tr>';
   try {
     const r = await postAPI({accion: 'cargarHistorialEntregas', opt: estadoApp.optSel});
     if (!r.exito) throw new Error(r.mensaje);
-    if (r.datos.length === 0) { tbody.innerHTML = '<tr><td colspan="7" class="text-center py-3 text-muted">No hay entregas registradas.</td></tr>'; return; }
+    if (r.datos.length === 0) { tbody.innerHTML = '<tr><td colspan="7" class="text-center py-3 text-muted">Sin entregas.</td></tr>'; return; }
     tbody.innerHTML = '';
     r.datos.forEach(item => {
-      let fechaEnt = item.fechaEntrega;
-      if (fechaEnt && fechaEnt.includes('T')) fechaEnt = new Date(fechaEnt).toLocaleString();
-      else fechaEnt = fechaEnt || '—';
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td><span class="badge bg-secondary">${item.estatus}</span></td><td><span class="codigo-5d">${item.id}</span></td><td>${item.nombreRecibe || '—'}</td><td>${item.cedulaRecibe || '—'}</td><td>${fechaEnt}</td><td><small>${item.gpsEntrega || '—'}</small></td><td>${item.fotoEntrega ? '<i class="bi bi-image text-success"></i>' : '—'}</td>`;
-      tbody.appendChild(tr);
+      let fechaEnt = item.fechaEntrega; if (fechaEnt && fechaEnt.includes('T')) fechaEnt = new Date(fechaEnt).toLocaleString(); else fechaEnt = fechaEnt || '—';
+      tbody.innerHTML += `<tr><td><span class="badge bg-secondary">${item.estatus}</span></td><td><span class="codigo-5d">${item.id}</span></td><td>${item.nombreRecibe || '—'}</td><td>${item.cedulaRecibe || '—'}</td><td>${fechaEnt}</td><td><small>${item.gpsEntrega || '—'}</small></td><td>${item.fotoEntrega ? '<i class="bi bi-image text-success"></i>' : '—'}</td></tr>`;
     });
-  } catch (e) { tbody.innerHTML = `<tr><td colspan="7" class="text-center text-danger">Error: ${e.message}</td></tr>`; }
-}
-
-// ==========================================
-// LÓGICA DEL INFORME (JEFE OPT)
-// ==========================================
-function abrirModalInforme() {
-  const hoy = new Date().toISOString().split('T')[0];
-  document.getElementById('infoFechaInicio').value = hoy;
-  document.getElementById('infoFechaFin').value = hoy;
-  modalInforme.show();
-}
-
-async function generarInforme() {
-  const fInicio = document.getElementById('infoFechaInicio').value;
-  const fFin = document.getElementById('infoFechaFin').value;
-  if (!fInicio || !fFin) return Swal.fire('Atención', 'Seleccione ambas fechas.', 'warning');
-  if (fInicio > fFin) return Swal.fire('Error', 'La fecha "Desde" no puede ser mayor que "Hasta".', 'error');
-  
-  Swal.fire({ title: 'Generando informe...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-  
-  try {
-    const r = await postAPI({ accion: 'obtenerResumenInforme', opt: estadoApp.optSel, fechaInicio: fInicio, fechaFin: fFin });
-    if (!r.exito) throw new Error(r.mensaje);
-    modalInforme.hide();
-    
-    let filasDetalle = '';
-    if (r.detalle.length === 0) {
-      filasDetalle = '<tr><td colspan="7" class="text-center">No hubo entregas en este período.</td></tr>';
-    } else {
-      r.detalle.forEach(d => {
-        filasDetalle += `<tr>
-          <td>${d.id}</td>
-          <td>${d.fecha}</td>
-          <td>${d.nombre} (${d.cedula})</td>
-          <td><b>${d.cert}</b> / <b>${d.ord}</b></td>
-          <td class="${d.tieneFoto === 'Sí' ? 'text-success' : 'text-danger'}">${d.tieneFoto}</td>
-          <td class="${d.tieneGPS === 'Sí' ? 'text-success' : 'text-danger'}">${d.tieneGPS}</td>
-          <td>${d.tiempoStr}</td>
-        </tr>`;
-      });
-    }
-
-    const k = r.kpis;
-    const info = r.infoOPT;
-        // Formatear números
-    k.totPaquetesRecibidos = formatNum_(k.totPaquetesRecibidos);
-    k.totPiezasRecibidas = formatNum_(k.totPiezasRecibidas);
-    k.totPiezasEntregadas = formatNum_(k.totPiezasEntregadas);
-    k.certEntregados = formatNum_(k.certEntregados);
-    k.ordEntregados = formatNum_(k.ordEntregados);
-    k.conFoto = formatNum_(k.conFoto);
-    k.totPaquetesEntregados = formatNum_(k.totPaquetesEntregados);
-    k.incidencias = formatNum_(k.incidencias);
-    k.pctEntrega = formatNum_(k.pctEntrega);
-    k.promHorasStr = formatNum_(k.promHorasStr.replace(' hrs', ''), 1) + ' hrs';
-    r.detalle.forEach(d => {
-      d.cert = formatNum_(d.cert);
-      d.ord = formatNum_(d.ord);
-    });
-    const subtituloGeografico = `Estado: ${info.estado} | Municipio: ${info.municipio} | Parroquia: ${info.parroquia}`;
-
-    const htmlInforme = `
-      <html>
-      <head>
-        <title>Informe OPT - ${info.nombre}</title>
-        <style>
-          body { font-family: 'Segoe UI', Arial, sans-serif; padding: 30px; color: #333; }
-          h1 { text-align: center; color: #003366; margin-bottom: 5px; font-size: 26px; }
-          h2 { text-align: center; font-size: 16px; color: #444; margin-top: 0; margin-bottom: 5px; }
-          .geo-info { text-align: center; font-size: 12px; color: #666; margin-bottom: 25px; text-transform: uppercase; letter-spacing: 1px; }
-          
-          .kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 30px; }
-          .kpi-box { border: 1px solid #ddd; border-radius: 8px; padding: 15px; text-align: center; background: #f8f9fa; border-top: 4px solid #003366; }
-          .kpi-box.success { border-top-color: #198754; }
-          .kpi-box.warning { border-top-color: #ffc107; }
-          .kpi-box.info { border-top-color: #0dcaf0; }
-          
-          .kpi-value { font-size: 28px; font-weight: bold; color: #003366; margin-bottom: 5px; }
-          .kpi-box.success .kpi-value { color: #198754; }
-          .kpi-box.warning .kpi-value { color: #d39e00; }
-          
-          .kpi-label { font-size: 11px; text-transform: uppercase; color: #666; font-weight: bold; letter-spacing: 1px; }
-          
-          table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-          th, td { border: 1px solid #ddd; padding: 10px; text-align: left; font-size: 12px; }
-          th { background-color: #003366; color: white; font-weight: 600; }
-          tr:nth-child(even) { background-color: #f9f9f9; }
-          
-          .footer { margin-top: 40px; text-align: center; font-size: 10px; color: #888; border-top: 1px solid #ddd; padding-top: 10px; }
-          .text-success { color: #198754; font-weight: bold; }
-          .text-danger { color: #dc3545; font-weight: bold; }
-          .text-center { text-align: center; }
-        </style>
-      </head>
-      <body>
-        <h1>IPOSTEL - Cierre Diario / Informe de OPT</h1>
-        <h2>Oficina: ${info.nombre} (${info.codigo})</h2>
-        <div class="geo-info">${subtituloGeografico} | Período: ${fInicio.split('-').reverse().join('/')} al ${fFin.split('-').reverse().join('/')}</div>
-        
-        <div class="kpi-grid">
-          <div class="kpi-box">
-            <div class="kpi-value">${k.totPaquetesRecibidos}</div>
-            <div class="kpi-label">Paquetes Recibidos</div>
-            <div style="font-size: 10px; color: #666; margin-top: 5px;">${k.totPiezasRecibidas} piezas totales</div>
-          </div>
-          <div class="kpi-box success">
-            <div class="kpi-value">${k.totPiezasEntregadas}</div>
-            <div class="kpi-label">Piezas Entregadas</div>
-            <div style="font-size: 10px; color: #666; margin-top: 5px;"><b>${k.certEntregados}</b> Certificadas | <b>${k.ordEntregados}</b> Ordinarias</div>
-          </div>
-          <div class="kpi-box ${k.pctEntrega > 80 ? 'success' : 'warning'}">
-            <div class="kpi-value">${k.pctEntrega}%</div>
-            <div class="kpi-label">Efectividad</div>
-            <div style="font-size: 10px; color: #666; margin-top: 5px;">Piezas entregadas / recibidas</div>
-          </div>
-          <div class="kpi-box info">
-            <div class="kpi-value">${k.promHorasStr}</div>
-            <div class="kpi-label">Tiempo Promedio</div>
-            <div style="font-size: 10px; color: #666; margin-top: 5px;">De Recepción a Entrega</div>
-          </div>
-          <div class="kpi-box">
-            <div class="kpi-value">${k.conFoto} <span style="font-size: 16px; color: #666;">/ ${k.totPaquetesEntregados}</span></div>
-            <div class="kpi-label">Entregas con Foto</div>
-            <div style="font-size: 10px; color: #666; margin-top: 5px;">Evidencia Fotográfica</div>
-          </div>
-          <div class="kpi-box ${k.incidencias > 0 ? 'warning' : 'success'}">
-            <div class="kpi-value">${k.incidencias}</div>
-            <div class="kpi-label">Incidencias</div>
-            <div style="font-size: 10px; color: #666; margin-top: 5px;">Retrasos o Extravíos</div>
-          </div>
-        </div>
-
-        <h3>Detalle de Entregas</h3>
-        <table>
-          <thead>
-            <tr>
-              <th>Guía / Paquete</th>
-              <th>Fecha/Hora</th>
-              <th>Quien Retiró</th>
-              <th>Cert / Ord</th>
-              <th>Foto</th>
-              <th>GPS</th>
-              <th>Tiempo</th>
-            </tr>
-          </thead>
-          <tbody>${filasDetalle}</tbody>
-        </table>
-        <div class="footer">Generado el ${new Date().toLocaleString()} por el sistema de Observatorio Estratégico Postal.</div>
-        <script>window.onload = function() { window.print(); }<\/script>
-      </body>
-      </html>
-    `;
-    
-    const ventana = window.open('', '_blank');
-    ventana.document.write(htmlInforme);
-    ventana.document.close();
-  } catch (e) {
-    Swal.fire('Error', 'No se pudo generar el informe: ' + e.message, 'error');
-  }
+  } catch (e) { tbody.innerHTML = `<tr><td colspan="7" class="text-center text-danger">${e.message}</td></tr>`; }
 }
 
 // ==========================================
@@ -1276,52 +703,32 @@ function iniciarGerente() {
   modalClasificar = new bootstrap.Modal(document.getElementById('modalClasificar'));
   modalDespachar = new bootstrap.Modal(document.getElementById('modalDespachar'));
   modalInformeGerente = new bootstrap.Modal(document.getElementById('modalInformeGerente'));
-  cargarGerenteClasificar();
-  cargarGerenteDespachar();
-  document.getElementById('despacharFoto').addEventListener('change', function() {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(pos => document.getElementById('despacharGPS').value = `${pos.coords.latitude.toFixed(5)}, ${pos.coords.longitude.toFixed(5)}`);
-    }
-  });
+  cargarGerenteClasificar(); cargarGerenteDespachar();
 }
 
 async function cargarGerenteClasificar() {
-  const tbody = document.getElementById('tablaGerenteClasificar');
-  tbody.innerHTML = '<tr><td colspan="6" class="text-center py-3 text-muted">Cargando...</td></tr>';
+  const tbody = document.getElementById('tablaGerenteClasificar'); tbody.innerHTML = '<tr><td colspan="6" class="text-center py-3 text-muted">Cargando...</td></tr>';
   try {
     const r = await postAPI({ accion: 'cargarPendientesClasificar', estado: estadoApp.estadoSel });
     if (!r.exito) throw new Error(r.mensaje);
-    if (r.datos.length === 0) { tbody.innerHTML = '<tr><td colspan="6" class="text-center py-3 text-muted">No hay valijas por clasificar.</td></tr>'; return; }
+    if (r.datos.length === 0) { tbody.innerHTML = '<tr><td colspan="6" class="text-center py-3 text-muted">No hay másters por clasificar.</td></tr>'; return; }
     tbody.innerHTML = '';
     r.datos.forEach(item => {
       let badge = item.semaforoColor === 'negro' ? 'bg-dark' : (item.semaforoColor === 'rojo' ? 'bg-danger' : (item.semaforoColor === 'amarillo' ? 'bg-warning text-dark' : 'bg-success'));
-      const tr = document.createElement('tr');
-      if (item.semaforoColor === 'rojo') tr.className = 'fila-critica';
-      else if (item.semaforoColor === 'amarillo') tr.className = 'fila-alerta';
-      tr.innerHTML = `<td><span class="codigo-5d">${item.id}</span></td><td>${item.origen}</td><td>${item.piezas}</td><td>${item.peso} kg</td><td><span class="badge ${badge}">${item.semaforoTexto} (${item.horasRestantes}h)</span></td><td><button class="btn btn-sm btn-warning fw-bold" onclick="abrirClasificar('${item.id}')"><i class="bi bi-box-seam"></i> Crear Paquete</button></td>`;
-      tbody.appendChild(tr);
+      tbody.innerHTML += `<tr><td><span class="codigo-5d">${item.id}</span></td><td>${item.origen}</td><td>${item.piezas}</td><td>${item.peso} kg</td><td><span class="badge ${badge}">${item.semaforoTexto} (${item.horasRestantes}h)</span></td><td><button class="btn btn-sm btn-warning fw-bold" onclick="abrirClasificar('${item.id}')"><i class="bi bi-box-seam"></i> Crear Paquete</button></td></tr>`;
     });
   } catch (e) { tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">${e.message}</td></tr>`; }
 }
 
 async function cargarGerenteDespachar() {
-  const tbody = document.getElementById('tablaGerenteDespachar');
-  tbody.innerHTML = '<tr><td colspan="5" class="text-center py-3 text-muted">Cargando...</td></tr>';
+  const tbody = document.getElementById('tablaGerenteDespachar'); tbody.innerHTML = '<tr><td colspan="5" class="text-center py-3 text-muted">Cargando...</td></tr>';
   try {
     const r = await postAPI({ accion: 'cargarPaquetesPendientes', estado: estadoApp.estadoSel });
     if (!r.exito) throw new Error(r.mensaje);
-    if (r.datos.length === 0) { tbody.innerHTML = '<tr><td colspan="5" class="text-center py-3 text-muted">No hay paquetes listos para despacho.</td></tr>'; return; }
+    if (r.datos.length === 0) { tbody.innerHTML = '<tr><td colspan="5" class="text-center py-3 text-muted">Sin paquetes listos.</td></tr>'; return; }
     tbody.innerHTML = '';
     r.datos.forEach(item => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td><span class="codigo-5d">${item.id}</span></td>
-        <td>${item.optDestino}</td>
-        <td>Cert: <b>${item.certificados}</b> | Ord: <b>${item.ordinarios}</b></td>
-        <td>Origen: ${item.origen}</td>
-        <td><button class="btn btn-sm btn-success fw-bold" onclick="abrirDespachar('${item.id}')"><i class="bi bi-send"></i> Despachar</button></td>
-      `;
-      tbody.appendChild(tr);
+      tbody.innerHTML += `<tr><td><span class="codigo-5d">${item.id}</span></td><td>${item.optDestino}</td><td>Cert: <b>${item.certificados}</b> | Ord: <b>${item.ordinarios}</b></td><td>Origen: ${item.origen}</td><td><button class="btn btn-sm btn-success fw-bold" onclick="abrirDespachar('${item.id}')"><i class="bi bi-send"></i> Despachar</button></td></tr>`;
     });
   } catch (e) { tbody.innerHTML = `<tr><td colspan="5" class="text-center text-danger">${e.message}</td></tr>`; }
 }
@@ -1329,491 +736,72 @@ async function cargarGerenteDespachar() {
 function abrirClasificar(id) {
   document.getElementById('clasificarGuia').value = id;
   document.getElementById('paqueteId').value = 'PKT-' + Math.floor(Math.random() * 10000);
-  document.getElementById('paqueteDestino').value = '';
-  document.getElementById('paqueteCertificados').value = '0';
-  document.getElementById('paqueteOrdinarios').value = '0';
+  document.getElementById('paqueteDestino').value = ''; document.getElementById('paqueteCertificados').value = '0'; document.getElementById('paqueteOrdinarios').value = '0';
   modalClasificar.show();
 }
 
 async function confirmarClasificacion() {
-  const valijaOrigen = document.getElementById('clasificarGuia').value;
-  const idPaquete = document.getElementById('paqueteId').value;
-  const destino = document.getElementById('paqueteDestino').value;
-  const certificados = document.getElementById('paqueteCertificados').value;
-  const ordinarios = document.getElementById('paqueteOrdinarios').value;
-
-  if (!idPaquete || !destino) return Swal.fire('Atención', 'Complete los campos obligatorios.', 'warning');
-  if (Number(certificados) === 0 && Number(ordinarios) === 0) return Swal.fire('Atención', 'Debe incluir al menos una pieza (Certificada u Ordinaria).', 'warning');
-  
-  Swal.fire({ title: 'Creando Paquete...', didOpen: () => Swal.showLoading() });
-  const r = await postAPI({ 
-    accion: 'crearPaquete', 
-    idPaquete: idPaquete, 
-    valijaOrigen: valijaOrigen, 
-    optDestino: destino, 
-    certificados: certificados,
-    ordinarios: ordinarios
-  });
-  
-  if (r.exito) {
-    modalClasificar.hide();
-    Swal.fire('Paquete Creado', 'El paquete se ha añadido a la lista de despacho.', 'success');
-    cargarGerenteClasificar();
-    cargarGerenteDespachar();
-  } else Swal.fire('Error', r.mensaje, 'error');
+  const valijaOrigen = document.getElementById('clasificarGuia').value; const idPaquete = document.getElementById('paqueteId').value; const destino = document.getElementById('paqueteDestino').value; const certificados = document.getElementById('paqueteCertificados').value; const ordinarios = document.getElementById('paqueteOrdinarios').value;
+  if (!idPaquete || !destino) return Swal.fire('Atención', 'Complete los campos.', 'warning');
+  Swal.fire({ title: 'Creando...', didOpen: () => Swal.showLoading() });
+  const r = await postAPI({ accion: 'crearPaquete', idPaquete, valijaOrigen, optDestino: destino, certificados, ordinarios });
+  if (r.exito) { modalClasificar.hide(); Swal.fire('Creado', 'Añadido a despacho.', 'success'); cargarGerenteClasificar(); cargarGerenteDespachar(); } else Swal.fire('Error', r.mensaje, 'error');
 }
 
 function abrirDespachar(id) {
-  document.getElementById('despacharGuia').value = id;
-  document.getElementById('despacharRecibe').value = '';
-  document.getElementById('despacharFoto').value = '';
-  document.getElementById('despacharGPS').value = '';
+  document.getElementById('despacharGuia').value = id; document.getElementById('despacharRecibe').value = ''; document.getElementById('despacharFoto').value = '';
   modalDespachar.show();
 }
 
 async function confirmarDespacho() {
-  const id = document.getElementById('despacharGuia').value;
-  const recibe = document.getElementById('despacharRecibe').value;
-  const foto = document.getElementById('despacharFoto').files[0];
-  const gps = document.getElementById('despacharGPS').value;
-  
-  if (!recibe || !foto) return Swal.fire('Atención', 'Debe indicar quién recibe y tomar la foto.', 'warning');
-  
+  const id = document.getElementById('despacharGuia').value; const recibe = document.getElementById('despacharRecibe').value; const foto = document.getElementById('despacharFoto').files[0];
+  if (!recibe || !foto) return Swal.fire('Atención', 'Indique quién recibe y foto.', 'warning');
   Swal.fire({ title: 'Despachando...', didOpen: () => Swal.showLoading() });
-  const r = await postAPI({ 
-    accion: 'despacharPaquete', 
-    idPaquete: id, 
-    recibeOPT: recibe, 
-    gps: gps, 
-    foto: "https://drive.google.com/foto_simulada" 
-  });
-  
-  if (r.exito) {
-    modalDespachar.hide();
-    Swal.fire('Despachado', 'El paquete ha sido entregado a la OPT.', 'success');
-    cargarGerenteDespachar();
-  } else Swal.fire('Error', r.mensaje, 'error');
-}
-
-function abrirModalInformeGerente() {
-  const hoy = new Date().toISOString().split('T')[0];
-  document.getElementById('infoGerFechaInicio').value = hoy;
-  document.getElementById('infoGerFechaFin').value = hoy;
-  modalInformeGerente.show();
-}
-
-async function generarInformeGerente() {
-  const fInicio = document.getElementById('infoGerFechaInicio').value;
-  const fFin = document.getElementById('infoGerFechaFin').value;
-  if (!fInicio || !fFin) return Swal.fire('Atención', 'Seleccione ambas fechas.', 'warning');
-  if (fInicio > fFin) return Swal.fire('Error', 'La fecha "Desde" no puede ser mayor que "Hasta".', 'error');
-  
-  Swal.fire({ title: 'Generando informe...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-  
-  try {
-    const r = await postAPI({ accion: 'obtenerResumenGerente', estado: estadoApp.estadoSel, fechaInicio: fInicio, fechaFin: fFin });
-    if (!r.exito) throw new Error(r.mensaje);
-    
-    modalInformeGerente.hide();
-    
-    let filasDetalle = '';
-    if (r.detalle.length === 0) {
-      filasDetalle = '<tr><td colspan="6" class="text-center">No hubo despachos en este período.</td></tr>';
-    } else {
-      r.detalle.forEach(d => {
-        filasDetalle += `<tr>
-          <td>${d.id}</td>
-          <td>MRW</td>
-          <td>${d.destino}</td>
-          <td>${d.totalPiezas}</td>
-          <td>${d.fechaDespacho}</td>
-          <td>${d.recibe}</td>
-        </tr>`;
-      });
-    }
-
-    const k = r.kpis;
-    const info = r.infoGerencia;
-        // Formatear números
-    k.totValijasRecibidas = formatNum_(k.totValijasRecibidas);
-    k.totPiezasRecibidas = formatNum_(k.totPiezasRecibidas);
-    k.totPaquetesCreados = formatNum_(k.totPaquetesCreados);
-    k.totPaquetesDespachados = formatNum_(k.totPaquetesDespachados);
-    k.piezasDespachadas = formatNum_(k.piezasDespachadas);
-    k.certDespachados = formatNum_(k.certDespachados);
-    k.ordDespachados = formatNum_(k.ordDespachados);
-    r.detalle.forEach(d => {
-      d.totalPiezas = formatNum_(d.totalPiezas);
-    });
-
-    const htmlInforme = `
-      <html>
-      <head>
-        <title>Informe Gerencia - ${info.estado}</title>
-        <style>
-          body { font-family: 'Segoe UI', Arial, sans-serif; padding: 30px; color: #333; }
-          h1 { text-align: center; color: #003366; margin-bottom: 5px; font-size: 26px; }
-          h2 { text-align: center; font-size: 16px; color: #444; margin-top: 0; margin-bottom: 5px; }
-          .geo-info { text-align: center; font-size: 12px; color: #666; margin-bottom: 25px; text-transform: uppercase; letter-spacing: 1px; }
-          
-          .kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 30px; }
-          .kpi-box { border: 1px solid #ddd; border-radius: 8px; padding: 15px; text-align: center; background: #f8f9fa; border-top: 4px solid #003366; }
-          .kpi-box.success { border-top-color: #198754; }
-          .kpi-box.warning { border-top-color: #ffc107; }
-          .kpi-box.info { border-top-color: #0dcaf0; }
-          .kpi-box.danger { border-top-color: #dc3545; }
-          
-          .kpi-value { font-size: 28px; font-weight: bold; color: #003366; margin-bottom: 5px; }
-          .kpi-box.success .kpi-value { color: #198754; }
-          .kpi-box.warning .kpi-value { color: #d39e00; }
-          .kpi-box.info .kpi-value { color: #0dcaf0; }
-          .kpi-box.danger .kpi-value { color: #dc3545; }
-          
-          .kpi-label { font-size: 11px; text-transform: uppercase; color: #666; font-weight: bold; letter-spacing: 1px; }
-          
-          table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-          th, td { border: 1px solid #ddd; padding: 10px; text-align: left; font-size: 12px; }
-          th { background-color: #003366; color: white; font-weight: 600; }
-          tr:nth-child(even) { background-color: #f9f9f9; }
-          
-          .footer { margin-top: 40px; text-align: center; font-size: 10px; color: #888; border-top: 1px solid #ddd; padding-top: 10px; }
-        </style>
-      </head>
-      <body>
-        <h1>IPOSTEL - Informe de Gerencia de Estado</h1>
-        <h2>Estado: ${info.estado}</h2>
-        <div class="geo-info">Período: ${fInicio.split('-').reverse().join('/')} al ${fFin.split('-').reverse().join('/')}</div>
-        
-        <div class="kpi-grid">
-          <div class="kpi-box">
-            <div class="kpi-value">${k.totValijasRecibidas}</div>
-            <div class="kpi-label">Valijas Recibidas</div>
-            <div style="font-size: 10px; color: #666; margin-top: 5px;">${k.totPiezasRecibidas} piezas totales</div>
-          </div>
-          <div class="kpi-box info">
-            <div class="kpi-value">${k.totPaquetesCreados}</div>
-            <div class="kpi-label">Paquetes Creados</div>
-            <div style="font-size: 10px; color: #666; margin-top: 5px;">Clasificados para OPT</div>
-          </div>
-          <div class="kpi-box success">
-            <div class="kpi-value">${k.totPaquetesDespachados}</div>
-            <div class="kpi-label">Paquetes Despachados</div>
-            <div style="font-size: 10px; color: #666; margin-top: 5px;">${k.piezasDespachadas} piezas enviadas</div>
-            <div style="font-size: 10px; color: #666; margin-top: 2px;">(${k.certDespachados} Cert | ${k.ordDespachados} Ord)</div>
-          </div>
-        </div>
-
-        <div style="text-align: center; margin-bottom: 30px;">
-            <div style="display: inline-block; padding: 15px 40px; border-radius: 8px; background-color: ${k.operatividad >= 80 ? '#d1e7dd' : '#fff3cd'}; border: 1px solid ${k.operatividad >= 80 ? '#badbcc' : '#ffecb5'};">
-                <div style="font-size: 32px; font-weight: bold; color: ${k.operatividad >= 80 ? '#0f5132' : '#664d03'};">${k.operatividad}%</div>
-                <div style="font-size: 12px; font-weight: bold; color: ${k.operatividad >= 80 ? '#0f5132' : '#664d03'}; text-transform: uppercase;">Porcentaje de Operatividad</div>
-                <div style="font-size: 10px; color: #666; margin-top: 5px;">(Despachados / Creados)</div>
-            </div>
-        </div>
-
-        <h3>Detalle de Paquetes Despachados</h3>
-        <table>
-          <thead>
-            <tr>
-              <th>Guía / Paquete</th>
-              <th>Origen</th>
-              <th>Destino (OPT)</th>
-              <th>Piezas</th>
-              <th>Fecha/Hora Despacho</th>
-              <th>Recibido Por</th>
-            </tr>
-          </thead>
-          <tbody>${filasDetalle}</tbody>
-        </table>
-        <div class="footer">Generado el ${new Date().toLocaleString()} por el sistema de Observatorio Estratégico Postal.</div>
-        <script>window.onload = function() { window.print(); }<\/script>
-      </body>
-      </html>
-    `;
-    
-    const ventana = window.open('', '_blank');
-    ventana.document.write(htmlInforme);
-    ventana.document.close();
-  } catch (e) {
-    Swal.fire('Error', 'No se pudo generar el informe: ' + e.message, 'error');
-  }
+  const r = await postAPI({ accion: 'despacharPaquete', idPaquete: id, recibeOPT: recibe, gps: 'GPS', foto: "https://drive.google.com/foto" });
+  if (r.exito) { modalDespachar.hide(); Swal.fire('Despachado', 'Entregado a la OPT.', 'success'); cargarGerenteDespachar(); } else Swal.fire('Error', r.mensaje, 'error');
 }
 
 // ==========================================
-// LÓGICA CNC (MONITOREO EN VIVO)
+// LÓGICA CNC
 // ==========================================
-let chartRegiones = null;
-let datosGlobalesCNC = { opts: [], regiones: [] };
-
 async function cargarCNC() {
-  const tbodyEstados = document.getElementById('tablaCNC_Estados');
-  const tbodyOPTs = document.getElementById('tablaCNC_OPTs');
-  
-  tbodyEstados.innerHTML = '<tr><td colspan="6" class="text-center py-3 text-muted">Sincronizando...</td></tr>';
-  tbodyOPTs.innerHTML = '<tr><td colspan="7" class="text-center py-3 text-muted">Sincronizando...</td></tr>';
-  
+  const tbodyEstados = document.getElementById('tablaCNC_Estados'); const tbodyOPTs = document.getElementById('tablaCNC_OPTs');
+  tbodyEstados.innerHTML = '<tr><td colspan="6" class="text-center py-3 text-muted">Sincronizando...</td></tr>'; tbodyOPTs.innerHTML = '<tr><td colspan="7" class="text-center py-3 text-muted">Sincronizando...</td></tr>';
   try {
-    const r = await postAPI({ accion: 'obtenerDatosVivoCNC' });
-    if (!r.exito) throw new Error(r.mensaje);
-    
-    if (!r.detalleRegion || !r.detalleOPT) {
-        throw new Error("El backend no devolvió los datos. Revisa que la versión en GS esté actualizada.");
-    }
-    
-    datosGlobalesCNC.opts = r.detalleOPT;
-    datosGlobalesCNC.regiones = r.detalleRegion;
-    
+    const r = await postAPI({ accion: 'obtenerDatosVivoCNC' }); if (!r.exito) throw new Error(r.mensaje);
+    if (!r.detalleRegion || !r.detalleOPT) throw new Error("Backend desactualizado.");
     const fmt = (num, dec=0) => Number(num || 0).toLocaleString('es-VE', { minimumFractionDigits: dec, maximumFractionDigits: dec });
-    const fmtFecha = (fechaStr) => {
-      if (!fechaStr) return '—';
-      const f = new Date(fechaStr);
-      return f.toLocaleDateString('es-VE') + ' ' + f.toLocaleTimeString('es-VE', {hour: '2-digit', minute:'2-digit'});
-    };
-
-    // KPIs Globales
-    document.getElementById('cncKpiTiempo').textContent = fmt(r.kpis.promNacional, 1);
-    document.getElementById('cncKpiEntregadas').textContent = fmt(r.kpis.totEntregadasHoy);
-    document.getElementById('cncKpiCustodia').textContent = fmt(r.kpis.totEnCustodia);
-    document.getElementById('cncKpiRiesgo').textContent = fmt(r.kpis.totEnRiesgo);
-
-    // Renderizar Tabla de Regiones
+    const fmtFecha = (f) => { if (!f) return '—'; const d = new Date(f); return d.toLocaleDateString('es-VE') + ' ' + d.toLocaleTimeString('es-VE', {hour: '2-digit', minute:'2-digit'}); };
+    document.getElementById('cncKpiTiempo').textContent = fmt(r.kpis.promNacional, 1); document.getElementById('cncKpiEntregadas').textContent = fmt(r.kpis.totEntregadasHoy); document.getElementById('cncKpiCustodia').textContent = fmt(r.kpis.totEnCustodia); document.getElementById('cncKpiRiesgo').textContent = fmt(r.kpis.totEnRiesgo);
     tbodyEstados.innerHTML = '';
     r.detalleRegion.forEach(reg => {
       let barColor = reg.efectividad >= 80 ? 'bg-success' : (reg.efectividad >= 50 ? 'bg-warning' : 'bg-danger');
-      tbodyEstados.innerHTML += `
-        <tr>
-          <td><b>${reg.region}</b></td>
-          <td class="text-center"><small class="text-muted">${fmtFecha(reg.ultimaSync)}</small></td>
-          <td class="text-center"><span class="badge bg-info text-dark">${fmt(reg.tiempoPromedio, 1)} hrs</span></td>
-          <td class="text-center">${fmt(reg.custodia)} pzs</td>
-          <td class="text-center"><span class="badge bg-warning text-dark">${fmt(reg.enRiesgo)}</span></td>
-          <td>
-            <div class="d-flex align-items-center">
-              <div class="progress flex-grow-1 me-2" style="height: 15px;">
-                <div class="progress-bar ${barColor}" role="progressbar" style="width: ${reg.efectividad}%;"></div>
-              </div>
-              <span class="fw-bold small">${reg.efectividad}%</span>
-            </div>
-          </td>
-        </tr>
-      `;
+      tbodyEstados.innerHTML += `<tr><td><b>${reg.region}</b></td><td class="text-center"><small class="text-muted">${fmtFecha(reg.ultimaSync)}</small></td><td class="text-center"><span class="badge bg-info text-dark">${fmt(reg.tiempoPromedio, 1)} hrs</span></td><td class="text-center">${fmt(reg.custodia)} pzs</td><td class="text-center"><span class="badge bg-warning text-dark">${fmt(reg.enRiesgo)}</span></td><td><div class="d-flex align-items-center"><div class="progress flex-grow-1 me-2" style="height: 15px;"><div class="progress-bar ${barColor}" role="progressbar" style="width: ${reg.efectividad}%;"></div></div><span class="fw-bold small">${reg.efectividad}%</span></div></td></tr>`;
     });
-
-    // Renderizar Tabla de OPTs (Por defecto todas)
-    renderTablaOPTs('todas', fmt, fmtFecha);
-    actualizarGrafico(r.detalleRegion, fmt);
-
-  } catch (e) {
-    tbodyEstados.innerHTML = `<tr><td colspan="6" class="text-center text-danger">${e.message}</td></tr>`;
-    tbodyOPTs.innerHTML = `<tr><td colspan="7" class="text-center text-danger">${e.message}</td></tr>`;
-  }
+    renderTablaOPTs('todas', fmt, fmtFecha); actualizarGrafico(r.detalleRegion, fmt);
+  } catch (e) { tbodyEstados.innerHTML = `<tr><td colspan="6" class="text-center text-danger">${e.message}</td></tr>`; tbodyOPTs.innerHTML = `<tr><td colspan="7" class="text-center text-danger">${e.message}</td></tr>`; }
 }
 
 function renderTablaOPTs(filtro, fmt, fmtFecha) {
-  const tbodyOPTs = document.getElementById('tablaCNC_OPTs');
-  tbodyOPTs.innerHTML = '';
-  
+  const tbodyOPTs = document.getElementById('tablaCNC_OPTs'); tbodyOPTs.innerHTML = '';
   let optsFiltradas = datosGlobalesCNC.opts;
   if (filtro === 'criticas') optsFiltradas = optsFiltradas.filter(o => o.incidencias > 0);
   if (filtro === 'riesgo') optsFiltradas = optsFiltradas.filter(o => o.enRiesgo > 0);
-
-  if (optsFiltradas.length === 0) {
-    tbodyOPTs.innerHTML = '<tr><td colspan="7" class="text-center py-3 text-muted">No hay OPTs en esta categoría.</td></tr>';
-    return;
-  }
-
+  if (optsFiltradas.length === 0) { tbodyOPTs.innerHTML = '<tr><td colspan="7" class="text-center py-3 text-muted">Sin OPTs.</td></tr>'; return; }
   optsFiltradas.forEach(opt => {
     let barColor = opt.efectividad >= 80 ? 'bg-success' : (opt.efectividad >= 50 ? 'bg-warning' : 'bg-danger');
-    tbodyOPTs.innerHTML += `
-      <tr>
-        <td><b>${opt.opt}</b></td>
-        <td class="text-center"><small class="text-muted">${fmtFecha(opt.ultimaSync)}</small></td>
-        <td class="text-center"><span class="badge bg-info text-dark">${fmt(opt.tiempoPromedio, 1)} hrs</span></td>
-        <td class="text-center">${fmt(opt.custodia)}</td>
-        <td class="text-center"><span class="badge bg-warning text-dark">${fmt(opt.enRiesgo)}</span></td>
-        <td class="text-center"><span class="text-danger fw-bold">${fmt(opt.incidencias)}</span></td>
-        <td>
-          <div class="d-flex align-items-center">
-            <div class="progress flex-grow-1 me-2" style="height: 15px;">
-              <div class="progress-bar ${barColor}" role="progressbar" style="width: ${opt.efectividad}%;"></div>
-            </div>
-            <span class="fw-bold small">${opt.efectividad}%</span>
-          </div>
-        </td>
-      </tr>
-    `;
+    tbodyOPTs.innerHTML += `<tr><td><b>${opt.opt}</b></td><td class="text-center"><small class="text-muted">${fmtFecha(opt.ultimaSync)}</small></td><td class="text-center"><span class="badge bg-info text-dark">${fmt(opt.tiempoPromedio, 1)} hrs</span></td><td class="text-center">${fmt(opt.custodia)}</td><td class="text-center"><span class="badge bg-warning text-dark">${fmt(opt.enRiesgo)}</span></td><td class="text-center"><span class="text-danger fw-bold">${fmt(opt.incidencias)}</span></td><td><div class="d-flex align-items-center"><div class="progress flex-grow-1 me-2" style="height: 15px;"><div class="progress-bar ${barColor}" role="progressbar" style="width: ${opt.efectividad}%;"></div></div><span class="fw-bold small">${opt.efectividad}%</span></div></td></tr>`;
   });
 }
 
-function filtrarOPTs(tipo) {
-  const fmt = (num, dec=0) => Number(num || 0).toLocaleString('es-VE', { minimumFractionDigits: dec, maximumFractionDigits: dec });
-  const fmtFecha = (fechaStr) => {
-    if (!fechaStr) return '—';
-    const f = new Date(fechaStr);
-    return f.toLocaleDateString('es-VE') + ' ' + f.toLocaleTimeString('es-VE', {hour: '2-digit', minute:'2-digit'});
-  };
-  renderTablaOPTs(tipo, fmt, fmtFecha);
-}
+function filtrarOPTs(tipo) { const fmt = (num, dec=0) => Number(num || 0).toLocaleString('es-VE', { minimumFractionDigits: dec, maximumFractionDigits: dec }); const fmtFecha = (f) => { if (!f) return '—'; const d = new Date(f); return d.toLocaleDateString('es-VE') + ' ' + d.toLocaleTimeString('es-VE', {hour: '2-digit', minute:'2-digit'}); }; renderTablaOPTs(tipo, fmt, fmtFecha); }
 
 function actualizarGrafico(regiones, fmt) {
   const ctx = document.getElementById('graficoRegiones').getContext('2d');
-  const labels = regiones.map(r => r.region);
   const data = regiones.map(r => r.efectividad);
   const bgColors = data.map(v => v >= 80 ? '#198754' : (v >= 50 ? '#ffc107' : '#dc3545'));
-
   if (chartRegiones) chartRegiones.destroy();
-  
-  chartRegiones = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: labels,
-      datasets: [{
-        label: '% Efectividad',
-        data: data,
-        backgroundColor: bgColors,
-        borderRadius: 5
-      }]
-    },
-    options: {
-      indexAxis: 'y', // Barras horizontales
-      responsive: true,
-      plugins: { legend: { display: false } },
-      scales: { x: { max: 100, beginAtZero: true } }
-    }
-  });
-}
-// ==========================================
-// LÓGICA INFORME CNC
-// ==========================================
-function abrirModalInformeCNC() {
-  if (!modalInformeCNC) modalInformeCNC = new bootstrap.Modal(document.getElementById('modalInformeCNC'));
-  const hoy = new Date().toISOString().split('T')[0];
-  document.getElementById('infoCNCFechaInicio').value = hoy;
-  document.getElementById('infoCNCFechaFin').value = hoy;
-  modalInformeCNC.show();
-}
-
-async function generarInformeCNC() {
-  const fInicio = document.getElementById('infoCNCFechaInicio').value;
-  const fFin = document.getElementById('infoCNCFechaFin').value;
-  if (!fInicio || !fFin) return Swal.fire('Atención', 'Seleccione ambas fechas.', 'warning');
-  if (fInicio > fFin) return Swal.fire('Error', 'La fecha "Desde" no puede ser mayor que "Hasta".', 'error');
-  
-  Swal.fire({ title: 'Generando informe CNC...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-  
-  try {
-    const r = await postAPI({ accion: 'obtenerDatosVivoCNC' });
-    if (!r.exito) throw new Error(r.mensaje);
-    
-    modalInformeCNC.hide();
-    
-    let filasRegiones = '';
-    r.detalleRegion.forEach(reg => {
-      let color = reg.efectividad >= 80 ? 'green' : (reg.efectividad >= 50 ? 'orange' : 'red');
-      filasRegiones += `<tr>
-        <td>${reg.region}</td>
-        <td style="text-align:center;">${reg.tiempoPromedio} hrs</td>
-        <td style="text-align:center;">${reg.custodia}</td>
-        <td style="text-align:center;">${reg.incidencias}</td>
-        <td style="text-align:center; font-weight:bold; color: ${color};">${reg.efectividad}%</td>
-      </tr>`;
-    });
-
-    let filasOPTs = '';
-    r.detalleOPT.sort((a, b) => b.incidencias - a.incidencias).forEach(opt => {
-      let color = opt.efectividad >= 80 ? 'green' : (opt.efectividad >= 50 ? 'orange' : 'red');
-      filasOPTs += `<tr>
-        <td>${opt.opt}</td>
-        <td style="text-align:center;">${opt.tiempoPromedio} hrs</td>
-        <td style="text-align:center;">${opt.custodia}</td>
-        <td style="text-align:center; font-weight:bold; color: red;">${opt.incidencias}</td>
-        <td style="text-align:center; font-weight:bold; color: ${color};">${opt.efectividad}%</td>
-      </tr>`;
-    });
-
-    const k = r.kpis;
-    // Formatear números
-    k.promNacional = formatNum_(k.promNacional, 1);
-    k.totEntregadasHoy = formatNum_(k.totEntregadasHoy);
-    k.totEnCustodia = formatNum_(k.totEnCustodia);
-    k.totReencaminadas = formatNum_(k.totReencaminadas);
-
-    r.detalleRegion.forEach(reg => {
-      reg.tiempoPromedio = formatNum_(reg.tiempoPromedio, 1);
-      reg.custodia = formatNum_(reg.custodia);
-      reg.incidencias = formatNum_(reg.incidencias);
-      reg.efectividad = formatNum_(reg.efectividad);
-    });
-
-    r.detalleOPT.forEach(opt => {
-      opt.tiempoPromedio = formatNum_(opt.tiempoPromedio, 1);
-      opt.custodia = formatNum_(opt.custodia);
-      opt.incidencias = formatNum_(opt.incidencias);
-      opt.efectividad = formatNum_(opt.efectividad);
-    });
-    
-    const htmlInforme = `
-      <html>
-      <head>
-        <title>Informe CNC - Consolidado Nacional</title>
-        <style>
-          body { font-family: 'Segoe UI', Arial, sans-serif; padding: 30px; color: #333; }
-          h1 { text-align: center; color: #003366; margin-bottom: 5px; font-size: 26px; }
-          h2 { text-align: center; font-size: 16px; color: #444; margin-top: 0; margin-bottom: 5px; }
-          .geo-info { text-align: center; font-size: 12px; color: #666; margin-bottom: 25px; text-transform: uppercase; letter-spacing: 1px; }
-          
-          .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 30px; }
-          .kpi-box { border: 1px solid #ddd; border-radius: 8px; padding: 15px; text-align: center; background: #f8f9fa; border-top: 4px solid #003366; }
-          .kpi-box.success { border-top-color: #198754; }
-          .kpi-box.warning { border-top-color: #ffc107; }
-          .kpi-box.danger { border-top-color: #dc3545; }
-          .kpi-value { font-size: 24px; font-weight: bold; color: #003366; margin-bottom: 5px; }
-          .kpi-label { font-size: 11px; text-transform: uppercase; color: #666; font-weight: bold; }
-          
-          table { width: 100%; border-collapse: collapse; margin-top: 20px; margin-bottom: 30px; }
-          th, td { border: 1px solid #ddd; padding: 10px; text-align: left; font-size: 12px; }
-          th { background-color: #003366; color: white; font-weight: 600; }
-          tr:nth-child(even) { background-color: #f9f9f9; }
-          
-          .footer { margin-top: 40px; text-align: center; font-size: 10px; color: #888; border-top: 1px solid #ddd; padding-top: 10px; }
-        </style>
-      </head>
-      <body>
-        <h1>IPOSTEL - Centro Nacional de Control (CNC)</h1>
-        <h2>Informe Consolidado de Operaciones</h2>
-        <div class="geo-info">Período: ${fInicio.split('-').reverse().join('/')} al ${fFin.split('-').reverse().join('/')}</div>
-        
-        <div class="kpi-grid">
-          <div class="kpi-box"><div class="kpi-value">${k.promNacional}</div><div class="kpi-label">T. Promedio Nacional</div></div>
-          <div class="kpi-box success"><div class="kpi-value">${k.totEntregadasHoy}</div><div class="kpi-label">Piezas Entregadas Hoy</div></div>
-          <div class="kpi-box warning"><div class="kpi-value">${k.totEnCustodia}</div><div class="kpi-label">Piezas en Custodia</div></div>
-          <div class="kpi-box danger"><div class="kpi-value">${k.totReencaminadas}</div><div class="kpi-label">Reencaminadas</div></div>
-        </div>
-
-        <h3>1. Desempeño por Región Administrativa</h3>
-        <table>
-          <thead><tr><th>Región</th><th style="text-align:center;">T. Promedio</th><th style="text-align:center;">En Custodia</th><th style="text-align:center;">Incidencias</th><th style="text-align:center;">% Efectividad</th></tr></thead>
-          <tbody>${filasRegiones}</tbody>
-        </table>
-
-        <h3>2. Alertas de Incidencias por OPT</h3>
-        <table>
-          <thead><tr><th>Oficina (OPT)</th><th style="text-align:center;">T. Promedio</th><th style="text-align:center;">En Custodia</th><th style="text-align:center;">Incidencias</th><th style="text-align:center;">% Efectividad</th></tr></thead>
-          <tbody>${filasOPTs}</tbody>
-        </table>
-
-        <div class="footer">Generado el ${new Date().toLocaleString()} por el sistema de Observatorio Estratégico Postal.</div>
-        <script>window.onload = function() { window.print(); }<\/script>
-      </body>
-      </html>
-    `;
-    
-    const ventana = window.open('', '_blank');
-    ventana.document.write(htmlInforme);
-    ventana.document.close();
-  } catch (e) {
-    Swal.fire('Error', 'No se pudo generar el informe: ' + e.message, 'error');
-  }
+  chartRegiones = new Chart(ctx, { type: 'bar', data: { labels: regiones.map(r => r.region), datasets: [{ label: '% Efectividad', data: data, backgroundColor: bgColors, borderRadius: 5 }] }, options: { indexAxis: 'y', responsive: true, plugins: { legend: { display: false } }, scales: { x: { max: 100, beginAtZero: true } } } });
 }
 
 // ==========================================
@@ -1821,303 +809,15 @@ async function generarInformeCNC() {
 // ==========================================
 async function cargarObservatorio() { document.getElementById('dashboardObservatorio').innerHTML = '<p class="text-muted">Cargando...</p>'; }
 function volverAtras() {
-  if (!document.getElementById('pasoCredenciales').classList.contains('oculto')) {
-    document.getElementById('pasoCredenciales').classList.add('oculto');
-    if (estadoApp.requiereOPT) { mostrar('pasoEstado'); mostrar('pasoOPT'); }
-    else if (estadoApp.requiereEstado) { mostrar('pasoEstado'); }
-    else { document.getElementById('selRol').value = ''; cambiarRol(); }
-    return;
-  }
+  if (!document.getElementById('pasoCredenciales').classList.contains('oculto')) { document.getElementById('pasoCredenciales').classList.add('oculto'); if (estadoApp.requiereOPT) { mostrar('pasoEstado'); mostrar('pasoOPT'); } else if (estadoApp.requiereEstado) { mostrar('pasoEstado'); } else { document.getElementById('selRol').value = ''; cambiarRol(); } return; }
   if (!document.getElementById('pasoOPT').classList.contains('oculto')) { document.getElementById('pasoOPT').classList.add('oculto'); mostrar('pasoEstado'); return; }
   if (!document.getElementById('pasoEstado').classList.contains('oculto')) { document.getElementById('pasoEstado').classList.add('oculto'); document.getElementById('selRol').value = ''; cambiarRol(); return; }
   document.getElementById('selRol').value = ''; cambiarRol();
 }
-async function cargarEstados() {
-  try {
-    const r = await postAPI({accion: 'obtenerEstados'});
-    if (r.exito) {
-      const sel = document.getElementById('selEstado');
-      sel.innerHTML = '<option value="">-- Seleccione Estado --</option>';
-      r.estados.forEach(e => sel.innerHTML += `<option value="${e}">${e}</option>`);
-    }
-  } catch(e) { console.error(e); }
-}
-async function cargarOPTs(estado) {
-  try {
-    const r = await postAPI({accion: 'obtenerOPTsPorEstado', estado: estado});
-    if (r.exito) {
-      const sel = document.getElementById('selOPT');
-      sel.innerHTML = '<option value="">-- Seleccione OPT --</option>';
-      r.opts.forEach(o => sel.innerHTML += `<option value="${o.codigo}">${o.nombre}</option>`);
-      mostrar('pasoOPT');
-    }
-  } catch(e) { console.error(e); }
-}
-function postAPI(payload) {
-  return fetch(API_URL, { method: 'POST', body: JSON.stringify(payload), headers: { 'Content-Type': 'text/plain;charset=utf-8' } }).then(r => r.json());
-}
-  // ==========================================
-// LÓGICA DIRECTOR DE OPERACIONES (CPC)
-// ==========================================
-let modalRegistrarDespacho, modalAsignarEstado, modalReporteOperaciones;
-
-function iniciarOperaciones() {
-  modalRegistrarDespacho = new bootstrap.Modal(document.getElementById('modalRegistrarDespacho'));
-  modalAsignarEstado = new bootstrap.Modal(document.getElementById('modalAsignarEstado'));
-  modalReporteOperaciones = new bootstrap.Modal(document.getElementById('modalReporteOperaciones'));
-  cargarPanelOperaciones();
-}
-
-async function cargarPanelOperaciones() {
-  const tbodyDespachos = document.getElementById('tablaCPCDespachos');
-  const tbodyDistribucion = document.getElementById('tablaCPCDistribucion');
-  
-  tbodyDespachos.innerHTML = '<tr><td colspan="8" class="text-center py-3 text-muted">Cargando...</td></tr>';
-  tbodyDistribucion.innerHTML = '<tr><td colspan="4" class="text-center py-3 text-muted">Cargando...</td></tr>';
-  
-  try {
-    const r = await postAPI({ accion: 'obtenerDatosCPC' });
-    if (!r.exito) throw new Error(r.mensaje);
-    const fmt = (num) => Number(num || 0).toLocaleString('es-VE');
-
-    document.getElementById('cpcKpiValijas').textContent = fmt(r.kpis.totValijas);
-    document.getElementById('cpcKpiPiezas').textContent = fmt(r.kpis.totPiezas);
-    document.getElementById('cpcKpiPendientes').textContent = fmt(r.kpis.pendientesPiezas);
-    document.getElementById('cpcKpiNudos').textContent = r.nudosCriticos.length;
-
-    tbodyDespachos.innerHTML = '';
-    r.despachos.forEach(d => {
-      tbodyDespachos.innerHTML += `
-        <tr>
-          <td><b>${d.id}</b></td>
-          <td>${d.guia}</td>
-          <td>${d.fechaCPC ? new Date(d.fechaCPC).toLocaleDateString() : '—'}</td>
-          <td>${fmt(d.valijas)}</td>
-          <td>${fmt(d.piezas)}</td>
-          <td>${d.kg} kg</td>
-          <td><span class="badge bg-warning text-dark">${d.novedad || 'OK'}</span></td>
-          <td><button class="btn btn-sm btn-outline-success" onclick="prepararAsignacion('${d.id}')"><i class="bi bi-send-plus"></i> Asignar</button></td>
-        </tr>
-      `;
-    });
-
-    tbodyDistribucion.innerHTML = '';
-    if (r.distribucion.length === 0) {
-      tbodyDistribucion.innerHTML = '<tr><td colspan="4" class="text-center py-3 text-muted">Sin asignaciones aún.</td></tr>';
-    } else {
-      r.distribucion.forEach(d => {
-        tbodyDistribucion.innerHTML += `
-          <tr>
-            <td><b>${d.estado}</b></td>
-            <td>${fmt(d.valijas)}</td>
-            <td>${fmt(d.piezas)}</td>
-            <td>${d.fechaEst ? new Date(d.fechaEst).toLocaleDateString() : '—'}</td>
-          </tr>
-        `;
-      });
-    }
-  } catch (e) {
-    tbodyDespachos.innerHTML = `<tr><td colspan="8" class="text-center text-danger">${e.message}</td></tr>`;
-    tbodyDistribucion.innerHTML = `<tr><td colspan="4" class="text-center text-danger">${e.message}</td></tr>`;
-  }
-}
-
-function abrirModalRegistrarDespacho() {
-  document.getElementById('cpcIdDespacho').value = 'DESP-' + Math.floor(Math.random() * 10000);
-  document.getElementById('cpcGuia').value = '';
-  document.getElementById('cpcKg').value = '';
-  document.getElementById('cpcFechaOrigen').value = '';
-  document.getElementById('cpcFechaCPC').value = '';
-  document.getElementById('cpcValijas').value = '';
-  document.getElementById('cpcPiezas').value = '';
-  document.getElementById('cpcInicioApertura').value = '';
-  document.getElementById('cpcFinClasif').value = '';
-  document.getElementById('cpcSalida').value = '';
-  document.getElementById('cpcNovedad').value = '';
-  document.getElementById('cpcNudos').value = '';
-  modalRegistrarDespacho.show();
-}
-
-async function guardarDespachoInternacional() {
-  const payload = {
-    accion: 'registrarDespachoInternacional',
-    idDespacho: document.getElementById('cpcIdDespacho').value,
-    guiaAerea: document.getElementById('cpcGuia').value,
-    fechaOrigen: document.getElementById('cpcFechaOrigen').value,
-    fechaCPC: document.getElementById('cpcFechaCPC').value,
-    valijas: document.getElementById('cpcValijas').value,
-    piezas: document.getElementById('cpcPiezas').value,
-    kg: document.getElementById('cpcKg').value,
-    novedad: document.getElementById('cpcNovedad').value,
-    inicioApertura: document.getElementById('cpcInicioApertura').value,
-    finClasificacion: document.getElementById('cpcFinClasif').value,
-    salidaCPC: document.getElementById('cpcSalida').value,
-    nudos: document.getElementById('cpcNudos').value
-  };
-  if (!payload.guiaAerea || !payload.valijas) return Swal.fire('Atención', 'Complete los campos principales.', 'warning');
-  Swal.fire({ title: 'Guardando...', didOpen: () => Swal.showLoading() });
-  const r = await postAPI(payload);
-  if (r.exito) {
-    modalRegistrarDespacho.hide();
-    Swal.fire('Despacho Registrado', 'Los datos han sido guardados.', 'success');
-    cargarPanelOperaciones();
-  } else Swal.fire('Error', r.mensaje, 'error');
-}
-
-function prepararAsignacion(idDespacho) {
-  document.getElementById('distIdDespacho').value = idDespacho;
-  document.getElementById('distEstado').value = '';
-  document.getElementById('distValijas').value = '';
-  document.getElementById('distPiezas').value = '';
-  document.getElementById('distFechaEst').value = '';
-  modalAsignarEstado.show();
-}
-
-async function guardarAsignacionEstado() {
-  const payload = {
-    accion: 'asignarValijasEstado',
-    idDespacho: document.getElementById('distIdDespacho').value,
-    guiaAerea: 'REF',
-    estado: document.getElementById('distEstado').value,
-    valijasAsignadas: document.getElementById('distValijas').value,
-    piezasAsignadas: document.getElementById('distPiezas').value,
-    fechaEst: document.getElementById('distFechaEst').value
-  };
-  if (!payload.estado || !payload.valijasAsignadas) return Swal.fire('Atención', 'Complete estado y valijas.', 'warning');
-  Swal.fire({ title: 'Asignando...', didOpen: () => Swal.showLoading() });
-  const r = await postAPI(payload);
-  if (r.exito) {
-    modalAsignarEstado.hide();
-    Swal.fire('Asignado', 'La distribución ha sido registrada.', 'success');
-    cargarPanelOperaciones();
-  } else Swal.fire('Error', r.mensaje, 'error');
-}
-
-function abrirModalReporteOperaciones() {
-  const hoy = new Date().toISOString().split('T')[0];
-  document.getElementById('infoOpFechaInicio').value = hoy;
-  document.getElementById('infoOpFechaFin').value = hoy;
-  modalReporteOperaciones.show();
-}
-
-async function generarReporteOperaciones() {
-  const fInicio = document.getElementById('infoOpFechaInicio').value;
-  const fFin = document.getElementById('infoOpFechaFin').value;
-  if (!fInicio || !fFin) return Swal.fire('Atención', 'Seleccione ambas fechas.', 'warning');
-  Swal.fire({ title: 'Generando Excel...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-  try {
-    const r = await postAPI({ accion: 'generarReporteOperaciones', fechaInicio: fInicio, fechaFin: fFin });
-    if (!r.exito) throw new Error(r.mensaje);
-    modalReporteOperaciones.hide();
-    Swal.fire({
-      title: 'Reporte Generado',
-      html: `El reporte está listo. <br><a href="${r.url}" target="_blank" class="btn btn-success mt-3"><i class="bi bi-download"></i> Descargar Excel</a>`,
-      showConfirmButton: false, showCloseButton: true
-    });
-  } catch (e) {
-    Swal.fire('Error', 'No se pudo generar: ' + e.message, 'error');
-  }
-}
-
-// ==========================================
-// LÓGICA AUDITORÍA DEL ALIADO (ALFREDO)
-// ==========================================
-let modalAliado;
-
-function iniciarAliado() {
-  modalAliado = new bootstrap.Modal(document.getElementById('modalAliado'));
-  cargarPanelAliado();
-}
-
-async function cargarPanelAliado() {
-  const tbody = document.getElementById('tablaAliado');
-  tbody.innerHTML = '<tr><td colspan="8" class="text-center py-3 text-muted">Cargando...</td></tr>';
-  
-  try {
-    const r = await postAPI({ accion: 'obtenerDatosAliado' });
-    if (!r.exito) throw new Error(r.mensaje);
-    
-    const fmt = (num) => Number(num || 0).toLocaleString('es-VE');
-    let totValijas = 0, totPiezas = 0, totKg = 0, totIncumplimientos = 0;
-    
-    tbody.innerHTML = '';
-    r.datos.forEach(d => {
-      totValijas += Number(d.valEnt) || 0;
-      totPiezas += Number(d.pzEnt) || 0;
-      totKg += Number(d.kg) || 0;
-      if (d.estado !== 'Conforme') totIncumplimientos++;
-      
-      let badge = d.estado === 'Conforme' ? 'bg-success' : 'bg-warning text-dark';
-      
-      tbody.innerHTML += `
-        <tr>
-          <td><b>${d.guia}</b></td>
-          <td>${d.fechaVuelo ? new Date(d.fechaVuelo).toLocaleDateString() : '—'}</td>
-          <td>${d.fechaEntrega ? new Date(d.fechaEntrega).toLocaleDateString() : '—'}</td>
-          <td>${d.valDecl} / <b>${d.valEnt}</b></td>
-          <td>${fmt(d.pzDecl)} / <b>${fmt(d.pzEnt)}</b></td>
-          <td>${d.kg} kg</td>
-          <td><span class="badge ${badge}">${d.estado}</span></td>
-          <td><small>${d.novedad || '—'}</small></td>
-        </tr>
-      `;
-    });
-
-    document.getElementById('aliadoKpiValijas').textContent = fmt(totValijas);
-    document.getElementById('aliadoKpiPiezas').textContent = fmt(totPiezas);
-    document.getElementById('aliadoKpiKg').textContent = fmt(totKg) + ' kg';
-    document.getElementById('aliadoKpiNovedades').textContent = fmt(totIncumplimientos);
-    
-  } catch (e) {
-    tbody.innerHTML = `<tr><td colspan="8" class="text-center text-danger">${e.message}</td></tr>`;
-  }
-}
-
-function abrirModalAliado() {
-  document.getElementById('aliadoGuia').value = '';
-  document.getElementById('aliadoOrigen').value = 'España';
-  document.getElementById('aliadoFechaVuelo').value = '';
-  document.getElementById('aliadoFechaEntrega').value = new Date().toISOString().slice(0, 16);
-  document.getElementById('aliadoValDecl').value = '';
-  document.getElementById('aliadoValEnt').value = '';
-  document.getElementById('aliadoPzDecl').value = '';
-  document.getElementById('aliadoPzEnt').value = '';
-  document.getElementById('aliadoKg').value = '';
-  document.getElementById('aliadoEstado').value = 'Conforme';
-  document.getElementById('aliadoNovedad').value = '';
-  modalAliado.show();
-}
-
-async function guardarRecepcionAliado() {
-  const payload = {
-    accion: 'registrarAuditoriaAliado',
-    idAuditoria: 'AUD-' + Math.floor(Math.random() * 10000),
-    guiaAerea: document.getElementById('aliadoGuia').value,
-    paisOrigen: document.getElementById('aliadoOrigen').value,
-    fechaLlegadaVuelo: document.getElementById('aliadoFechaVuelo').value,
-    fechaEntregaMRW: document.getElementById('aliadoFechaEntrega').value,
-    valijasDeclaradas: document.getElementById('aliadoValDecl').value,
-    valijasEntregadas: document.getElementById('aliadoValEnt').value,
-    piezasDeclaradas: document.getElementById('aliadoPzDecl').value,
-    piezasEntregadas: document.getElementById('aliadoPzEnt').value,
-    kgEntregados: document.getElementById('aliadoKg').value,
-    estadoAuditoria: document.getElementById('aliadoEstado').value,
-    novedad: document.getElementById('aliadoNovedad').value
-  };
-  
-  if (!payload.guiaAerea || !payload.valijasEntregadas) {
-    return Swal.fire('Atención', 'Complete la Guía Aérea y las Valijas Entregadas.', 'warning');
-  }
-  
-  Swal.fire({ title: 'Registrando...', didOpen: () => Swal.showLoading() });
-  const r = await postAPI(payload);
-  if (r.exito) {
-    modalAliado.hide();
-    Swal.fire('Auditoría Registrada', 'La entrega de MRW ha sido auditada.', 'success');
-    cargarPanelAliado();
-  } else Swal.fire('Error', r.mensaje, 'error');
-}
-  
+async function cargarEstados() { try { const r = await postAPI({accion: 'obtenerEstados'}); if (r.exito) { const sel = document.getElementById('selEstado'); sel.innerHTML = '<option value="">-- Seleccione Estado --</option>'; r.estados.forEach(e => sel.innerHTML += `<option value="${e}">${e}</option>`); } } catch(e) { console.error(e); } }
+async function cargarOPTs(estado) { try { const r = await postAPI({accion: 'obtenerOPTsPorEstado', estado: estado}); if (r.exito) { const sel = document.getElementById('selOPT'); sel.innerHTML = '<option value="">-- Seleccione OPT --</option>'; r.opts.forEach(o => sel.innerHTML += `<option value="${o.codigo}">${o.nombre}</option>`); mostrar('pasoOPT'); } } catch(e) { console.error(e); } }
+function postAPI(payload) { return fetch(API_URL, { method: 'POST', body: JSON.stringify(payload), headers: { 'Content-Type': 'text/plain;charset=utf-8' } }).then(r => r.json()); }
+function formatNum_(num, decimals = 0) { if (num === undefined || num === null || isNaN(num)) return '0'; let n = Number(num); let str = n.toFixed(decimals); let partes = str.split('.'); partes[0] = partes[0].replace(/\B(?=(\d{3})+(?!\d))/g, "."); return partes.join(','); }
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
