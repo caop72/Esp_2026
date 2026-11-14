@@ -871,6 +871,9 @@ function iniciarApp(r) {
     mostrar('appAliado'); 
     modalAliado = new bootstrap.Modal(document.getElementById('modalAliado'));
     cargarPanelAliado();
+ } else if (r.rol === 'DIR_OPER' || r.rol === 'GER_OPER') {
+    mostrar('appOperaciones'); 
+    modalOperaciones = new bootstrap.Modal(document.getElementById('modalOperaciones'));
   } else if (r.rol === 'GERENTE_ESTADO') {
     mostrar('appGerente'); mostrar('btnInformeGerente');
     iniciarGerente();
