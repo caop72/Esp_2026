@@ -1470,29 +1470,13 @@ async function cargarCustodia() {
 }
 
 function abrirModalEntrega(codigo, piezas) {
-    document.getElementById('entCodigo').textContent = codigo;
-    
-    // Buscar si hay detalles de Cert/Ord en la tabla visible para mostrarlos en el modal
-    let detalle = piezas;
-    const filas = document.querySelectorAll('#tablaCustodia tr');
-    for(let f of filas) { 
-        if(f.innerText.includes(codigo)) { 
-            const celdas = f.querySelectorAll('td'); 
-            if(celdas[2] && celdas[2].innerText.includes('Cert')) { 
-                // CORRECCIÓN: Usar \n (escape) en lugar de un salto de línea real
-                detalle = celdas[2].innerText.replace(/\n/g, ' - '); 
-            } 
-        } 
-    }
-    
-    document.getElementById('entPiezas').textContent = detalle;
-    document.getElementById('entNombreReceptor').value = ''; 
-    document.getElementById('entCedulaReceptor').value = ''; 
-    document.getElementById('entRelacion').value = ''; 
-    document.getElementById('entEstadoPaquete').value = ''; 
-    document.getElementById('fotoEntrega').value = '';
-    
-    modalEntrega.show();
+  document.getElementById('entCodigo').textContent = codigo;
+  let detalle = piezas;
+  const filas = document.querySelectorAll('#tablaCustodia tr');
+  for(let f of filas) { if(f.innerText.includes(codigo)) { const celdas = f.querySelectorAll('td'); if(celdas[2] && celdas[2].innerText.includes('Cert')) { detalle = celdas[2].innerText.replace('\n', ' - '); } } }
+  document.getElementById('entPiezas').textContent = detalle;
+  document.getElementById('entNombreReceptor').value = ''; document.getElementById('entCedulaReceptor').value = ''; document.getElementById('entRelacion').value = ''; document.getElementById('entEstadoPaquete').value = ''; document.getElementById('fotoEntrega').value = '';
+  modalEntrega.show();
 }
 
 async function confirmarEntregaUPAE() {
@@ -1506,27 +1490,43 @@ async function confirmarEntregaUPAE() {
   if (!nombre || !cedula || !relacion || !estadoSobre || !foto) {
     return Swal.fire('Datos incompletos', 'Complete todo y la foto.', 'warning');
   }
-    Swal.fire({title: 'Registrando...', didOpen: () => Swal.showLoading()});
+  
+  Swal.fire({title: 'Registrando...', didOpen: () => Swal.showLoading()});
   
   try {
     const r = await postAPI({ accion: 'guardarAccionOPT', tipoAccion: 'entrega', idGuia: codigo, nombreRecibe: nombre, cedulaRecibe: cedula, relacion: relacion, estadoSobre: estadoSobre, gpsEntrega: 'GPS', fotoEntrega: "https://drive.google.com/foto" });
     if (!r.exito) throw new Error(r.mensaje);
-    modalEntrega.hide(); Swal.fire('✅ Registrada', 'Acta guardada.', 'success'); cargarEstadisticasOPT(); cargarPorRecibir(); cargarCustodia(); cargarHistorialEntregas();
-  } catch (e) { Swal.fire('Error', e.message, 'error'); }
+    modalEntrega.hide(); 
+    Swal.fire('✅ Registrada', 'Acta guardada.', 'success'); 
+    cargarEstadisticasOPT(); 
+    cargarPorRecibir(); 
+    cargarCustodia(); 
+    cargarHistorialEntregas();
+  } catch (e) { 
+    Swal.fire('Error', e.message, 'error'); 
+  }
 }
 
 async function cargarHistorialEntregas() {
-  const tbody = document.getElementById('tablaHistorial'); tbody.innerHTML = '<tr><td colspan="7" class="text-center py-3 text-muted">Cargando...</td></tr>';
+  const tbody = document.getElementById('tablaHistorial'); 
+  tbody.innerHTML = '<tr><td colspan="7" class="text-center py-3 text-muted">Cargando...</td></tr>';
   try {
     const r = await postAPI({accion: 'cargarHistorialEntregas', opt: estadoApp.optSel});
     if (!r.exito) throw new Error(r.mensaje);
-    if (r.datos.length === 0) { tbody.innerHTML = '<tr><td colspan="7" class="text-center py-3 text-muted">Sin entregas.</td></tr>'; return; }
+    if (r.datos.length === 0) { 
+      tbody.innerHTML = '<tr><td colspan="7" class="text-center py-3 text-muted">Sin entregas.</td></tr>'; 
+      return; 
+    }
     tbody.innerHTML = '';
     r.datos.forEach(item => {
-      let fechaEnt = item.fechaEntrega; if (fechaEnt && fechaEnt.includes('T')) fechaEnt = new Date(fechaEnt).toLocaleString(); else fechaEnt = fechaEnt || '—';
+      let fechaEnt = item.fechaEntrega; 
+      if (fechaEnt && fechaEnt.includes('T')) fechaEnt = new Date(fechaEnt).toLocaleString(); 
+      else fechaEnt = fechaEnt || '—';
       tbody.innerHTML += `<tr><td><span class="badge bg-secondary">${item.estatus}</span></td><td><span class="codigo-5d">${item.id}</span></td><td>${item.nombreRecibe || '—'}</td><td>${item.cedulaRecibe || '—'}</td><td>${fechaEnt}</td><td><small>${item.gpsEntrega || '—'}</small></td><td>${item.fotoEntrega ? '<i class="bi bi-image text-success"></i>' : '—'}</td></tr>`;
     });
-  } catch (e) { tbody.innerHTML = `<tr><td colspan="7" class="text-center text-danger">${e.message}</td></tr>`; }
+  } catch (e) { 
+    tbody.innerHTML = `<tr><td colspan="7" class="text-center text-danger">${e.message}</td></tr>`; 
+  }
 }
 
 // ==========================================
@@ -1540,66 +1540,110 @@ function iniciarGerente() {
 }
 
 async function cargarGerenteClasificar() {
-  const tbody = document.getElementById('tablaGerenteClasificar'); tbody.innerHTML = '<tr><td colspan="6" class="text-center py-3 text-muted">Cargando...</td></tr>';
+  const tbody = document.getElementById('tablaGerenteClasificar'); 
+  tbody.innerHTML = '<tr><td colspan="6" class="text-center py-3 text-muted">Cargando...</td></tr>';
   try {
     const r = await postAPI({ accion: 'cargarPendientesClasificar', estado: estadoApp.estadoSel });
     if (!r.exito) throw new Error(r.mensaje);
-    if (r.datos.length === 0) { tbody.innerHTML = '<tr><td colspan="6" class="text-center py-3 text-muted">No hay másters por clasificar.</td></tr>'; return; }
+    if (r.datos.length === 0) { 
+      tbody.innerHTML = '<tr><td colspan="6" class="text-center py-3 text-muted">No hay másters por clasificar.</td></tr>'; 
+      return; 
+    }
     tbody.innerHTML = '';
     r.datos.forEach(item => {
       let badge = item.semaforoColor === 'negro' ? 'bg-dark' : (item.semaforoColor === 'rojo' ? 'bg-danger' : (item.semaforoColor === 'amarillo' ? 'bg-warning text-dark' : 'bg-success'));
       tbody.innerHTML += `<tr><td><span class="codigo-5d">${item.id}</span></td><td>${item.origen}</td><td>${item.piezas}</td><td>${item.peso} kg</td><td><span class="badge ${badge}">${item.semaforoTexto} (${item.horasRestantes}h)</span></td><td><button class="btn btn-sm btn-warning fw-bold" onclick="abrirClasificar('${item.id}')"><i class="bi bi-box-seam"></i> Crear Paquete</button></td></tr>`;
     });
-  } catch (e) { tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">${e.message}</td></tr>`; }
+  } catch (e) { 
+    tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">${e.message}</td></tr>`; 
+  }
 }
 
 async function cargarGerenteDespachar() {
-  const tbody = document.getElementById('tablaGerenteDespachar'); tbody.innerHTML = '<tr><td colspan="5" class="text-center py-3 text-muted">Cargando...</td></tr>';
+  const tbody = document.getElementById('tablaGerenteDespachar'); 
+  tbody.innerHTML = '<tr><td colspan="5" class="text-center py-3 text-muted">Cargando...</td></tr>';
   try {
     const r = await postAPI({ accion: 'cargarPaquetesPendientes', estado: estadoApp.estadoSel });
     if (!r.exito) throw new Error(r.mensaje);
-    if (r.datos.length === 0) { tbody.innerHTML = '<tr><td colspan="5" class="text-center py-3 text-muted">Sin paquetes listos.</td></tr>'; return; }
+    if (r.datos.length === 0) { 
+      tbody.innerHTML = '<tr><td colspan="5" class="text-center py-3 text-muted">Sin paquetes listos.</td></tr>'; 
+      return; 
+    }
     tbody.innerHTML = '';
     r.datos.forEach(item => {
       tbody.innerHTML += `<tr><td><span class="codigo-5d">${item.id}</span></td><td>${item.optDestino}</td><td>Cert: <b>${item.certificados}</b> | Ord: <b>${item.ordinarios}</b></td><td>Origen: ${item.origen}</td><td><button class="btn btn-sm btn-success fw-bold" onclick="abrirDespachar('${item.id}')"><i class="bi bi-send"></i> Despachar</button></td></tr>`;
     });
-  } catch (e) { tbody.innerHTML = `<tr><td colspan="5" class="text-center text-danger">${e.message}</td></tr>`; }
+  } catch (e) { 
+    tbody.innerHTML = `<tr><td colspan="5" class="text-center text-danger">${e.message}</td></tr>`; 
+  }
 }
 
 function abrirClasificar(id) {
   document.getElementById('clasificarGuia').value = id;
   document.getElementById('paqueteId').value = 'PKT-' + Math.floor(Math.random() * 10000);
-  document.getElementById('paqueteDestino').value = ''; document.getElementById('paqueteCertificados').value = '0'; document.getElementById('paqueteOrdinarios').value = '0';
+  document.getElementById('paqueteDestino').value = ''; 
+  document.getElementById('paqueteCertificados').value = '0'; 
+  document.getElementById('paqueteOrdinarios').value = '0';
   modalClasificar.show();
 }
 
 async function confirmarClasificacion() {
-  const valijaOrigen = document.getElementById('clasificarGuia').value; const idPaquete = document.getElementById('paqueteId').value; const destino = document.getElementById('paqueteDestino').value; const certificados = document.getElementById('paqueteCertificados').value; const ordinarios = document.getElementById('paqueteOrdinarios').value;
+  const valijaOrigen = document.getElementById('clasificarGuia').value; 
+  const idPaquete = document.getElementById('paqueteId').value; 
+  const destino = document.getElementById('paqueteDestino').value; 
+  const certificados = document.getElementById('paqueteCertificados').value; 
+  const ordinarios = document.getElementById('paqueteOrdinarios').value;
+  
   if (!idPaquete || !destino) return Swal.fire('Atención', 'Complete los campos.', 'warning');
+  
   Swal.fire({ title: 'Creando...', didOpen: () => Swal.showLoading() });
   const r = await postAPI({ accion: 'crearPaquete', idPaquete, valijaOrigen, optDestino: destino, certificados, ordinarios });
-  if (r.exito) { modalClasificar.hide(); Swal.fire('Creado', 'Añadido a despacho.', 'success'); cargarGerenteClasificar(); cargarGerenteDespachar(); } else Swal.fire('Error', r.mensaje, 'error');
+  
+  if (r.exito) { 
+    modalClasificar.hide(); 
+    Swal.fire('Creado', 'Añadido a despacho.', 'success'); 
+    cargarGerenteClasificar(); 
+    cargarGerenteDespachar(); 
+  } else {
+    Swal.fire('Error', r.mensaje, 'error');
+  }
 }
 
 function abrirDespachar(id) {
-  document.getElementById('despacharGuia').value = id; document.getElementById('despacharRecibe').value = ''; document.getElementById('despacharFoto').value = '';
+  document.getElementById('despacharGuia').value = id; 
+  document.getElementById('despacharRecibe').value = ''; 
+  document.getElementById('despacharFoto').value = '';
   modalDespachar.show();
 }
 
 async function confirmarDespacho() {
-  const id = document.getElementById('despacharGuia').value; const recibe = document.getElementById('despacharRecibe').value; const foto = document.getElementById('despacharFoto').files[0];
+  const id = document.getElementById('despacharGuia').value; 
+  const recibe = document.getElementById('despacharRecibe').value; 
+  const foto = document.getElementById('despacharFoto').files[0];
+  
   if (!recibe || !foto) return Swal.fire('Atención', 'Indique quién recibe y foto.', 'warning');
+  
   Swal.fire({ title: 'Despachando...', didOpen: () => Swal.showLoading() });
   const r = await postAPI({ accion: 'despacharPaquete', idPaquete: id, recibeOPT: recibe, gps: 'GPS', foto: "https://drive.google.com/foto" });
-  if (r.exito) { modalDespachar.hide(); Swal.fire('Despachado', 'Entregado a la OPT.', 'success'); cargarGerenteDespachar(); } else Swal.fire('Error', r.mensaje, 'error');
+  
+  if (r.exito) { 
+    modalDespachar.hide(); 
+    Swal.fire('Despachado', 'Entregado a la OPT.', 'success'); 
+    cargarGerenteDespachar(); 
+  } else {
+    Swal.fire('Error', r.mensaje, 'error');
+  }
 }
 
 // ==========================================
 // LÓGICA CNC
 // ==========================================
 async function cargarCNC() {
-  const tbodyEstados = document.getElementById('tablaCNC_Estados'); const tbodyOPTs = document.getElementById('tablaCNC_OPTs');
-  tbodyEstados.innerHTML = '<tr><td colspan="6" class="text-center py-3 text-muted">Sincronizando...</td></tr>'; tbodyOPTs.innerHTML = '<tr><td colspan="7" class="text-center py-3 text-muted">Sincronizando...</td></tr>';
+  const tbodyEstados = document.getElementById('tablaCNC_Estados'); 
+  const tbodyOPTs = document.getElementById('tablaCNC_OPTs');
+  tbodyEstados.innerHTML = '<tr><td colspan="6" class="text-center py-3 text-muted">Sincronizando...</td></tr>'; 
+  tbodyOPTs.innerHTML = '<tr><td colspan="7" class="text-center py-3 text-muted">Sincronizando...</td></tr>';
+  
   try {
     const r = await postAPI({ accion: 'obtenerDatosVivoCNC' }); 
     if (!r.exito) throw new Error(r.mensaje);
@@ -1610,29 +1654,49 @@ async function cargarCNC() {
     
     const fmt = (num, dec=0) => Number(num || 0).toLocaleString('es-VE', { minimumFractionDigits: dec, maximumFractionDigits: dec });
     const fmtFecha = (f) => { if (!f) return '—'; const d = new Date(f); return d.toLocaleDateString('es-VE') + ' ' + d.toLocaleTimeString('es-VE', {hour: '2-digit', minute:'2-digit'}); };
-    document.getElementById('cncKpiTiempo').textContent = fmt(r.kpis.promNacional, 1); document.getElementById('cncKpiEntregadas').textContent = fmt(r.kpis.totEntregadasHoy); document.getElementById('cncKpiCustodia').textContent = fmt(r.kpis.totEnCustodia); document.getElementById('cncKpiRiesgo').textContent = fmt(r.kpis.totEnRiesgo);
+    
+    document.getElementById('cncKpiTiempo').textContent = fmt(r.kpis.promNacional, 1); 
+    document.getElementById('cncKpiEntregadas').textContent = fmt(r.kpis.totEntregadasHoy); 
+    document.getElementById('cncKpiCustodia').textContent = fmt(r.kpis.totEnCustodia); 
+    document.getElementById('cncKpiRiesgo').textContent = fmt(r.kpis.totEnRiesgo);
+    
     tbodyEstados.innerHTML = '';
     r.detalleRegion.forEach(reg => {
       let barColor = reg.efectividad >= 80 ? 'bg-success' : (reg.efectividad >= 50 ? 'bg-warning' : 'bg-danger');
       tbodyEstados.innerHTML += `<tr><td><b>${reg.region}</b></td><td class="text-center"><small class="text-muted">${fmtFecha(reg.ultimaSync)}</small></td><td class="text-center"><span class="badge bg-info text-dark">${fmt(reg.tiempoPromedio, 1)} hrs</span></td><td class="text-center">${fmt(reg.custodia)} pzs</td><td class="text-center"><span class="badge bg-warning text-dark">${fmt(reg.enRiesgo)}</span></td><td><div class="d-flex align-items-center"><div class="progress flex-grow-1 me-2" style="height: 15px;"><div class="progress-bar ${barColor}" role="progressbar" style="width: ${reg.efectividad}%;"></div></div><span class="fw-bold small">${reg.efectividad}%</span></div></td></tr>`;
     });
-    renderTablaOPTs('todas', fmt, fmtFecha); actualizarGrafico(r.detalleRegion, fmt);
-  } catch (e) { tbodyEstados.innerHTML = `<tr><td colspan="6" class="text-center text-danger">${e.message}</td></tr>`; tbodyOPTs.innerHTML = `<tr><td colspan="7" class="text-center text-danger">${e.message}</td></tr>`; }
+    
+    renderTablaOPTs('todas', fmt, fmtFecha); 
+    actualizarGrafico(r.detalleRegion, fmt);
+  } catch (e) { 
+    tbodyEstados.innerHTML = `<tr><td colspan="6" class="text-center text-danger">${e.message}</td></tr>`; 
+    tbodyOPTs.innerHTML = `<tr><td colspan="7" class="text-center text-danger">${e.message}</td></tr>`; 
+  }
 }
 
 function renderTablaOPTs(filtro, fmt, fmtFecha) {
-  const tbodyOPTs = document.getElementById('tablaCNC_OPTs'); tbodyOPTs.innerHTML = '';
+  const tbodyOPTs = document.getElementById('tablaCNC_OPTs'); 
+  tbodyOPTs.innerHTML = '';
   let optsFiltradas = datosGlobalesCNC.opts;
   if (filtro === 'criticas') optsFiltradas = optsFiltradas.filter(o => o.incidencias > 0);
   if (filtro === 'riesgo') optsFiltradas = optsFiltradas.filter(o => o.enRiesgo > 0);
-  if (optsFiltradas.length === 0) { tbodyOPTs.innerHTML = '<tr><td colspan="7" class="text-center py-3 text-muted">Sin OPTs.</td></tr>'; return; }
+  
+  if (optsFiltradas.length === 0) { 
+    tbodyOPTs.innerHTML = '<tr><td colspan="7" class="text-center py-3 text-muted">Sin OPTs.</td></tr>'; 
+    return; 
+  }
+  
   optsFiltradas.forEach(opt => {
     let barColor = opt.efectividad >= 80 ? 'bg-success' : (opt.efectividad >= 50 ? 'bg-warning' : 'bg-danger');
     tbodyOPTs.innerHTML += `<tr><td><b>${opt.opt}</b></td><td class="text-center"><small class="text-muted">${fmtFecha(opt.ultimaSync)}</small></td><td class="text-center"><span class="badge bg-info text-dark">${fmt(opt.tiempoPromedio, 1)} hrs</span></td><td class="text-center">${fmt(opt.custodia)}</td><td class="text-center"><span class="badge bg-warning text-dark">${fmt(opt.enRiesgo)}</span></td><td class="text-center"><span class="text-danger fw-bold">${fmt(opt.incidencias)}</span></td><td><div class="d-flex align-items-center"><div class="progress flex-grow-1 me-2" style="height: 15px;"><div class="progress-bar ${barColor}" role="progressbar" style="width: ${opt.efectividad}%;"></div></div><span class="fw-bold small">${opt.efectividad}%</span></div></td></tr>`;
   });
 }
 
-function filtrarOPTs(tipo) { const fmt = (num, dec=0) => Number(num || 0).toLocaleString('es-VE', { minimumFractionDigits: dec, maximumFractionDigits: dec }); const fmtFecha = (f) => { if (!f) return '—'; const d = new Date(f); return d.toLocaleDateString('es-VE') + ' ' + d.toLocaleTimeString('es-VE', {hour: '2-digit', minute:'2-digit'}); }; renderTablaOPTs(tipo, fmt, fmtFecha); }
+function filtrarOPTs(tipo) { 
+  const fmt = (num, dec=0) => Number(num || 0).toLocaleString('es-VE', { minimumFractionDigits: dec, maximumFractionDigits: dec }); 
+  const fmtFecha = (f) => { if (!f) return '—'; const d = new Date(f); return d.toLocaleDateString('es-VE') + ' ' + d.toLocaleTimeString('es-VE', {hour: '2-digit', minute:'2-digit'}); }; 
+  renderTablaOPTs(tipo, fmt, fmtFecha); 
+}
 
 function actualizarGrafico(regiones, fmt) {
   const ctx = document.getElementById('graficoRegiones').getContext('2d');
