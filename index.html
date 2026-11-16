@@ -1121,18 +1121,43 @@ async function guardarVueloOperaciones() {
 function abrirModalDespachoCamion() {
   if(!modalDespachoCamion) modalDespachoCamion = new bootstrap.Modal(document.getElementById('modalDespachoCamion'));
   
-  document.getElementById('camVehiculo').value = ''; document.getElementById('camConductor').value = ''; document.getElementById('camCedulaConductor').value = ''; document.getElementById('camPrecinto').value = '';
+  // Limpiar campos
   document.getElementById('camFechaSalida').value = new Date().toISOString().slice(0, 16);
-  document.getElementById('camValijas').value = ''; document.getElementById('camPiezas').value = '';
-  document.getElementById('camEntregaNombre').value = ''; document.getElementById('camEntregaCedula').value = '';
-  document.getElementById('camRecibeNombre').value = ''; document.getElementById('camRecibeCedula').value = '';
+  document.getElementById('camValijas').value = ''; 
+  document.getElementById('camPiezas').value = '';
+  document.getElementById('camEntregaNombre').value = ''; 
+  document.getElementById('camEntregaCedula').value = '';
+  document.getElementById('camRecibeNombre').value = ''; 
+  document.getElementById('camRecibeCedula').value = '';
   document.getElementById('camFoto').value = '';
+  document.getElementById('camPrecinto').value = '';
   
+  // 1. Cargar Vuelos para el selector de origen
   const selectGuia = document.getElementById('camGuiaOrigen');
   selectGuia.innerHTML = '<option value="">-- Seleccione Vuelo --</option>';
   postAPI({accion: 'obtenerDatosOperaciones'}).then(r => {
     if(r.exito) {
       r.datos.forEach(v => selectGuia.innerHTML += `<option value="${v.guia}">${v.guia} (${v.fechaLlegada ? v.fechaLlegada.split('T')[0] : 's/f'})</option>`);
+    }
+  });
+
+  // 2. Cargar Vehículos Activos
+  const selectVehiculo = document.getElementById('camVehiculo');
+  selectVehiculo.innerHTML = '<option value="">-- Cargando... --</option>';
+  postAPI({ accion: 'obtenerFlotaVehiculos' }).then(r => {
+    selectVehiculo.innerHTML = '<option value="">-- Seleccione Vehículo --</option>';
+    if(r.exito && r.datos) {
+      r.datos.forEach(v => selectVehiculo.innerHTML += `<option value="${v.placa}">${v.placa} - ${v.tipo}</option>`);
+    }
+  });
+
+  // 3. Cargar Conductores Activos
+  const selectConductor = document.getElementById('camConductor');
+  selectConductor.innerHTML = '<option value="">-- Cargando... --</option>';
+  postAPI({ accion: 'obtenerFlotaConductores' }).then(r => {
+    selectConductor.innerHTML = '<option value="">-- Seleccione Conductor --</option>';
+    if(r.exito && r.datos) {
+      r.datos.forEach(c => selectConductor.innerHTML += `<option value="${c.cedula}|${c.nombre}">${c.nombre} (${c.cedula})</option>`);
     }
   });
   
@@ -1859,28 +1884,55 @@ async function cargarHistorialDespachosMRW() {
 }
 
 // Función para reportar incidencia
-function abrirModalIncidencias() {
+async function abrirModalIncidencias() {
     if (!modalIncidencia) modalIncidencia = new bootstrap.Modal(document.getElementById('modalIncidencia'));
-    document.getElementById('incPlaca').value = '';
-    document.getElementById('incCedula').value = '';
-    document.getElementById('incTipo').value = 'Accidente';
+    
+    document.getElementById('incOrigen').value = 'Mecánica';
+    document.getElementById('incSistema').value = 'N/A';
+    document.getElementById('incTipo').value = 'Falla en Ruta';
     document.getElementById('incDesc').value = '';
+    
+    // Llenar el select de vehículos
+    const selectPlaca = document.getElementById('incPlaca');
+    selectPlaca.innerHTML = '<option value="">-- Cargando... --</option>';
+    
+    try {
+        const r = await postAPI({ accion: 'obtenerFlotaVehiculos' });
+        selectPlaca.innerHTML = '<option value="">-- Seleccione Vehículo --</option>';
+        if(r.exito && r.datos) {
+            r.datos.forEach(v => selectPlaca.innerHTML += `<option value="${v.placa}">${v.placa}</option>`);
+        }
+    } catch (e) {
+        selectPlaca.innerHTML = '<option value="">-- Error al cargar --</option>';
+    }
+    
     modalIncidencia.show();
 }
 
 async function guardarIncidencia() {
     const placa = document.getElementById('incPlaca').value;
-    const cedula = document.getElementById('incCedula').value;
+    const origen = document.getElementById('incOrigen').value;
+    const sistema = document.getElementById('incSistema').value;
     const tipo = document.getElementById('incTipo').value;
     const desc = document.getElementById('incDesc').value;
-    if (!placa || !cedula || !desc) return Swal.fire('Atención', 'Complete todos los campos.', 'warning');
+    
+    if (!placa || !desc) return Swal.fire('Atención', 'Complete la placa y la descripción.', 'warning');
 
     Swal.fire({ title: 'Registrando...', didOpen: () => Swal.showLoading() });
-    const r = await postAPI({ accion: 'registrarIncidenciaTransporte', placa, cedula, tipo, descripcion: desc });
+    
+    const r = await postAPI({ 
+        accion: 'registrarIncidenciaTransporte', 
+        placa: placa, 
+        origen: origen, 
+        sistema: sistema,
+        tipo: tipo, 
+        descripcion: desc 
+    });
+    
     if (r.exito) {
         modalIncidencia.hide();
         Swal.fire('Registrado', 'La incidencia ha sido guardada.', 'success');
-        cargarKPIsEncaminamiento(); // Actualizar el KPI de incidencias
+        cargarKPIsEncaminamiento(); 
     } else {
         Swal.fire('Error', r.mensaje, 'error');
     }
