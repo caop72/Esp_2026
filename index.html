@@ -2216,6 +2216,97 @@ async function cargarCamionesPorRecibir() {
     tbody.innerHTML = `<tr><td colspan="5" class="text-center text-danger">${e.message}</td></tr>`; 
   }
 }
+
+let modalInformeMariela;
+
+function abrirModalInformeMariela() {
+  if (!modalInformeMariela) {
+    modalInformeMariela = new bootstrap.Modal(document.getElementById('modalInformeMariela'));
+  }
+  const hoy = new Date().toISOString().split('T')[0];
+  const hace7 = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+  
+  document.getElementById('infoMarielaFechaInicio').value = hace7;
+  document.getElementById('infoMarielaFechaFin').value = hoy;
+  modalInformeMariela.show();
+}
+
+async function generarInformeMariela() {
+  const desde = document.getElementById('infoMarielaFechaInicio').value;
+  const hasta = document.getElementById('infoMarielaFechaFin').value;
+  
+  if (!desde || !hasta) return Swal.fire('Atención', 'Debe seleccionar ambas fechas.', 'warning');
+
+  Swal.fire({ title: 'Generando Informe...', didOpen: () => Swal.showLoading() });
+
+  try {
+    // Pedimos los datos de la analítica que ya programamos
+    const r = await postAPI({ accion: 'obtenerAnaliticaAvanzada', fechaInicio: desde, fechaFin: hasta });
+    
+    if (!r.exito) throw new Error(r.mensaje);
+
+    // Construimos el HTML del PDF
+    let contenidoHTML = `
+      <html>
+      <head>
+        <title>Informe CPC - IPOSTEL</title>
+        <style>
+          body { font-family: Arial, sans-serif; padding: 20px; color: #333; }
+          h1 { color: #003366; text-align: center; }
+          h3 { color: #003366; border-bottom: 2px solid #003366; padding-bottom: 5px; margin-top: 30px; }
+          table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+          th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+          th { background-color: #003366; color: white; }
+          .kpi-box { display: inline-block; border: 1px solid #ccc; padding: 15px; margin: 5px; width: 30%; text-align: center; border-radius: 8px; }
+          .footer { text-align: center; margin-top: 40px; font-size: 12px; color: #666; }
+        </style>
+      </head>
+      <body>
+        <h1>Informe de Gestión CPC</h1>
+        <p style="text-align: center;">Período: <b>${desde}</b> al <b>${hasta}</b></p>
+        
+        <h3>KPIs de Operatividad</h3>
+        <div style="text-align: center;">
+          <div class="kpi-box"><b>T. Prom. Recepción</b><br><span style="font-size: 24px;">${r.kpis.tiempoPromedioRecepcion} hrs</span></div>
+          <div class="kpi-box"><b>Eficiencia Despacho</b><br><span style="font-size: 24px;">${r.kpis.eficienciaDespacho}%</span></div>
+          <div class="kpi-box"><b>Combinaciones Críticas</b><br><span style="font-size: 24px;">${r.kpis.combinacionesCriticas}</span></div>
+        </div>
+
+        <h3>Motivos de Incidencias</h3>
+        <table>
+          <tr><th>Motivo de Falla</th><th>Cantidad</th></tr>
+          ${(r.motivosFalla || []).map(m => `<tr><td>${m.motivo}</td><td>${m.cantidad}</td></tr>`).join('')}
+        </table>
+
+        <h3>Top 5 Conductores con Incidencias</h3>
+        <table>
+          <tr><th>Conductor</th><th>Cédula</th><th>Incidencias</th></tr>
+          ${(r.topConductores || []).map(c => `<tr><td>${c.nombre}</td><td>${c.cedula}</td><td>${c.incidencias}</td></tr>`).join('')}
+        </table>
+
+        <h3>Matriz de Combinaciones Peligrosas</h3>
+        <table>
+          <tr><th>Conductor</th><th>Vehículo</th><th>Viajes Juntos</th><th>Incidencias</th><th>Tasa Falla</th></tr>
+          ${(r.combinacionesPeligrosas || []).map(c => `<tr><td>${c.conductor} (${c.cedula})</td><td>${c.vehiculo}</td><td>${c.viajes}</td><td>${c.incidencias}</td><td>${c.tasaFalla}%</td></tr>`).join('')}
+        </table>
+
+        <div class="footer">IPOSTEL - Observatorio Estratégico Postal - Elecciones España 2026</div>
+        <script>window.onload = function() { window.print(); }<\/script>
+      </body>
+      </html>
+    `;
+    
+    const ventana = window.open('', '_blank');
+    ventana.document.write(contenidoHTML);
+    ventana.document.close();
+    modalInformeMariela.hide();
+    Swal.close();
+
+  } catch (e) {
+    Swal.fire('Error', 'No se pudo generar el informe: ' + e.message, 'error');
+  }
+}
+  
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
