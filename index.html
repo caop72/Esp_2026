@@ -587,10 +587,17 @@
             <div class="bg-light p-3 rounded border">
               <h6 class="fw-bold text-primary mb-2"><i class="bi bi-truck"></i> 2. Datos del Transporte</h6>
               <div class="row g-2">
-                <div class="col-md-3"><label class="form-label fw-bold">Vehículo (Placa) *</label><input type="text" class="form-control" id="camVehiculo" required></div>
-                <div class="col-md-3"><label class="form-label fw-bold">Conductor *</label><input type="text" class="form-control" id="camConductor" required></div>
-                <div class="col-md-3"><label class="form-label fw-bold">Cédula Conductor *</label><input type="text" class="form-control" id="camCedulaConductor" required></div>
-                <div class="col-md-3"><label class="form-label fw-bold">Precinto de Seguridad *</label><input type="text" class="form-control" id="camPrecinto" required></div>
+                <div class="col-md-4">
+                  <label class="form-label fw-bold">Vehículo (Placa) *</label>
+                  <select class="form-select" id="camVehiculo" required><option value="">-- Seleccione Vehículo --</option></select>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label fw-bold">Conductor *</label>
+                  <select class="form-select" id="camConductor" required><option value="">-- Seleccione Conductor --</option></select>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label fw-bold">Precinto de Seguridad *</label><input type="text" class="form-control" id="camPrecinto" required>
+                </div>
               </div>
             </div>
           </div>
@@ -881,9 +888,42 @@
       </div>
       <div class="modal-body">
         <div class="row g-3">
-            <div class="col-md-6"><label class="form-label fw-bold">Placa del Vehículo *</label><input type="text" class="form-control" id="incPlaca" placeholder="Ej: A12BC3D" required></div>
-            <div class="col-md-6"><label class="form-label fw-bold">Cédula del Conductor *</label><input type="text" class="form-control" id="incCedula" placeholder="V-12345678" required></div>
-            <div class="col-12"><label class="form-label fw-bold">Tipo de Incidencia *</label><select class="form-select" id="incTipo"><option value="Accidente">Accidente</option><option value="Transbordo">Transbordo</option><option value="Falla Mecánica">Falla Mecánica</option><option value="Otro">Otro</option></select></div>
+            <div class="col-md-6">
+                <label class="form-label fw-bold">Vehículo (Placa) *</label>
+                <select class="form-select" id="incPlaca" required><option value="">-- Seleccione Vehículo --</option></select>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label fw-bold">Origen de la Falla *</label>
+                <select class="form-select" id="incOrigen" required>
+                    <option value="Mecánica">Mecánica</option>
+                    <option value="Humana">Humana</option>
+                    <option value="Externa (Tránsito/Terceros)">Externa (Tránsito/Terceros)</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label fw-bold">Sistema Afectado</label>
+                <select class="form-select" id="incSistema">
+                    <option value="N/A">N/A</option>
+                    <option value="Frenos">Frenos</option>
+                    <option value="Suspensión">Suspensión</option>
+                    <option value="Motor">Motor</option>
+                    <option value="Rodamiento">Rodamiento</option>
+                    <option value="Eléctrico">Eléctrico</option>
+                    <option value="Neumáticos">Neumáticos</option>
+                    <option value="Carrocería">Carrocería</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label fw-bold">Tipo de Incidente *</label>
+                <select class="form-select" id="incTipo" required>
+                    <option value="Falla en Ruta">Falla en Ruta</option>
+                    <option value="Accidente Simple">Accidente Simple</option>
+                    <option value="Accidente Múltiple">Accidente Múltiple</option>
+                    <option value="Volcamiento">Volcamiento</option>
+                    <option value="Transbordo">Transbordo</option>
+                    <option value="Retraso">Retraso</option>
+                </select>
+            </div>
             <div class="col-12"><label class="form-label fw-bold">Descripción / Detalle *</label><textarea class="form-control" id="incDesc" rows="3" required></textarea></div>
         </div>
       </div>
