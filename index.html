@@ -1470,44 +1470,19 @@ async function cargarCustodia() {
 }
 
 function abrirModalEntrega(codigo, piezas) {
-    document.getElementById('entCodigo').textContent = codigo;
-    
-    // Buscar si hay detalles de Cert/Ord en la tabla visible para mostrarlos en el modal
-    let detalle = piezas;
-    const filas = document.querySelectorAll('#tablaCustodia tr');
-    for(let f of filas) { 
-        if(f.innerText.includes(codigo)) { 
-            const celdas = f.querySelectorAll('td'); 
-            if(celdas[2] && celdas[2].innerText.includes('Cert')) { 
-                // CORRECCIÓN: Usar \n (escape) en lugar de un salto de línea real
-                detalle = celdas[2].innerText.replace(/\n/g, ' - '); 
-            } 
-        } 
-    }
-    
-    document.getElementById('entPiezas').textContent = detalle;
-    document.getElementById('entNombreReceptor').value = ''; 
-    document.getElementById('entCedulaReceptor').value = ''; 
-    document.getElementById('entRelacion').value = ''; 
-    document.getElementById('entEstadoPaquete').value = ''; 
-    document.getElementById('fotoEntrega').value = '';
-    
-    modalEntrega.show();
+  document.getElementById('entCodigo').textContent = codigo;
+  let detalle = piezas;
+  const filas = document.querySelectorAll('#tablaCustodia tr');
+  for(let f of filas) { if(f.innerText.includes(codigo)) { const celdas = f.querySelectorAll('td'); if(celdas[2] && celdas[2].innerText.includes('Cert')) { detalle = celdas[2].innerText.replace('\n', ' - '); } } }
+  document.getElementById('entPiezas').textContent = detalle;
+  document.getElementById('entNombreReceptor').value = ''; document.getElementById('entCedulaReceptor').value = ''; document.getElementById('entRelacion').value = ''; document.getElementById('entEstadoPaquete').value = ''; document.getElementById('fotoEntrega').value = '';
+  modalEntrega.show();
 }
 
 async function confirmarEntregaUPAE() {
-  const nombre = document.getElementById('entNombreReceptor').value; 
-  const cedula = document.getElementById('entCedulaReceptor').value; 
-  const relacion = document.getElementById('entRelacion').value; 
-  const estadoSobre = document.getElementById('entEstadoPaquete').value; 
-  const foto = document.getElementById('fotoEntrega').files[0]; 
-  const codigo = document.getElementById('entCodigo').textContent;
-  
-  if (!nombre || !cedula || !relacion || !estadoSobre || !foto) {
-    return Swal.fire('Datos incompletos', 'Complete todo y la foto.', 'warning');
-  }
-    Swal.fire({title: 'Registrando...', didOpen: () => Swal.showLoading()});
-  
+  const nombre = document.getElementById('entNombreReceptor').value; const cedula = document.getElementById('entCedulaReceptor').value; const relacion = document.getElementById('entRelacion').value; const estadoSobre = document.getElementById('entEstadoPaquete').value; const foto = document.getElementById('fotoEntrega').files[0]; const codigo = document.getElementById('entCodigo').textContent;
+  if (!nombre || !cedula || !relacion || !estadoSobre || !foto) return Swal.fire('Datos incompletos', 'Complete todo y la foto.', 'warning');
+  Swal.fire({title: 'Registrando...', didOpen: () => Swal.showLoading()});
   try {
     const r = await postAPI({ accion: 'guardarAccionOPT', tipoAccion: 'entrega', idGuia: codigo, nombreRecibe: nombre, cedulaRecibe: cedula, relacion: relacion, estadoSobre: estadoSobre, gpsEntrega: 'GPS', fotoEntrega: "https://drive.google.com/foto" });
     if (!r.exito) throw new Error(r.mensaje);
@@ -1726,6 +1701,7 @@ function generarInformeCNC() {
 let modalTrazabilidad, modalHistorialMRW, modalIncidencia, modalAnalitica;
 let chartMotivos, chartSistemas, chartConductores, chartVehiculos;
 
+// 1. Actualizar Indicadores de Mariela
 async function cargarIndicadoresEncaminamiento() {
     try {
         const r = await postAPI({ accion: 'obtenerIndicadoresEncaminamiento' });
@@ -1744,6 +1720,7 @@ async function cargarIndicadoresEncaminamiento() {
     } catch (e) { console.error("Error cargando Indicadores", e); }
 }
 
+// 2. Cargar Camiones de IPOSTEL (Actualiza Indicadores)
 async function cargarCamionesPorRecibir() {
   const tbody = document.getElementById('tablaCamionesPorRecibir');
   if(!tbody) return; 
@@ -1753,7 +1730,7 @@ async function cargarCamionesPorRecibir() {
     const r = await postAPI({ accion: 'obtenerDespachosCamiones' }); 
     if (!r.exito) throw new Error(r.mensaje);
     
-    cargarIndicadoresEncaminamiento();
+    cargarIndicadoresEncaminamiento(); // <--- ACTUALIZA LOS INDICADORES
 
     tbody.innerHTML = '';
     if(r.datos.length === 0) return tbody.innerHTML = '<tr><td colspan="5" class="text-center py-3">No hay camiones de IPOSTEL en tránsito.</td></tr>';
@@ -1772,6 +1749,7 @@ async function cargarCamionesPorRecibir() {
   }
 }
 
+// 3. Abrir Modal Trazabilidad
 async function abrirModalTrazabilidad() {
     if (!modalTrazabilidad) modalTrazabilidad = new bootstrap.Modal(document.getElementById('modalTrazabilidad'));
     const tbody = document.getElementById('tablaTrazabilidad');
@@ -1800,6 +1778,7 @@ async function abrirModalTrazabilidad() {
     }
 }
 
+// 4. Cargar Historial de MRW (Pestaña 2)
 async function cargarHistorialDespachosMRW() {
     if (!modalHistorialMRW) modalHistorialMRW = new bootstrap.Modal(document.getElementById('modalHistorialMRW'));
     const tbody = document.getElementById('tablaHistorialMRW');
@@ -1828,6 +1807,7 @@ async function cargarHistorialDespachosMRW() {
     }
 }
 
+// 5. Reportar Incidencia
 function abrirModalIncidencias() {
     if (!modalIncidencia) modalIncidencia = new bootstrap.Modal(document.getElementById('modalIncidencia'));
     
@@ -1880,6 +1860,7 @@ async function guardarIncidencia() {
     }
 }
 
+// 6. Cargar Valijas MRW (Pestaña 2)
 async function cargarValijasMRW() {
   const tbody = document.getElementById('tablaValijasMRW');
   if(!tbody) return;
@@ -1897,6 +1878,7 @@ async function cargarValijasMRW() {
   }, 1000);
 }
 
+// 7. Recibir Camiones de MRW (Pestaña 3)
 async function cargarCamionesMRWPorRecibir() {
   const tbody = document.getElementById('tablaCamionesMRWPorRecibir');
   if(!tbody) return;
@@ -1907,6 +1889,7 @@ async function cargarCamionesMRWPorRecibir() {
   }, 1000);
 }
 
+// 8. Abrir Modal Analítica Avanzada
 function abrirModalAnalitica() {
     if (!modalAnalitica) modalAnalitica = new bootstrap.Modal(document.getElementById('modalAnalitica'));
     
@@ -2007,6 +1990,7 @@ function renderChartVehiculos(datos) {
     });
 }
 
+// 9. Informe de Mariela
 let modalInformeMariela;
 
 function abrirModalInformeMariela() {
@@ -2036,6 +2020,7 @@ async function generarInformeMariela() {
     const rData = await postAPI({ accion: 'obtenerDatosInformeCPC', fechaInicio: desde, fechaFin: hasta });
     if (!rData.exito) throw new Error(rData.mensaje);
 
+    // Función auxiliar para crear la barra de progreso
     const crearBarra = (porcentaje, color) => `
       <div style="width: 100%; background-color: #e9ecef; border-radius: 5px; overflow: hidden; height: 20px;">
         <div style="width: ${porcentaje}%; background-color: ${color}; height: 100%; text-align: center; color: white; font-size: 11px; line-height: 20px; font-weight: bold;">
@@ -2057,6 +2042,7 @@ async function generarInformeMariela() {
           th { background-color: #003366; color: white; }
           .footer { text-align: center; margin-top: 40px; font-size: 12px; color: #666; }
           .text-left { text-align: left; }
+          .chart-container { text-align: center; margin-top: 20px; }
         </style>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
       </head>
@@ -2164,9 +2150,10 @@ async function generarInformeMariela() {
           ${(r.combinacionesPeligrosas || []).map(c => `<tr><td>${c.conductor} (${c.cedula})</td><td>${c.vehiculo}</td><td>${c.viajes}</td><td>${c.incidencias}</td><td>${c.tasaFalla}%</td></tr>`).join('')}
         </table>
 
-        <div class="footer">IPOSTEL - Observatorio Estadístico Postal - Elecciones España 2026</div>
+        <div class="footer">IPOSTEL - Observatorio Estratégico Postal - Elecciones España 2026</div>
         
         <script>
+          // Gráfico de Torta para el SLA
           window.onload = function() {
             const ctx = document.getElementById('graficoSLA').getContext('2d');
             new Chart(ctx, {
