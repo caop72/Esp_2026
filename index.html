@@ -1470,13 +1470,29 @@ async function cargarCustodia() {
 }
 
 function abrirModalEntrega(codigo, piezas) {
-  document.getElementById('entCodigo').textContent = codigo;
-  let detalle = piezas;
-  const filas = document.querySelectorAll('#tablaCustodia tr');
-  for(let f of filas) { if(f.innerText.includes(codigo)) { const celdas = f.querySelectorAll('td'); if(celdas[2] && celdas[2].innerText.includes('Cert')) { detalle = celdas[2].innerText.replace('\n', ' - '); } } }
-  document.getElementById('entPiezas').textContent = detalle;
-  document.getElementById('entNombreReceptor').value = ''; document.getElementById('entCedulaReceptor').value = ''; document.getElementById('entRelacion').value = ''; document.getElementById('entEstadoPaquete').value = ''; document.getElementById('fotoEntrega').value = '';
-  modalEntrega.show();
+    document.getElementById('entCodigo').textContent = codigo;
+    
+    // Buscar si hay detalles de Cert/Ord en la tabla visible para mostrarlos en el modal
+    let detalle = piezas;
+    const filas = document.querySelectorAll('#tablaCustodia tr');
+    for(let f of filas) { 
+        if(f.innerText.includes(codigo)) { 
+            const celdas = f.querySelectorAll('td'); 
+            if(celdas[2] && celdas[2].innerText.includes('Cert')) { 
+                // CORRECCIÓN: Usar \n (escape) en lugar de un salto de línea real
+                detalle = celdas[2].innerText.replace(/\n/g, ' - '); 
+            } 
+        } 
+    }
+    
+    document.getElementById('entPiezas').textContent = detalle;
+    document.getElementById('entNombreReceptor').value = ''; 
+    document.getElementById('entCedulaReceptor').value = ''; 
+    document.getElementById('entRelacion').value = ''; 
+    document.getElementById('entEstadoPaquete').value = ''; 
+    document.getElementById('fotoEntrega').value = '';
+    
+    modalEntrega.show();
 }
 
 async function confirmarEntregaUPAE() {
