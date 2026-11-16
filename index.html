@@ -1388,17 +1388,27 @@ async function cargarCustodia() {
     });
   } catch (e) { tbody.innerHTML = `<tr><td colspan="7" class="text-center text-danger">${e.message}</td></tr>`; }
 }
-
 function abrirModalEntrega(codigo, piezas) {
   document.getElementById('entCodigo').textContent = codigo;
   let detalle = piezas;
   const filas = document.querySelectorAll('#tablaCustodia tr');
-  for(let f of filas) { if(f.innerText.includes(codigo)) { const celdas = f.querySelectorAll('td'); if(celdas[2] && celdas[2].innerText.includes('Cert')) { detalle = celdas[2].innerText.replace(/\n/g, ' - '); } } }
+  for(let f of filas) { 
+    if(f.innerText.includes(codigo)) { 
+      const celdas = f.querySelectorAll('td'); 
+      if(celdas[2] && celdas[2].innerText.includes('Cert')) { 
+        // Aquí está el cambio: usamos \n para representar el salto de línea
+        detalle = celdas[2].innerText.replace(/\n/g, ' - '); 
+      } 
+    } 
+  }
   document.getElementById('entPiezas').textContent = detalle;
-  document.getElementById('entNombreReceptor').value = ''; document.getElementById('entCedulaReceptor').value = ''; document.getElementById('entRelacion').value = ''; document.getElementById('entEstadoPaquete').value = ''; document.getElementById('fotoEntrega').value = '';
+  document.getElementById('entNombreReceptor').value = ''; 
+  document.getElementById('entCedulaReceptor').value = ''; 
+  document.getElementById('entRelacion').value = ''; 
+  document.getElementById('entEstadoPaquete').value = ''; 
+  document.getElementById('fotoEntrega').value = '';
   modalEntrega.show();
 }
-
 async function confirmarEntregaUPAE() {
   const nombre = document.getElementById('entNombreReceptor').value; const cedula = document.getElementById('entCedulaReceptor').value; const relacion = document.getElementById('entRelacion').value; const estadoSobre = document.getElementById('entEstadoPaquete').value; const foto = document.getElementById('fotoEntrega').files[0]; const codigo = document.getElementById('entCodigo').textContent;
   if (!nombre || !cedula || !relacion || !estadoSobre || !foto) return Swal.fire('Datos incompletos', 'Complete todo y la foto.', 'warning');
