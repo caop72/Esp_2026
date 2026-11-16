@@ -868,57 +868,88 @@
       </div>
       <div class="modal-body bg-light">
         
+        <!-- FILTRO DE FECHAS -->
+        <div class="row g-2 mb-4 align-items-end bg-white p-3 rounded border shadow-sm">
+          <div class="col-md-4">
+            <label class="form-label fw-bold mb-1 small">Desde</label>
+            <input type="date" class="form-control form-control-sm" id="anaFechaInicio">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label fw-bold mb-1 small">Hasta</label>
+            <input type="date" class="form-control form-control-sm" id="anaFechaFin">
+          </div>
+          <div class="col-md-4">
+            <button class="btn btn-primary btn-sm w-100 fw-bold" onclick="cargarAnalitica()"><i class="bi bi-filter"></i> Filtrar Datos</button>
+          </div>
+        </div>
+
         <!-- KPIs de Mariela -->
         <div class="row g-3 mb-4">
           <div class="col-md-4">
             <div class="card border-primary shadow-sm h-100">
-              <div class="card-body text-center">
-                <h6 class="text-primary fw-bold">Tiempo Promedio de Recepción</h6>
+              <div class="card-body text-center py-2">
+                <h6 class="text-primary fw-bold mb-1">Tiempo Promedio de Recepción</h6>
                 <h3 class="mb-0 fw-bold" id="kpiTiempoRecepcion">0 hrs</h3>
-                <small class="text-muted">Desde que sale de CPI hasta que llega al CPC</small>
               </div>
             </div>
           </div>
           <div class="col-md-4">
             <div class="card border-success shadow-sm h-100">
-              <div class="card-body text-center">
-                <h6 class="text-success fw-bold">Eficiencia de Despacho (SLA)</h6>
+              <div class="card-body text-center py-2">
+                <h6 class="text-success fw-bold mb-1">Eficiencia de Despacho</h6>
                 <h3 class="mb-0 fw-bold" id="kpiEficienciaDespacho">0%</h3>
-                <small class="text-muted">Despachos procesados en menos de 24h</small>
               </div>
             </div>
           </div>
           <div class="col-md-4">
             <div class="card border-danger shadow-sm h-100">
-              <div class="card-body text-center">
-                <h6 class="text-danger fw-bold">Combinaciones Críticas</h6>
+              <div class="card-body text-center py-2">
+                <h6 class="text-danger fw-bold mb-1">Combinaciones Críticas</h6>
                 <h3 class="mb-0 fw-bold" id="kpiCombinacionesCriticas">0</h3>
-                <small class="text-muted">Vehículo + Conductor con >50% fallas</small>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Gráficos Comparativos -->
+        <!-- Gráficos de Motivos -->
         <div class="row g-3 mb-4">
           <div class="col-md-6">
             <div class="card shadow-sm h-100">
-              <div class="card-header bg-white fw-bold text-danger"><i class="bi bi-person-x"></i> Top 5 Conductores con más Incidencias</div>
-              <div class="card-body"><canvas id="chartConductores" height="200"></canvas></div>
+              <div class="card-header bg-white fw-bold text-danger"><i class="bi bi-pie-chart-fill"></i> Motivos de Incidencias (Mecánica vs Humana)</div>
+              <div class="card-body" style="height: 200px; position: relative;">
+                <canvas id="chartMotivosFalla"></canvas>
+              </div>
             </div>
           </div>
           <div class="col-md-6">
             <div class="card shadow-sm h-100">
-              <div class="card-header bg-white fw-bold text-warning"><i class="bi bi-truck"></i> Top 5 Vehículos con más Fallas</div>
-              <div class="card-body"><canvas id="chartVehiculos" height="200"></canvas></div>
+              <div class="card-header bg-white fw-bold text-warning"><i class="bi bi-wrench-adjustable"></i> Sistemas Afectados (Fallas Mecánicas)</div>
+              <div class="card-body" style="height: 200px; position: relative;">
+                <canvas id="chartSistemasFalla"></canvas>
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- Matriz Forense (Conductor x Vehículo) -->
+        <div class="row g-3 mb-4">
+          <div class="col-md-6">
+            <div class="card shadow-sm h-100">
+              <div class="card-header bg-white fw-bold text-danger"><i class="bi bi-person-x"></i> Top 5 Conductores</div>
+              <div class="card-body" style="height: 200px; position: relative;"><canvas id="chartConductores"></canvas></div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="card shadow-sm h-100">
+              <div class="card-header bg-white fw-bold text-warning"><i class="bi bi-truck"></i> Top 5 Vehículos</div>
+              <div class="card-body" style="height: 200px; position: relative;"><canvas id="chartVehiculos"></canvas></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Matriz Forense -->
         <div class="card shadow-sm border-danger">
           <div class="card-header bg-danger text-white fw-bold">
-            <i class="bi bi-exclamation-octagon"></i> Matriz Forense: Combinaciones Peligrosas (Conductor + Vehículo)
+            <i class="bi bi-exclamation-octagon"></i> Matriz Forense: Combinaciones Peligrosas
           </div>
           <div class="card-body p-0 table-responsive" style="max-height: 250px; overflow-y: auto;">
             <table class="table table-hover table-sm mb-0">
