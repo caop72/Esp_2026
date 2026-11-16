@@ -1470,13 +1470,29 @@ async function cargarCustodia() {
 }
 
 function abrirModalEntrega(codigo, piezas) {
-  document.getElementById('entCodigo').textContent = codigo;
-  let detalle = piezas;
-  const filas = document.querySelectorAll('#tablaCustodia tr');
-  for(let f of filas) { if(f.innerText.includes(codigo)) { const celdas = f.querySelectorAll('td'); if(celdas[2] && celdas[2].innerText.includes('Cert')) { detalle = celdas[2].innerText.replace('\n', ' - '); } } }
-  document.getElementById('entPiezas').textContent = detalle;
-  document.getElementById('entNombreReceptor').value = ''; document.getElementById('entCedulaReceptor').value = ''; document.getElementById('entRelacion').value = ''; document.getElementById('entEstadoPaquete').value = ''; document.getElementById('fotoEntrega').value = '';
-  modalEntrega.show();
+    document.getElementById('entCodigo').textContent = codigo;
+    
+    // Buscar si hay detalles de Cert/Ord en la tabla visible para mostrarlos en el modal
+    let detalle = piezas;
+    const filas = document.querySelectorAll('#tablaCustodia tr');
+    for(let f of filas) { 
+        if(f.innerText.includes(codigo)) { 
+            const celdas = f.querySelectorAll('td'); 
+            if(celdas[2] && celdas[2].innerText.includes('Cert')) { 
+                // CORRECCIÓN: Usar \n (escape) en lugar de un salto de línea real
+                detalle = celdas[2].innerText.replace(/\n/g, ' - '); 
+            } 
+        } 
+    }
+    
+    document.getElementById('entPiezas').textContent = detalle;
+    document.getElementById('entNombreReceptor').value = ''; 
+    document.getElementById('entCedulaReceptor').value = ''; 
+    document.getElementById('entRelacion').value = ''; 
+    document.getElementById('entEstadoPaquete').value = ''; 
+    document.getElementById('fotoEntrega').value = '';
+    
+    modalEntrega.show();
 }
 
 async function confirmarEntregaUPAE() {
@@ -1710,16 +1726,57 @@ function actualizarGrafico(regiones, fmt) {
 // UTILIDADES LOGIN
 // ==========================================
 async function cargarObservatorio() { document.getElementById('dashboardObservatorio').innerHTML = '<p class="text-muted">Cargando...</p>'; }
+
 function volverAtras() {
-  if (!document.getElementById('pasoCredenciales').classList.contains('oculto')) { document.getElementById('pasoCredenciales').classList.add('oculto'); if (estadoApp.requiereOPT) { mostrar('pasoEstado'); mostrar('pasoOPT'); } else if (estadoApp.requiereEstado) { mostrar('pasoEstado'); } else { document.getElementById('selRol').value = ''; cambiarRol(); } return; }
-  if (!document.getElementById('pasoOPT').classList.contains('oculto')) { document.getElementById('pasoOPT').classList.add('oculto'); mostrar('pasoEstado'); return; }
-  if (!document.getElementById('pasoEstado').classList.contains('oculto')) { document.getElementById('pasoEstado').classList.add('oculto'); document.getElementById('selRol').value = ''; cambiarRol(); return; }
+  if (!document.getElementById('pasoCredenciales').classList.contains('oculto')) { 
+    document.getElementById('pasoCredenciales').classList.add('oculto'); 
+    if (estadoApp.requiereOPT) { mostrar('pasoEstado'); mostrar('pasoOPT'); } 
+    else if (estadoApp.requiereEstado) { mostrar('pasoEstado'); } 
+    else { document.getElementById('selRol').value = ''; cambiarRol(); } 
+    return; 
+  }
+  if (!document.getElementById('pasoOPT').classList.contains('oculto')) { 
+    document.getElementById('pasoOPT').classList.add('oculto'); mostrar('pasoEstado'); return; 
+  }
+  if (!document.getElementById('pasoEstado').classList.contains('oculto')) { 
+    document.getElementById('pasoEstado').classList.add('oculto'); document.getElementById('selRol').value = ''; cambiarRol(); return; 
+  }
   document.getElementById('selRol').value = ''; cambiarRol();
 }
-async function cargarEstados() { try { const r = await postAPI({accion: 'obtenerEstados'}); if (r.exito) { const sel = document.getElementById('selEstado'); sel.innerHTML = '<option value="">-- Seleccione Estado --</option>'; r.estados.forEach(e => sel.innerHTML += `<option value="${e}">${e}</option>`); } } catch(e) { console.error(e); } }
-async function cargarOPTs(estado) { try { const r = await postAPI({accion: 'obtenerOPTsPorEstado', estado: estado}); if (r.exito) { const sel = document.getElementById('selOPT'); sel.innerHTML = '<option value="">-- Seleccione OPT --</option>'; r.opts.forEach(o => sel.innerHTML += `<option value="${o.codigo}">${o.nombre}</option>`); mostrar('pasoOPT'); } } catch(e) { console.error(e); } }
-function postAPI(payload) { return fetch(API_URL, { method: 'POST', body: JSON.stringify(payload), headers: { 'Content-Type': 'text/plain;charset=utf-8' } }).then(r => r.json()); }
-function formatNum_(num, decimals = 0) { if (num === undefined || num === null || isNaN(num)) return '0'; let n = Number(num); let str = n.toFixed(decimals); let partes = str.split('.'); partes[0] = partes[0].replace(/\B(?=(\d{3})+(?!\d))/g, "."); return partes.join(','); }
+
+async function cargarEstados() { 
+  try { 
+    const r = await postAPI({accion: 'obtenerEstados'}); 
+    if (r.exito) { 
+      const sel = document.getElementById('selEstado'); 
+      sel.innerHTML = '<option value="">-- Seleccione Estado --</option>'; 
+      r.estados.forEach(e => sel.innerHTML += `<option value="${e}">${e}</option>`); 
+    } 
+  } catch(e) { console.error(e); } 
+}
+
+async function cargarOPTs(estado) { 
+  try { 
+    const r = await postAPI({accion: 'obtenerOPTsPorEstado', estado: estado}); 
+    if (r.exito) { 
+      const sel = document.getElementById('selOPT'); 
+      sel.innerHTML = '<option value="">-- Seleccione OPT --</option>'; 
+      r.opts.forEach(o => sel.innerHTML += `<option value="${o.codigo}">${o.nombre}</option>`); 
+      mostrar('pasoOPT'); 
+    } 
+  } catch(e) { console.error(e); } 
+}
+
+function postAPI(payload) { 
+  return fetch(API_URL, { method: 'POST', body: JSON.stringify(payload), headers: { 'Content-Type': 'text/plain;charset=utf-8' } }).then(r => r.json()); 
+}
+
+function formatNum_(num, decimals = 0) { 
+  if (num === undefined || num === null || isNaN(num)) return '0'; 
+  let n = Number(num); let str = n.toFixed(decimals); let partes = str.split('.'); 
+  partes[0] = partes[0].replace(/\B(?=(\d{3})+(?!\d))/g, "."); 
+  return partes.join(','); 
+}
 
 // ==========================================
 // LÓGICA PARA EL INFORME DEL CNC
@@ -1997,7 +2054,7 @@ async function cargarAnalitica() {
         document.getElementById('kpiEficienciaDespacho').textContent = (r.kpis.eficienciaDespacho || 0) + '%';
         document.getElementById('kpiCombinacionesCriticas').textContent = r.kpis.combinacionesCriticas || 0;
 
-          renderChartMotivos(r.motivosFalla || []);
+        renderChartMotivos(r.motivosFalla || []);
         renderChartSistemas(r.sistemasFalla || []);
         renderChartConductores(r.topConductores || []);
         renderChartVehiculos(r.topVehiculos || []);
@@ -2018,6 +2075,7 @@ async function cargarAnalitica() {
                 </tr>`;
             });
         }
+
     } catch (e) {
         document.getElementById('tablaCombinacionesPeligrosas').innerHTML = `<tr><td colspan="5" class="text-center text-danger">Error: ${e.message}</td></tr>`;
         Swal.fire('Error', 'No se pudieron cargar las analíticas: ' + e.message, 'error');
