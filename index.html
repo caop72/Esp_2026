@@ -312,11 +312,48 @@
       </div>
     </div>
 
-    <!-- PANEL ENCAMINAMIENTO (MARIELA - CPC) -->
+       <!-- PANEL ENCAMINAMIENTO (MARIELA - CPC) -->
     <div id="appEncaminamiento" class="oculto">
       <h4 class="text-primary mb-3 fw-bold"><i class="bi bi-signpost-split"></i> Encaminamiento (CPC)</h4>
       <div class="alert alert-info py-2 small"><i class="bi bi-info-circle"></i> Recepción de carga, clasificación y entrega a MRW.</div>
       
+      <!-- NUEVOS KPIs DE MARIELA -->
+      <div class="row g-2 mb-3">
+          <div class="col-6 col-md-3">
+              <div class="stat-mini bg-primary bg-opacity-10">
+                  <small class="text-primary fw-bold">Recibidos IPOSTEL</small>
+                  <h4 class="text-primary mb-0" id="kpiRecibidosIPOSTEL">0</h4>
+                  <small class="text-muted">Camiones</small>
+              </div>
+          </div>
+          <div class="col-6 col-md-3">
+              <div class="stat-mini bg-success bg-opacity-10">
+                  <small class="text-success fw-bold">Despachados a Estados</small>
+                  <h4 class="text-success mb-0" id="kpiDespachadosMRW">0</h4>
+                  <small class="text-muted">Másters</small>
+              </div>
+          </div>
+          <div class="col-6 col-md-3">
+              <div class="stat-mini bg-info bg-opacity-10">
+                  <small class="text-info fw-bold">Operatividad (CPC)</small>
+                  <h4 class="text-info mb-0" id="kpiOperatividad">0%</h4>
+                  <small class="text-muted">Eficiencia</small>
+              </div>
+          </div>
+          <div class="col-6 col-md-3">
+              <div class="stat-mini bg-danger bg-opacity-10">
+                  <small class="text-danger fw-bold">Incidencias</small>
+                  <h4 class="text-danger mb-0" id="kpiIncidencias">0</h4>
+                  <small class="text-muted">Fallas / Accidentes</small>
+              </div>
+          </div>
+      </div>
+
+      <div class="d-flex justify-content-between align-items-center mb-2">
+          <h5 class="text-secondary m-0"><i class="bi bi-clipboard-data"></i> Control de Operaciones</h5>
+          <button class="btn btn-outline-danger btn-sm fw-bold" onclick="abrirModalTrazabilidad()"><i class="bi bi-truck"></i> Auditoría de Vehículos y Conductores</button>
+      </div>
+
       <ul class="nav nav-tabs mb-3" id="tabsEncaminamiento" role="tablist">
         <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-recibe-ipostel" type="button"><i class="bi bi-truck text-primary"></i> 1. Recibir de IPOSTEL</button></li>
         <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-clasificar-mrw" type="button"><i class="bi bi-box-seam text-warning"></i> 2. Entregar a MRW (Estados)</button></li>
@@ -328,8 +365,10 @@
           <div class="card shadow-sm">
             <div class="card-header bg-white d-flex justify-content-between py-3">
               <h6 class="mb-0 fw-bold">Camiones de IPOSTEL (Maiquetía)</h6>
-              <button class="btn btn-primary btn-sm fw-bold" onclick="cargarCamionesPorRecibir()"><i class="bi bi-arrow-clockwise"></i> Actualizar</button>
-              <button class="btn btn-outline-secondary btn-sm fw-bold me-2" onclick="cargarHistorialCamionesRecibidos()"><i class="bi bi-clock-history"></i> Ver Historial</button>
+              <div>
+                <button class="btn btn-primary btn-sm fw-bold" onclick="cargarCamionesPorRecibir()"><i class="bi bi-arrow-clockwise"></i> Actualizar</button>
+                <button class="btn btn-outline-secondary btn-sm fw-bold" onclick="cargarHistorialCamionesRecibidos()"><i class="bi bi-clock-history"></i> Ver Historial</button>
+              </div>
             </div>
             <div class="card-body p-0 table-responsive">
               <table class="table table-hover mb-0 align-middle">
@@ -348,7 +387,10 @@
           <div class="card shadow-sm">
             <div class="card-header bg-white d-flex justify-content-between py-3">
               <h6 class="mb-0 fw-bold">Másters en CPC (Listos para Estados)</h6>
-              <button class="btn btn-warning btn-sm fw-bold" onclick="cargarValijasMRW()"><i class="bi bi-arrow-clockwise"></i> Actualizar</button>
+              <div>
+                <button class="btn btn-warning btn-sm fw-bold" onclick="cargarValijasMRW()"><i class="bi bi-arrow-clockwise"></i> Actualizar</button>
+                <button class="btn btn-outline-secondary btn-sm fw-bold" onclick="cargarHistorialDespachosMRW()"><i class="bi bi-clock-history"></i> Ver Historial</button>
+              </div>
             </div>
             <div class="card-body p-0 table-responsive">
               <table class="table table-hover mb-0 align-middle">
@@ -367,7 +409,10 @@
           <div class="card shadow-sm">
             <div class="card-header bg-white d-flex justify-content-between py-3">
               <h6 class="mb-0 fw-bold">Camiones de MRW (Desde Estados)</h6>
-              <button class="btn btn-success btn-sm fw-bold" onclick="cargarCamionesMRWPorRecibir()"><i class="bi bi-arrow-clockwise"></i> Actualizar</button>
+              <div>
+                <button class="btn btn-success btn-sm fw-bold" onclick="cargarCamionesMRWPorRecibir()"><i class="bi bi-arrow-clockwise"></i> Actualizar</button>
+                <button class="btn btn-outline-danger btn-sm fw-bold" onclick="abrirModalIncidencias()"><i class="bi bi-exclamation-triangle"></i> Reportar Incidencia</button>
+              </div>
             </div>
             <div class="card-body p-0 table-responsive">
               <table class="table table-hover mb-0 align-middle">
@@ -383,7 +428,6 @@
         </div>
       </div>
     </div>
-
     <!-- PANEL AUDITORÍA DEL ALIADO (ALFREDO) -->
     <div id="appAliado" class="oculto">
       <h4 class="text-primary mb-3 fw-bold"><i class="bi bi-clipboard-check"></i> Auditoría del Aliado (MRW)</h4>
