@@ -1506,43 +1506,27 @@ async function confirmarEntregaUPAE() {
   if (!nombre || !cedula || !relacion || !estadoSobre || !foto) {
     return Swal.fire('Datos incompletos', 'Complete todo y la foto.', 'warning');
   }
-  
-  Swal.fire({title: 'Registrando...', didOpen: () => Swal.showLoading()});
+Swal.fire({title: 'Registrando...', didOpen: () => Swal.showLoading()});
   
   try {
     const r = await postAPI({ accion: 'guardarAccionOPT', tipoAccion: 'entrega', idGuia: codigo, nombreRecibe: nombre, cedulaRecibe: cedula, relacion: relacion, estadoSobre: estadoSobre, gpsEntrega: 'GPS', fotoEntrega: "https://drive.google.com/foto" });
     if (!r.exito) throw new Error(r.mensaje);
-    modalEntrega.hide(); 
-    Swal.fire('✅ Registrada', 'Acta guardada.', 'success'); 
-    cargarEstadisticasOPT(); 
-    cargarPorRecibir(); 
-    cargarCustodia(); 
-    cargarHistorialEntregas();
-  } catch (e) { 
-    Swal.fire('Error', e.message, 'error'); 
-  }
+    modalEntrega.hide(); Swal.fire('✅ Registrada', 'Acta guardada.', 'success'); cargarEstadisticasOPT(); cargarPorRecibir(); cargarCustodia(); cargarHistorialEntregas();
+  } catch (e) { Swal.fire('Error', e.message, 'error'); }
 }
 
 async function cargarHistorialEntregas() {
-  const tbody = document.getElementById('tablaHistorial'); 
-  tbody.innerHTML = '<tr><td colspan="7" class="text-center py-3 text-muted">Cargando...</td></tr>';
+  const tbody = document.getElementById('tablaHistorial'); tbody.innerHTML = '<tr><td colspan="7" class="text-center py-3 text-muted">Cargando...</td></tr>';
   try {
     const r = await postAPI({accion: 'cargarHistorialEntregas', opt: estadoApp.optSel});
     if (!r.exito) throw new Error(r.mensaje);
-    if (r.datos.length === 0) { 
-      tbody.innerHTML = '<tr><td colspan="7" class="text-center py-3 text-muted">Sin entregas.</td></tr>'; 
-      return; 
-    }
+    if (r.datos.length === 0) { tbody.innerHTML = '<tr><td colspan="7" class="text-center py-3 text-muted">Sin entregas.</td></tr>'; return; }
     tbody.innerHTML = '';
     r.datos.forEach(item => {
-      let fechaEnt = item.fechaEntrega; 
-      if (fechaEnt && fechaEnt.includes('T')) fechaEnt = new Date(fechaEnt).toLocaleString(); 
-      else fechaEnt = fechaEnt || '—';
+      let fechaEnt = item.fechaEntrega; if (fechaEnt && fechaEnt.includes('T')) fechaEnt = new Date(fechaEnt).toLocaleString(); else fechaEnt = fechaEnt || '—';
       tbody.innerHTML += `<tr><td><span class="badge bg-secondary">${item.estatus}</span></td><td><span class="codigo-5d">${item.id}</span></td><td>${item.nombreRecibe || '—'}</td><td>${item.cedulaRecibe || '—'}</td><td>${fechaEnt}</td><td><small>${item.gpsEntrega || '—'}</small></td><td>${item.fotoEntrega ? '<i class="bi bi-image text-success"></i>' : '—'}</td></tr>`;
     });
-  } catch (e) { 
-    tbody.innerHTML = `<tr><td colspan="7" class="text-center text-danger">${e.message}</td></tr>`; 
-  }
+  } catch (e) { tbody.innerHTML = `<tr><td colspan="7" class="text-center text-danger">${e.message}</td></tr>`; }
 }
 
 // ==========================================
