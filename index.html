@@ -1889,12 +1889,10 @@ async function filtrarHistorial() {
   try {
     const r = await postAPI({ accion: 'obtenerHistorialCamiones', fechaInicio: desde, fechaFin: hasta });
     
-    // PROTECCIÓN 1: Verificar si el backend falló o no devolvió nada
     if (!r || !r.exito) {
-      throw new Error(r && r.mensaje ? r.mensaje : 'No se pudo conectar con el historial.');
+      throw new Error(r && r.mensaje ? r.mensaje : 'Error al cargar historial');
     }
-    
-    // PROTECCIÓN 2: Actualizar KPIs solo si vienen en la respuesta
+
     if (r.kpis) {
       document.getElementById('kpiHistCamiones').textContent = r.kpis.totCamiones || 0;
       document.getElementById('kpiHistValijas').textContent = r.kpis.totValijas || 0;
@@ -1903,9 +1901,7 @@ async function filtrarHistorial() {
     }
 
     tbody.innerHTML = '';
-    
-    // PROTECCIÓN 3: Verificar que r.datos exista antes de leerlo
-    if(!r.datos || r.datos.length === 0) {
+    if (!r.datos || r.datos.length === 0) {
       return tbody.innerHTML = '<tr><td colspan="7" class="text-center py-3 text-muted">No hay registros en este rango de fechas.</td></tr>';
     }
     
@@ -1922,7 +1918,6 @@ async function filtrarHistorial() {
       </tr>`;
     });
   } catch(e) { 
-    // Si algo falla, mostramos un mensaje controlado en la tabla
     tbody.innerHTML = `<tr><td colspan="7" class="text-center text-danger">Error al cargar: ${e.message}</td></tr>`; 
   }
 }
