@@ -1581,7 +1581,6 @@ async function guardarMaster() {
     Swal.fire('Error', r.mensaje, 'error'); 
   }
 }
-
 // 4. RECIBIR DE MRW (DESDE ESTADOS)
 async function cargarCamionesMRWPorRecibir() {
   const tbody = document.getElementById('tablaCamionesMRWPorRecibir');
@@ -1592,97 +1591,28 @@ async function cargarCamionesMRWPorRecibir() {
     tbody.innerHTML = '<tr><td colspan="5" class="text-center py-3 text-muted">No hay camiones de MRW en tránsito.</td></tr>';
   }, 1000);
 }
-  // ==========================================
-// PANEL COORDINADOR DE ENCAMINAMIENTO (MARIELA)
-// ==========================================
 
-// 1. Cargar valijas que vienen de IPOSTEL (Maiquetía)
-function cargarValijasIPOSTEL() {
-    Swal.fire({ title: 'Cargando...', text: 'Buscando valijas en IPOSTEL', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
-    
-    // Aquí conectarías con tu backend. Simulamos la carga para probar:
-    setTimeout(() => {
-        const tbody = document.getElementById('tablaValijasIPOSTEL');
-        if(tbody) {
-            tbody.innerHTML = `
-                <tr>
-                    <td>V-001</td>
-                    <td>MAIQ-123</td>
-                    <td>ABC-123</td>
-                    <td>Juan Perez</td>
-                    <td>15</td>
-                    <td>45</td>
-                    <td>2026-11-14 10:00</td>
-                    <td><button class="btn btn-sm btn-success" onclick="recibirValija('V-001')">Recibir</button></td>
-                </tr>
-            `;
-        }
-        Swal.close();
-    }, 1000);
+// 5. Cargar Valijas para MRW (La función que te daba error)
+async function cargarValijasMRW() {
+  const tbody = document.getElementById('tablaValijasMRW');
+  if(!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="4" class="text-center py-3 text-muted">Cargando másters...</td></tr>';
+  
+  // Simulación para que no de error mientras conectas el backend
+  setTimeout(() => {
+    tbody.innerHTML = `
+      <tr>
+        <td>MST-001</td>
+        <td>15 Val / 45 Pzs</td>
+        <td>2026-11-15 10:00</td>
+        <td><button class="btn btn-sm btn-primary" onclick="abrirModalEntregarMRW('MST-001', 45)">Entregar a MRW</button></td>
+      </tr>
+    `;
+  }, 1000);
 }
 
-// 2. Cargar valijas listas para entregar a MRW (Función que causaba el error)
-function cargarValijasMRW() {
-    Swal.fire({ title: 'Cargando...', text: 'Buscando valijas para MRW', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
-    
-    setTimeout(() => {
-        const tbody = document.getElementById('tablaValijasMRW');
-        if(tbody) {
-            tbody.innerHTML = `
-                <tr>
-                    <td>V-001</td>
-                    <td>Distrito Capital</td>
-                    <td>15</td>
-                    <td>45</td>
-                    <td><span class="badge bg-warning text-dark">Pendiente Entrega</span></td>
-                    <td><button class="btn btn-sm btn-primary" onclick="entregarAMRW('V-001')">Entregar a MRW</button></td>
-                </tr>
-            `;
-        }
-        Swal.close();
-    }, 1000);
-}
-
-// 3. Función para recibir la valija de IPOSTEL
-function recibirValija(idValija) {
-    Swal.fire({
-        title: '¿Recibir Valija?',
-        text: `Confirma la recepción de la valija ${idValija} en el CPC.`,
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonText: 'Sí, recibir',
-        cancelButtonText: 'Cancelar'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            // Aquí va tu fetch al backend para cambiar el estado
-            Swal.fire('Recibida', 'La valija ha sido recibida en el CPC.', 'success');
-            cargarValijasIPOSTEL(); // Recargar tabla
-        }
-    });
-}
-
-// 4. Función para entregar a MRW
-function entregarAMRW(idValija) {
-    Swal.fire({
-        title: 'Entregar a MRW',
-        text: `Ingresa el nombre de quien recibe la valija ${idValija} por parte de MRW:`,
-        input: 'text',
-        inputPlaceholder: 'Nombre y Cédula',
-        showCancelButton: true,
-        confirmButtonText: 'Registrar Entrega',
-        cancelButtonText: 'Cancelar',
-        inputValidator: (value) => {
-            if (!value) { return 'Debes ingresar el nombre del receptor'; }
-        }
-    }).then((result) => {
-        if (result.isConfirmed) {
-            // Aquí va tu fetch al backend
-            Swal.fire('Entregada', 'Se ha registrado la entrega a MRW.', 'success');
-            cargarValijasMRW(); // Recargar tabla
-        }
-    });
-}
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
+
