@@ -2175,10 +2175,9 @@ async function generarInformeMariela() {
                   cutout: '70%',
                   plugins: { legend: { display: false }, tooltip: { enabled: false } },
                   animation: { duration: 0 }
-                }
-              });
-            }
-          };
+              }); // Cierra el new Chart
+            } // Cierra el if (canvas)
+          }; // Cierra el window.onload
         </script>
       </body>
       </html>
@@ -2191,6 +2190,11 @@ async function generarInformeMariela() {
     ventana.document.close();
     modalInformeMariela.hide();
     Swal.close();
+
+  } catch (e) {
+    Swal.fire('Error', 'No se pudo generar el informe: ' + e.message, 'error');
+  }
+}
 
   } catch (e) {
     Swal.fire('Error', 'No se pudo generar el informe: ' + e.message, 'error');
