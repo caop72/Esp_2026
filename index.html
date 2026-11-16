@@ -1737,24 +1737,31 @@ async function cargarAnalitica() {
     document.getElementById('tablaCombinacionesPeligrosas').innerHTML = '<tr><td colspan="5" class="text-center py-3">Analizando datos...</td></tr>';
 
     try {
+        // Enviamos los parámetros exactos que el backend espera
         const r = await postAPI({ accion: 'obtenerAnaliticaAvanzada', fechaInicio: desde, fechaFin: hasta });
-        if (!r.exito) throw new Error(r.mensaje);
+        
+        // Si el backend falla o no devuelve la estructura correcta, lanzamos error controlado
+        if (!r || !r.exito) {
+            throw new Error(r && r.mensaje ? r.mensaje : 'No se pudo obtener la analítica.');
+        }
 
-        // KPIs
-        document.getElementById('kpiTiempoRecepcion').textContent = r.kpis.tiempoPromedioRecepcion + ' hrs';
-        document.getElementById('kpiEficienciaDespacho').textContent = r.kpis.eficienciaDespacho + '%';
-        document.getElementById('kpiCombinacionesCriticas').textContent = r.kpis.combinacionesCriticas;
+        // Actualizar KPIs de forma segura
+        if (r.kpis) {
+            document.getElementById('kpiTiempoRecepcion').textContent = (r.kpis.tiempoPromedioRecepcion || 0) + ' hrs';
+            document.getElementById('kpiEficienciaDespacho').textContent = (r.kpis.eficienciaDespacho || 0) + '%';
+            document.getElementById('kpiCombinacionesCriticas').textContent = r.kpis.combinacionesCriticas || 0;
+        }
 
-        // Gráficos
-        renderChartMotivos(r.motivosFalla);
-        renderChartSistemas(r.sistemasFalla);
-        renderChartConductores(r.topConductores);
-        renderChartVehiculos(r.topVehiculos);
+        // Renderizar gráficos (pasando arrays vacíos si no vienen datos)
+        renderChartMotivos(r.motivosFalla || []);
+        renderChartSistemas(r.sistemasFalla || []);
+        renderChartConductores(r.topConductores || []);
+        renderChartVehiculos(r.topVehiculos || []);
 
-        // Tabla Combinaciones
+        // Tabla de Combinaciones
         const tbody = document.getElementById('tablaCombinacionesPeligrosas');
         tbody.innerHTML = '';
-        if (r.combinacionesPeligrosas.length === 0) {
+        if (!r.combinacionesPeligrosas || r.combinacionesPeligrosas.length === 0) {
             tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">No hay combinaciones con alto riesgo en este período.</td></tr>';
         } else {
             r.combinacionesPeligrosas.forEach(c => {
@@ -1770,6 +1777,8 @@ async function cargarAnalitica() {
         }
 
     } catch (e) {
+        // Si algo falla, mostramos el error en la tabla en lugar de un popup
+        document.getElementById('tablaCombinacionesPeligrosas').innerHTML = `<tr><td colspan="5" class="text-center text-danger">Error: ${e.message}</td></tr>`;
         Swal.fire('Error', 'No se pudieron cargar las analíticas: ' + e.message, 'error');
     }
 }
