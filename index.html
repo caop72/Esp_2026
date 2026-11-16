@@ -352,6 +352,7 @@
       <div class="d-flex justify-content-between align-items-center mb-2">
           <h5 class="text-secondary m-0"><i class="bi bi-clipboard-data"></i> Control de Operaciones</h5>
           <button class="btn btn-outline-danger btn-sm fw-bold" onclick="abrirModalTrazabilidad()"><i class="bi bi-truck"></i> Auditoría de Vehículos y Conductores</button>
+          <button class="btn btn-outline-dark btn-sm fw-bold me-2" onclick="abrirModalAnalitica()"><i class="bi bi-bar-chart-line"></i> Analítica Forense</button>
       </div>
 
       <ul class="nav nav-tabs mb-3" id="tabsEncaminamiento" role="tablist">
@@ -825,6 +826,7 @@
     </div>
   </div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-primary fw-bold" onclick="guardarAuditoriaAliado()">Registrar Auditoría</button></div></div></div>
 </div>
+  
 <!-- MODAL DE TRAZABILIDAD DE VEHÍCULOS -->
 <div class="modal fade" id="modalTrazabilidad" tabindex="-1">
   <div class="modal-dialog modal-lg">
@@ -856,6 +858,85 @@
   </div>
 </div>
 
+<!-- MODAL DE ANALÍTICA AVANZADA (MARIELA) -->
+<div class="modal fade" id="modalAnalitica" tabindex="-1">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header bg-dark text-white">
+        <h5 class="modal-title fw-bold"><i class="bi bi-graph-up-arrow"></i> Panel de Control y Analítica (Encaminamiento)</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body bg-light">
+        
+        <!-- KPIs de Mariela -->
+        <div class="row g-3 mb-4">
+          <div class="col-md-4">
+            <div class="card border-primary shadow-sm h-100">
+              <div class="card-body text-center">
+                <h6 class="text-primary fw-bold">Tiempo Promedio de Recepción</h6>
+                <h3 class="mb-0 fw-bold" id="kpiTiempoRecepcion">0 hrs</h3>
+                <small class="text-muted">Desde que sale de CPI hasta que llega al CPC</small>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card border-success shadow-sm h-100">
+              <div class="card-body text-center">
+                <h6 class="text-success fw-bold">Eficiencia de Despacho (SLA)</h6>
+                <h3 class="mb-0 fw-bold" id="kpiEficienciaDespacho">0%</h3>
+                <small class="text-muted">Despachos procesados en menos de 24h</small>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card border-danger shadow-sm h-100">
+              <div class="card-body text-center">
+                <h6 class="text-danger fw-bold">Combinaciones Críticas</h6>
+                <h3 class="mb-0 fw-bold" id="kpiCombinacionesCriticas">0</h3>
+                <small class="text-muted">Vehículo + Conductor con >50% fallas</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Gráficos Comparativos -->
+        <div class="row g-3 mb-4">
+          <div class="col-md-6">
+            <div class="card shadow-sm h-100">
+              <div class="card-header bg-white fw-bold text-danger"><i class="bi bi-person-x"></i> Top 5 Conductores con más Incidencias</div>
+              <div class="card-body"><canvas id="chartConductores" height="200"></canvas></div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="card shadow-sm h-100">
+              <div class="card-header bg-white fw-bold text-warning"><i class="bi bi-truck"></i> Top 5 Vehículos con más Fallas</div>
+              <div class="card-body"><canvas id="chartVehiculos" height="200"></canvas></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Matriz Forense (Conductor x Vehículo) -->
+        <div class="card shadow-sm border-danger">
+          <div class="card-header bg-danger text-white fw-bold">
+            <i class="bi bi-exclamation-octagon"></i> Matriz Forense: Combinaciones Peligrosas (Conductor + Vehículo)
+          </div>
+          <div class="card-body p-0 table-responsive" style="max-height: 250px; overflow-y: auto;">
+            <table class="table table-hover table-sm mb-0">
+              <thead class="table-light sticky-top">
+                <tr><th>Conductor (C.I.)</th><th>Vehículo (Placa)</th><th class="text-center">Viajes Juntos</th><th class="text-center">Incidencias</th><th class="text-center text-danger">Tasa de Falla (%)</th></tr>
+              </thead>
+              <tbody id="tablaCombinacionesPeligrosas">
+                <tr><td colspan="5" class="text-center py-3">Analizando datos...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+  
 <!-- MODAL DE HISTORIAL DE DESPACHOS A MRW (Para la Pestaña 2) -->
 <div class="modal fade" id="modalHistorialMRW" tabindex="-1">
   <div class="modal-dialog modal-xl">
@@ -1602,6 +1683,89 @@ function abrirModalRecibirCamion(id, vehiculo, conductor, precinto, guia, valija
   modalRecibirCamion.show();
 }
 
+let modalAnalitica;
+let chartConductores, chartVehiculos;
+
+async function abrirModalAnalitica() {
+    if (!modalAnalitica) modalAnalitica = new bootstrap.Modal(document.getElementById('modalAnalitica'));
+    
+    // Limpiar tablas
+    document.getElementById('tablaCombinacionesPeligrosas').innerHTML = '<tr><td colspan="5" class="text-center py-3">Analizando datos...</td></tr>';
+    
+    modalAnalitica.show();
+
+    try {
+        const r = await postAPI({ accion: 'obtenerAnaliticaAvanzada' });
+        if (!r.exito) throw new Error(r.mensaje);
+
+        // 1. Actualizar KPIs
+        document.getElementById('kpiTiempoRecepcion').textContent = r.kpis.tiempoPromedioRecepcion + ' hrs';
+        document.getElementById('kpiEficienciaDespacho').textContent = r.kpis.eficienciaDespacho + '%';
+        document.getElementById('kpiCombinacionesCriticas').textContent = r.kpis.combinacionesCriticas;
+
+        // 2. Gráficos
+        renderChartConductores(r.topConductores);
+        renderChartVehiculos(r.topVehiculos);
+
+        // 3. Tabla de Combinaciones
+        const tbody = document.getElementById('tablaCombinacionesPeligrosas');
+        tbody.innerHTML = '';
+        if (r.combinacionesPeligrosas.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">No hay combinaciones con alto riesgo.</td></tr>';
+        } else {
+            r.combinacionesPeligrosas.forEach(c => {
+                let color = c.tasaFalla > 70 ? 'bg-danger' : (c.tasaFalla > 40 ? 'bg-warning text-dark' : 'bg-secondary');
+                tbody.innerHTML += `<tr>
+                    <td><b>${c.conductor}</b> (${c.cedula})</td>
+                    <td>${c.vehiculo}</td>
+                    <td class="text-center">${c.viajes}</td>
+                    <td class="text-center fw-bold text-danger">${c.incidencias}</td>
+                    <td class="text-center"><span class="badge ${color}">${c.tasaFalla}%</span></td>
+                </tr>`;
+            });
+        }
+
+    } catch (e) {
+        Swal.fire('Error', 'No se pudieron cargar las analíticas: ' + e.message, 'error');
+    }
+}
+
+function renderChartConductores(datos) {
+    if (chartConductores) chartConductores.destroy();
+    const ctx = document.getElementById('chartConductores').getContext('2d');
+    chartConductores = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: datos.map(d => d.nombre),
+            datasets: [{
+                label: 'Incidencias',
+                data: datos.map(d => d.incidencias),
+                backgroundColor: '#dc3545',
+                borderRadius: 5
+            }]
+        },
+        options: { indexAxis: 'y', plugins: { legend: { display: false } } }
+    });
+}
+
+function renderChartVehiculos(datos) {
+    if (chartVehiculos) chartVehiculos.destroy();
+    const ctx = document.getElementById('chartVehiculos').getContext('2d');
+    chartVehiculos = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: datos.map(d => d.placa),
+            datasets: [{
+                label: 'Fallas',
+                data: datos.map(d => d.incidencias),
+                backgroundColor: '#ffc107',
+                borderRadius: 5
+            }]
+        },
+        options: { indexAxis: 'y', plugins: { legend: { display: false } } }
+    });
+}
+  
 async function confirmarRecepcionCamion() {
   const vehiculo = document.getElementById('recCamVehiculoTxt').textContent;
   const guia = document.getElementById('recCamGuiaTxt').textContent;
