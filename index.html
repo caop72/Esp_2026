@@ -2029,7 +2029,7 @@ async function generarInformeMariela() {
       </div>
     `;
 
-    let contenidoHTML = `
+       let contenidoHTML = `
       <html>
       <head>
         <title>Informe CPC - IPOSTEL</title>
@@ -2044,19 +2044,26 @@ async function generarInformeMariela() {
           .text-left { text-align: left; }
           .chart-container { text-align: center; margin-top: 20px; }
         </style>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"><\/script>
       </head>
       <body>
         <h1>Informe de Gestión CPC</h1>
-        <p style="text-align: center;">Periodo: <b id="lbl-desde">Cargando...</b> al <b id="lbl-hasta">Cargando...</b></p>
+        <p style="text-align: center;">Periodo: <b>${desde}</b> al <b>${hasta}</b></p>
+
         <h3>Reporte: Cargas Recibidas</h3>
         <table>
           <thead>
             <tr>
-              <th>Entregadas por:</th><th>Cant.</th><th>Valijas</th><th>Certificadas</th><th>Ordinarias</th><th>Mixtas</th>
+              <th>Entregadas por:</th>
+              <th>Cant.</th>
+              <th>Valijas</th>
+              <th>Certificadas</th>
+              <th>Ordinarias</th>
+              <th>Mixtas</th>
             </tr>
           </thead>
           <tbody>
-            ${rData.recibidas.map(item => `
+            ${(rData.recibidas || []).map(item => `
               <tr>
                 <td class="text-left">${item.origen}</td>
                 <td>${item.cantidad}</td>
@@ -2073,11 +2080,16 @@ async function generarInformeMariela() {
         <table>
           <thead>
             <tr>
-              <th>Entrega a:</th><th>Master</th><th>Paquetes</th><th>Piezas</th><th>Certificadas</th><th>Ordinarias</th>
+              <th>Entrega a:</th>
+              <th>Master</th>
+              <th>Paquetes</th>
+              <th>Piezas</th>
+              <th>Certificadas</th>
+              <th>Ordinarias</th>
             </tr>
           </thead>
           <tbody>
-            ${rData.despachadas.map(item => `
+            ${(rData.despachadas || []).map(item => `
               <tr>
                 <td class="text-left">${item.destino}</td>
                 <td>${item.master}</td>
@@ -2094,7 +2106,9 @@ async function generarInformeMariela() {
         <table>
           <thead>
             <tr>
-              <th style="width: 40%;">Indicador</th><th style="width: 40%;">Resultado Visual</th><th>Meta / SLA</th>
+              <th style="width: 40%;">Indicador</th>
+              <th style="width: 40%;">Resultado Visual</th>
+              <th>Meta / SLA</th>
             </tr>
           </thead>
           <tbody>
@@ -2132,33 +2146,76 @@ async function generarInformeMariela() {
 
         <h3>Motivos de Incidencias (Control de Transporte)</h3>
         <table>
-          <tr><th>Motivo de Falla</th><th>Cantidad</th></tr>
-          ${(r.motivosFalla || []).map(m => `<tr><td>${m.motivo}</td><td>${m.cantidad}</td></tr>`).join('')}
+          <thead>
+            <tr>
+              <th>Motivo de Falla</th>
+              <th>Cantidad</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${(r.motivosFalla || []).map(m => `
+              <tr>
+                <td>${m.motivo}</td>
+                <td>${m.cantidad}</td>
+              </tr>
+            `).join('')}
+          </tbody>
         </table>
 
         <h3>Top 5 Conductores con Incidencias</h3>
         <table>
-          <tr><th>Conductor</th><th>Cédula</th><th>Incidencias</th></tr>
-          ${(r.topConductores || []).map(c => `<tr><td>${c.nombre}</td><td>${c.cedula}</td><td>${c.incidencias}</td></tr>`).join('')}
+          <thead>
+            <tr>
+              <th>Conductor</th>
+              <th>Cédula</th>
+              <th>Incidencias</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${(r.topConductores || []).map(c => `
+              <tr>
+                <td>${c.nombre}</td>
+                <td>${c.cedula}</td>
+                <td>${c.incidencias}</td>
+              </tr>
+            `).join('')}
+          </tbody>
         </table>
 
         <h3>Matriz de Combinaciones Peligrosas</h3>
         <table>
-          <tr><th>Conductor</th><th>Vehículo</th><th>Viajes Juntos</th><th>Incidencias</th><th>Tasa Falla</th></tr>
-          ${(r.combinacionesPeligrosas || []).map(c => `<tr><td>${c.conductor} (${c.cedula})</td><td>${c.vehiculo}</td><td>${c.viajes}</td><td>${c.incidencias}</td><td>${c.tasaFalla}%</td></tr>`).join('')}
+          <thead>
+            <tr>
+              <th>Conductor</th>
+              <th>Vehículo</th>
+              <th>Viajes Juntos</th>
+              <th>Incidencias</th>
+              <th>Tasa Falla</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${(r.combinacionesPeligrosas || []).map(c => `
+              <tr>
+                <td>${c.conductor} (${c.cedula})</td>
+                <td>${c.vehiculo}</td>
+                <td>${c.viajes}</td>
+                <td>${c.incidencias}</td>
+                <td>${c.tasaFalla}%</td>
+              </tr>
+            `).join('')}
+          </tbody>
         </table>
 
         <div class="footer">IPOSTEL - Observatorio Estratégico Postal - Elecciones España 2026</div>
-            // --- INICIO DEL CÓDIGO DEL GRÁFICO DENTRO DE LA VARIABLE ---
+
         <script>
-          // Gráfico de Torta para el SLA
-          window.onload = function() {
+          window.onload = function () {
             const canvas = document.getElementById('graficoSLA');
+
             if (canvas) {
               const ctx = canvas.getContext('2d');
-              
-              // Leemos los datos de forma segura
-              const cumplimiento = Number("<?= rData.controles.cumplimientoSLA ?>") || 0;
+
+              const cumplimiento = Number(${JSON.stringify(rData.controles.cumplimientoSLA)}) || 0;
               const incumplimiento = 100 - cumplimiento;
 
               new Chart(ctx, {
@@ -2173,22 +2230,24 @@ async function generarInformeMariela() {
                 },
                 options: {
                   cutout: '70%',
-                  plugins: { legend: { display: false }, tooltip: { enabled: false } },
+                  plugins: {
+                    legend: { display: false },
+                    tooltip: { enabled: false }
+                  },
                   animation: { duration: 0 }
-              }); // Cierra el new Chart
-            } // Cierra el if (canvas)
-          }; // Cierra el window.onload
-        </script>
-      </body>
+                }
+              });
+            }
+          };
+        <\/script>
       </body>
       </html>
-    `; 
-    // --- FIN DE LA VARIABLE contenidoHTML ---
+    `;
 
-    // Aquí se abre la ventana e inyecta el HTML
     const ventana = window.open('', '_blank');
     ventana.document.write(contenidoHTML);
     ventana.document.close();
+
     modalInformeMariela.hide();
     Swal.close();
 
