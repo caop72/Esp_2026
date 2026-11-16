@@ -1163,6 +1163,7 @@ function iniciarApp(r) {
     cargarTablaDespachos();
   } else if (r.rol === 'COORD_ENCAM') { 
     mostrar('appEncaminamiento'); 
+    mostrar('btnInformeMariela'); // <--- LÍNEA AGREGADA AQUÍ
     modalRecibirCamion = new bootstrap.Modal(document.getElementById('modalRecibirCamion'));
     modalEntregarMRW = new bootstrap.Modal(document.getElementById('modalEntregarMRW'));
     modalCrearMaster = new bootstrap.Modal(document.getElementById('modalCrearMaster'));
@@ -1172,9 +1173,6 @@ function iniciarApp(r) {
     mostrar('appAliado'); 
     modalAliado = new bootstrap.Modal(document.getElementById('modalAliado'));
     cargarPanelAliado();
- } else if (r.rol === 'DIR_OPER' || r.rol === 'GER_OPER') {
-    mostrar('appOperaciones'); 
-    modalOperaciones = new bootstrap.Modal(document.getElementById('modalOperaciones'));
   } else if (r.rol === 'GERENTE_ESTADO') {
     mostrar('appGerente'); mostrar('btnInformeGerente');
     iniciarGerente();
