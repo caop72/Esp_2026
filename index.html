@@ -100,6 +100,7 @@
         <button id="btnInformeCNC" class="btn btn-sm btn-outline-primary me-2 oculto" onclick="abrirModalInformeCNC()"><i class="bi bi-file-earmark-pdf"></i> Informe CNC</button>
         <button id="btnInformeGerente" class="btn btn-sm btn-outline-info me-2 oculto" onclick="abrirModalInformeGerente()"><i class="bi bi-file-earmark-bar-graph"></i> Informe de Estado</button>
         <button id="btnInformeOPT" class="btn btn-sm btn-outline-warning me-2 oculto" onclick="abrirModalInforme()"><i class="bi bi-file-earmark-bar-graph"></i> Informe OPT</button>
+        <button id="btnInformeMariela" class="btn btn-sm btn-outline-success me-2 oculto" onclick="abrirModalInformeMariela()"><i class="bi bi-file-earmark-spreadsheet"></i> Informe CPC</button>
         <button class="btn btn-sm btn-outline-light" onclick="location.reload()">Salir</button>
       </div>
     </div>
@@ -963,6 +964,34 @@
           </div>
         </div>
 
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DE INFORME PARA MARIELA (CPC) -->
+<div class="modal fade" id="modalInformeMariela" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-dark text-white">
+        <h5 class="modal-title fw-bold">Informe de Gestión - Encaminamiento (CPC)</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row g-3">
+          <div class="col-6">
+            <label class="form-label fw-bold">Desde</label>
+            <input type="date" class="form-control" id="infoMarielaFechaInicio">
+          </div>
+          <div class="col-6">
+            <label class="form-label fw-bold">Hasta</label>
+            <input type="date" class="form-control" id="infoMarielaFechaFin">
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button class="btn btn-success fw-bold" onclick="generarInformeMariela()">Generar e Imprimir</button>
       </div>
     </div>
   </div>
