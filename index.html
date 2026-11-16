@@ -2151,32 +2151,40 @@ async function generarInformeMariela() {
 
         <div class="footer">IPOSTEL - Observatorio Estratégico Postal - Elecciones España 2026</div>
         
-        <script>
-          // Gráfico de Torta para el SLA
-          window.onload = function() {
-            const ctx = document.getElementById('graficoSLA').getContext('2d');
-            new Chart(ctx, {
-              type: 'doughnut',
-              data: {
-                labels: ['Cumplido', 'Incumplido'],
-                datasets: [{
-                  data: [${rData.controles.cumplimientoSLA}, ${100 - rData.controles.cumplimientoSLA}],
-                  backgroundColor: ['#198754', '#e9ecef'],
-                  borderWidth: 0
-                }]
-              },
-              options: {
-                cutout: '70%',
-                plugins: { legend: { display: false }, tooltip: { enabled: false } },
-                animation: { duration: 0 }
-              }
-            });
-            setTimeout(() => { window.print(); }, 1000);
-          }
-        <\/script>
+    <script>
+  // Gráfico de Torta para el SLA
+  window.onload = function() {
+    const canvas = document.getElementById('graficoSLA');
+    if (canvas) {
+      const ctx = canvas.getContext('2d');
+      
+      // Leemos los datos de forma segura
+      const cumplimiento = Number("<?= rData.controles.cumplimientoSLA ?>") || 0;
+      const incumplimiento = 100 - cumplimiento;
+
+      new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Cumplido', 'Incumplido'],
+          datasets: [{
+            data: [cumplimiento, incumplimiento],
+            backgroundColor: ['#198754', '#e9ecef'],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          cutout: '70%',
+          plugins: { legend: { display: false }, tooltip: { enabled: false } },
+          animation: { duration: 0 }
+        }
+      });
+    }
+    
+    setTimeout(() => { window.print(); }, 1000);
+  };
+</script>
       </body>
       </html>
-    `;
     
     const ventana = window.open('', '_blank');
     ventana.document.write(contenidoHTML);
