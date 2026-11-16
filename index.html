@@ -419,6 +419,197 @@ async function cargarEstados() { try { const r = await postAPI({accion: 'obtener
 async function cargarOPTs(estado) { try { const r = await postAPI({accion: 'obtenerOPTsPorEstado', estado: estado}); if (r.exito) { const sel = document.getElementById('selOPT'); sel.innerHTML = '<option value="">-- Seleccione OPT --</option>'; r.opts.forEach(o => sel.innerHTML += `<option value="${o.codigo}">${o.nombre}</option>`); mostrar('pasoOPT'); } } catch(e) { console.error(e); } }
 function postAPI(payload) { return fetch(API_URL, { method: 'POST', body: JSON.stringify(payload), headers: { 'Content-Type': 'text/plain;charset=utf-8' } }).then(r => r.json()); }
 async function cargarObservatorio() { document.getElementById('dashboardObservatorio').innerHTML = '<p class="text-muted">Cargando...</p>'; }
+
+async function cargarCamionesPorRecibir() {
+  const tbody = document.getElementById('tablaCamionesPorRecibir');
+  if(!tbody) return; 
+  tbody.innerHTML = '<tr><td colspan="5" class="text-center py-3 text-muted">Cargando...</td></tr>';
+  try {
+    const r = await postAPI({ accion: 'obtenerDespachosCamiones' }); 
+    if (!r.exito) throw new Error(r.mensaje);
+    cargarIndicadoresEncaminamiento();
+    tbody.innerHTML = '';
+    if(r.datos.length === 0) return tbody.innerHTML = '<tr><td colspan="5" class="text-center py-3">No hay camiones de IPOSTEL en tránsito.</td></tr>';
+    r.datos.forEach(d => {
+      tbody.innerHTML += `<tr><td><b>${d.vehiculo}</b><br><small>${d.conductor}</small></td><td>${d.precinto}</td><td>Guía: ${d.guiaAerea}<br><small>${d.valijas} Val | ${d.piezas} Pzs</small></td><td>${d.fechaSalida}</td><td><button class="btn btn-sm btn-primary fw-bold" onclick="abrirModalRecibirCamion('${d.id}', '${d.vehiculo}', '${d.conductor}', '${d.precinto}', '${d.guiaAerea}', '${d.valijas}', '${d.piezas}')">Recibir</button></td></tr>`;
+    });
+  } catch(e) { tbody.innerHTML = `<tr><td colspan="5" class="text-center text-danger">${e.message}</td></tr>`; }
+}
+
+let modalTrazabilidad, modalHistorialMRW, modalIncidencia, modalAnalitica;
+let chartMotivos, chartSistemas, chartConductores, chartVehiculos;
+
+async function abrirModalTrazabilidad() {
+    if (!modalTrazabilidad) modalTrazabilidad = new bootstrap.Modal(document.getElementById('modalTrazabilidad'));
+    const tbody = document.getElementById('tablaTrazabilidad');
+    tbody.innerHTML = '<tr><td colspan="5" class="text-center py-3 text-muted">Analizando datos...</td></tr>';
+    modalTrazabilidad.show();
+    try {
+        const r = await postAPI({ accion: 'obtenerTrazabilidadVehiculos' });
+        if (!r.exito) throw new Error(r.mensaje);
+        tbody.innerHTML = '';
+        if (r.datos.length === 0) return tbody.innerHTML = '<tr><td colspan="5" class="text-center">No hay datos registrados.</td></tr>';
+        r.datos.forEach(d => {
+            let colorBadge = d.tasaFalla > 10 ? 'bg-danger' : (d.tasaFalla > 0 ? 'bg-warning text-dark' : 'bg-success');
+            tbody.innerHTML += `<tr><td><b>${d.placa}</b></td><td>${d.conductor} (${d.cedula})</td><td class="text-center">${d.viajes}</td><td class="text-center fw-bold text-danger">${d.incidencias}</td><td class="text-center"><span class="badge ${colorBadge}">${d.tasaFalla}%</span></td></tr>`;
+        });
+    } catch (e) { tbody.innerHTML = `<tr><td colspan="5" class="text-center text-danger">${e.message}</td></tr>`; }
+}
+
+async function cargarHistorialDespachosMRW() {
+    if (!modalHistorialMRW) modalHistorialMRW = new bootstrap.Modal(document.getElementById('modalHistorialMRW'));
+    const tbody = document.getElementById('tablaHistorialMRW');
+    tbody.innerHTML = '<tr><td colspan="6" class="text-center py-3">Cargando...</td></tr>';
+    modalHistorialMRW.show();
+    try {
+        const r = await postAPI({ accion: 'obtenerHistorialDespachosMRW' });
+        if (!r.exito) throw new Error(r.mensaje);
+        tbody.innerHTML = '';
+        if (r.datos.length === 0) return tbody.innerHTML = '<tr><td colspan="6" class="text-center">No hay registros.</td></tr>';
+        r.datos.forEach(d => {
+            tbody.innerHTML += `<tr><td>${d.fecha}</td><td><b>${d.guia}</b></td><td>${d.estado}</td><td>${d.chofer}</td><td>${d.placa}</td><td>${d.piezas}</td></tr>`;
+        });
+    } catch (e) { tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">${e.message}</td></tr>`; }
+}
+
+function abrirModalIncidencias() {
+    if (!modalIncidencia) modalIncidencia = new bootstrap.Modal(document.getElementById('modalIncidencia'));
+    document.getElementById('incOrigen').value = 'Mecánica'; document.getElementById('incSistema').value = 'N/A';
+    document.getElementById('incTipo').value = 'Falla en Ruta'; document.getElementById('incDesc').value = '';
+    const selectPlaca = document.getElementById('incPlaca');
+    selectPlaca.innerHTML = '<option value="">-- Cargando... --</option>';
+    postAPI({ accion: 'obtenerFlotaVehiculos' }).then(r => {
+        selectPlaca.innerHTML = '<option value="">-- Seleccione Vehículo --</option>';
+        if(r.exito && r.datos) { r.datos.forEach(v => selectPlaca.innerHTML += `<option value="${v.placa}">${v.placa}</option>`); }
+    }).catch(e => { selectPlaca.innerHTML = '<option value="">-- Error al cargar --</option>'; });
+    modalIncidencia.show();
+}
+
+async function guardarIncidencia() {
+    const placa = document.getElementById('incPlaca').value; const origen = document.getElementById('incOrigen').value;
+    const sistema = document.getElementById('incSistema').value; const tipo = document.getElementById('incTipo').value; const desc = document.getElementById('incDesc').value;
+    if (!placa || !desc) return Swal.fire('Atención', 'Complete la placa y la descripción.', 'warning');
+    Swal.fire({ title: 'Registrando...', didOpen: () => Swal.showLoading() });
+    const r = await postAPI({ accion: 'registrarIncidenciaTransporte', placa: placa, origen: origen, sistema: sistema, tipo: tipo, descripcion: desc });
+    if (r.exito) { modalIncidencia.hide(); Swal.fire('Registrado', 'La incidencia ha sido guardada.', 'success'); cargarIndicadoresEncaminamiento(); } else { Swal.fire('Error', r.mensaje, 'error'); }
+}
+
+function abrirModalAnalitica() {
+    if (!modalAnalitica) modalAnalitica = new bootstrap.Modal(document.getElementById('modalAnalitica'));
+    const hoy = new Date().toISOString().split('T')[0];
+    const hace15 = new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    document.getElementById('anaFechaInicio').value = hace15; document.getElementById('anaFechaFin').value = hoy;
+    modalAnalitica.show(); cargarAnalitica();
+}
+
+async function cargarAnalitica() {
+    const desde = document.getElementById('anaFechaInicio').value; const hasta = document.getElementById('anaFechaFin').value;
+    document.getElementById('tablaCombinacionesPeligrosas').innerHTML = '<tr><td colspan="5" class="text-center py-3">Analizando datos...</td></tr>';
+    try {
+        const r = await postAPI({ accion: 'obtenerAnaliticaAvanzada', fechaInicio: desde, fechaFin: hasta });
+        if (!r.exito) throw new Error(r.mensaje);
+        document.getElementById('kpiTiempoRecepcion').textContent = (r.kpis.tiempoPromedioRecepcion || 0) + ' hrs';
+        document.getElementById('kpiEficienciaDespacho').textContent = (r.kpis.eficienciaDespacho || 0) + '%';
+        document.getElementById('kpiCombinacionesCriticas').textContent = r.kpis.combinacionesCriticas || 0;
+        renderChartMotivos(r.motivosFalla || []); renderChartSistemas(r.sistemasFalla || []);
+        renderChartConductores(r.topConductores || []); renderChartVehiculos(r.topVehiculos || []);
+        const tbody = document.getElementById('tablaCombinacionesPeligrosas'); tbody.innerHTML = '';
+        if (!r.combinacionesPeligrosas || r.combinacionesPeligrosas.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">No hay combinaciones con alto riesgo en este período.</td></tr>';
+        } else {
+            r.combinacionesPeligrosas.forEach(c => {
+                let color = c.tasaFalla > 70 ? 'bg-danger' : (c.tasaFalla > 40 ? 'bg-warning text-dark' : 'bg-secondary');
+                tbody.innerHTML += `<tr><td><b>${c.conductor}</b> (${c.cedula})</td><td>${c.vehiculo}</td><td class="text-center">${c.viajes}</td><td class="text-center fw-bold text-danger">${c.incidencias}</td><td class="text-center"><span class="badge ${color}">${c.tasaFalla}%</span></td></tr>`;
+            });
+        }
+    } catch (e) {
+        document.getElementById('tablaCombinacionesPeligrosas').innerHTML = `<tr><td colspan="5" class="text-center text-danger">Error: ${e.message}</td></tr>`;
+        Swal.fire('Error', 'No se pudieron cargar las analíticas: ' + e.message, 'error');
+    }
+}
+
+function renderChartMotivos(datos) {
+    if (chartMotivos) chartMotivos.destroy();
+    const ctx = document.getElementById('chartMotivosFalla').getContext('2d');
+    chartMotivos = new Chart(ctx, { type: 'doughnut', data: { labels: datos.map(d => d.motivo), datasets: [{ data: datos.map(d => d.cantidad), backgroundColor: ['#dc3545', '#0d6efd', '#ffc107'] }] }, options: { maintainAspectRatio: false, plugins: { legend: { position: 'right' } } } });
+}
+
+function renderChartSistemas(datos) {
+    if (chartSistemas) chartSistemas.destroy();
+    const ctx = document.getElementById('chartSistemasFalla').getContext('2d');
+    chartSistemas = new Chart(ctx, { type: 'bar', data: { labels: datos.map(d => d.sistema), datasets: [{ label: 'Fallas', data: datos.map(d => d.cantidad), backgroundColor: '#6c757d', borderRadius: 5 }] }, options: { maintainAspectRatio: false, plugins: { legend: { display: false } } } });
+}
+
+function renderChartConductores(datos) {
+    if (chartConductores) chartConductores.destroy();
+    const ctx = document.getElementById('chartConductores').getContext('2d');
+    chartConductores = new Chart(ctx, { type: 'bar', data: { labels: datos.map(d => d.nombre), datasets: [{ label: 'Incidencias', data: datos.map(d => d.incidencias), backgroundColor: '#dc3545', borderRadius: 5 }] }, options: { indexAxis: 'y', maintainAspectRatio: false, plugins: { legend: { display: false } } } });
+}
+
+function renderChartVehiculos(datos) {
+    if (chartVehiculos) chartVehiculos.destroy();
+    const ctx = document.getElementById('chartVehiculos').getContext('2d');
+    chartVehiculos = new Chart(ctx, { type: 'bar', data: { labels: datos.map(d => d.placa), datasets: [{ label: 'Fallas', data: datos.map(d => d.incidencias), backgroundColor: '#ffc107', borderRadius: 5 }] }, options: { indexAxis: 'y', maintainAspectRatio: false, plugins: { legend: { display: false } } } });
+}
+
+let modalInformeMariela;
+
+function abrirModalInformeMariela() {
+  if (!modalInformeMariela) { modalInformeMariela = new bootstrap.Modal(document.getElementById('modalInformeMariela')); }
+  const hoy = new Date().toISOString().split('T')[0];
+  const hace7 = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+  document.getElementById('infoMarielaFechaInicio').value = hace7; document.getElementById('infoMarielaFechaFin').value = hoy;
+  modalInformeMariela.show();
+}
+
+async function generarInformeMariela() {
+  const desde = document.getElementById('infoMarielaFechaInicio').value; const hasta = document.getElementById('infoMarielaFechaFin').value;
+  if (!desde || !hasta) return Swal.fire('Atención', 'Debe seleccionar ambas fechas.', 'warning');
+  Swal.fire({ title: 'Generando Informe...', didOpen: () => Swal.showLoading() });
+  try {
+    const r = await postAPI({ accion: 'obtenerAnaliticaAvanzada', fechaInicio: desde, fechaFin: hasta });
+    if (!r.exito) throw new Error(r.mensaje);
+    const rData = await postAPI({ accion: 'obtenerDatosInformeCPC', fechaInicio: desde, fechaFin: hasta });
+    if (!rData.exito) throw new Error(rData.mensaje);
+    const crearBarra = (porcentaje, color) => `<div style="width: 100%; background-color: #e9ecef; border-radius: 5px; overflow: hidden; height: 20px;"><div style="width: ${porcentaje}%; background-color: ${color}; height: 100%; text-align: center; color: white; font-size: 11px; line-height: 20px; font-weight: bold;">${porcentaje}%</div></div>`;
+    let contenidoHTML = `
+      <html>
+      <head><title>Informe CPC - IPOSTEL</title><style>body { font-family: Arial, sans-serif; padding: 20px; color: #333; } h1 { color: #003366; text-align: center; } h3 { color: #003366; border-bottom: 2px solid #003366; padding-bottom: 5px; margin-top: 30px; } table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 12px; } th, td { border: 1px solid #ddd; padding: 8px; text-align: center; } th { background-color: #003366; color: white; } .footer { text-align: center; margin-top: 40px; font-size: 12px; color: #666; } .text-left { text-align: left; }</style><script src="https://cdn.jsdelivr.net/npm/chart.js"></script></head>
+      <body>
+        <h1>Informe de Gestión CPC</h1>
+        <p style="text-align: center;">Período: <b>${desde}</b> al <b>${hasta}</b></p>
+        <h3>Reporte: Cargas Recibidas</h3>
+        <table><thead><tr><th>Entregadas por:</th><th>Cant.</th><th>Valijas</th><th>Certificadas</th><th>Ordinarias</th><th>Mixtas</th></tr></thead><tbody>${rData.recibidas.map(item => `<tr><td class="text-left">${item.origen}</td><td>${item.cantidad}</td><td>${item.valijas}</td><td>${item.certificadas}</td><td>${item.ordinarias}</td><td>${item.mixtas}</td></tr>`).join('')}</tbody></table>
+        <h3>Reporte: Cargas Despachadas</h3>
+        <table><thead><tr><th>Entrega a:</th><th>Master</th><th>Paquetes</th><th>Piezas</th><th>Certificadas</th><th>Ordinarias</th></tr></thead><tbody>${rData.despachadas.map(item => `<tr><td class="text-left">${item.destino}</td><td>${item.master}</td><td>${item.paquetes}</td><td>${item.piezas}</td><td>${item.certificadas}</td><td>${item.ordinarias}</td></tr>`).join('')}</tbody></table>
+        <h3>Controles de Tiempos y Porcentajes de Operatividad</h3>
+        <table><thead><tr><th style="width: 40%;">Indicador</th><th style="width: 40%;">Resultado Visual</th><th>Meta / SLA</th></tr></thead><tbody>
+          <tr><td class="text-left">% Valijas Recibidas y Redistribuidas</td><td>${crearBarra(rData.controles.pctValijasRedistribuidas, '#0d6efd')}</td><td>100%</td></tr>
+          <tr><td class="text-left">% Paquetes Enviados a Estados</td><td>${crearBarra(rData.controles.pctPaquetesEnviados, '#198754')}</td><td>100%</td></tr>
+          <tr><td class="text-left">% Piezas Devueltas para Reencaminar</td><td>${crearBarra(rData.controles.pctPiezasDevueltas, '#dc3545')}</td><td>&lt; 5%</td></tr>
+          <tr><td class="text-left">Tiempo Promedio de Procesamiento</td><td class="fw-bold" style="font-size: 14px;">${rData.controles.tiempoPromedio} / 24 hrs</td><td>Máx. 24 hrs</td></tr>
+          <tr><td class="text-left">Cumplimiento del SLA (24h)</td><td><div style="width: 100px; height: 100px; margin: 0 auto;"><canvas id="graficoSLA"></canvas></div></td><td>100%</td></tr>
+        </tbody></table>
+        <h3>Motivos de Incidencias (Control de Transporte)</h3>
+        <table><tr><th>Motivo de Falla</th><th>Cantidad</th></tr>${(r.motivosFalla || []).map(m => `<tr><td>${m.motivo}</td><td>${m.cantidad}</td></tr>`).join('')}</table>
+        <h3>Top 5 Conductores con Incidencias</h3>
+        <table><tr><th>Conductor</th><th>Cédula</th><th>Incidencias</th></tr>${(r.topConductores || []).map(c => `<tr><td>${c.nombre}</td><td>${c.cedula}</td><td>${c.incidencias}</td></tr>`).join('')}</table>
+        <h3>Matriz de Combinaciones Peligrosas</h3>
+        <table><tr><th>Conductor</th><th>Vehículo</th><th>Viajes Juntos</th><th>Incidencias</th><th>Tasa Falla</th></tr>${(r.combinacionesPeligrosas || []).map(c => `<tr><td>${c.conductor} (${c.cedula})</td><td>${c.vehiculo}</td><td>${c.viajes}</td><td>${c.incidencias}</td><td>${c.tasaFalla}%</td></tr>`).join('')}</table>
+        <div class="footer">IPOSTEL - Observatorio Estadístico Postal - Elecciones España 2026</div>
+        <script>
+          window.onload = function() {
+            const ctx = document.getElementById('graficoSLA').getContext('2d');
+            new Chart(ctx, { type: 'doughnut', data: { labels: ['Cumplido', 'Incumplido'], datasets: [{ data: [${rData.controles.cumplimientoSLA}, ${100 - rData.controles.cumplimientoSLA}], backgroundColor: ['#198754', '#e9ecef'], borderWidth: 0 }] }, options: { cutout: '70%', plugins: { legend: { display: false }, tooltip: { enabled: false } }, animation: { duration: 0 } } });
+            setTimeout(() => { window.print(); }, 1000);
+          }
+        <\/script>
+      </body>
+      </html>
+    `;
+    const ventana = window.open('', '_blank'); ventana.document.write(contenidoHTML); ventana.document.close(); modalInformeMariela.hide(); Swal.close();
+  } catch (e) { Swal.fire('Error', 'No se pudo generar el informe: ' + e.message, 'error'); }
+}
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
