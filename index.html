@@ -402,9 +402,17 @@ async function cargarCamionesPorRecibir() {
     tbody.innerHTML = '';
     if(r.datos.length === 0) return tbody.innerHTML = '<tr><td colspan="5" class="text-center py-3">No hay camiones de IPOSTEL en tránsito.</td></tr>';
     r.datos.forEach(d => {
-      tbody.innerHTML += `<tr><td><b>${d.vehiculo}</b><br><small>${d.conductor}</small></td><td>${d.precinto}</td><td>Guía: ${d.guiaAerea}<br><small>${d.valijas} Val | ${d.piezas} Pzs</small></td><td>${d.fechaSalida}</td><td><button class="btn btn-sm btn-primary fw-bold" onclick="abrirModalRecibirCamion('${d.id}', '${d.vehiculo}', '${d.conductor}', '${d.precinto}', '${d.guiaAerea}', '${d.valijas}', '${d.piezas}')">Recibir</button></td></tr>`;
+      tbody.innerHTML += `<tr>
+        <td><b>${d.vehiculo}</b><br><small>${d.conductor}</small></td>
+        <td>${d.precinto}</td>
+        <td>Guía: ${d.guiaAerea}<br><small>${d.valijas} Val | ${d.piezas} Pzs</small></td>
+        <td>${d.fechaSalida}</td>
+        <td><button class="btn btn-sm btn-primary fw-bold" onclick="abrirModalRecibirCamion('${d.id}', '${d.vehiculo}', '${d.conductor}', '${d.precinto}', '${d.guiaAerea}', '${d.valijas}', '${d.piezas}')">Recibir</button></td>
+      </tr>`;
     });
-  } catch(e) { tbody.innerHTML = `<tr><td colspan="5" class="text-center text-danger">${e.message}</td></tr>`; }
+  } catch(e) { 
+    tbody.innerHTML = `<tr><td colspan="5" class="text-center text-danger">${e.message}</td></tr>`; 
+  }
 }
 
 async function cargarValijasMRW() {
@@ -412,10 +420,17 @@ async function cargarValijasMRW() {
   if(!tbody) return;
   tbody.innerHTML = '<tr><td colspan="4" class="text-center py-3 text-muted">Cargando másters...</td></tr>';
   setTimeout(() => {
-    tbody.innerHTML = `<tr><td>MST-001</td><td>15 Val / 45 Pzs</td><td>2026-11-15 10:00</td><td><button class="btn btn-sm btn-primary" onclick="abrirModalEntregarMRW('MST-001', 45)">Entregar a MRW</button></td></tr>`;
+    tbody.innerHTML = `
+      <tr>
+        <td>MST-001</td>
+        <td>15 Val / 45 Pzs</td>
+        <td>2026-11-15 10:00</td>
+        <td><button class="btn btn-sm btn-primary" onclick="abrirModalEntregarMRW('MST-001', 45)">Entregar a MRW</button></td>
+      </tr>
+    `;
   }, 1000);
 }
-
+    
 function volverAtras() {
   if (!document.getElementById('pasoCredenciales').classList.contains('oculto')) { document.getElementById('pasoCredenciales').classList.add('oculto'); if (estadoApp.requiereOPT) { mostrar('pasoEstado'); mostrar('pasoOPT'); } else if (estadoApp.requiereEstado) { mostrar('pasoEstado'); } else { document.getElementById('selRol').value = ''; cambiarRol(); } return; }
   if (!document.getElementById('pasoOPT').classList.contains('oculto')) { document.getElementById('pasoOPT').classList.add('oculto'); mostrar('pasoEstado'); return; }
