@@ -1824,7 +1824,7 @@ async function generarInformeMariela() {
     const ventana = window.open('', '_blank'); ventana.document.write(contenidoHTML); ventana.document.close(); modalInformeMariela.hide(); Swal.close();
   } catch (e) { Swal.fire('Error', 'No se pudo generar el informe: ' + e.message, 'error'); }
 }
-<script>
+
 const API_URL = 'https://script.google.com/macros/s/AKfycbzx_AeJRGOOXphA0N5sUFEMJbDBwsyzfElr0hH38dmzUmFt9dy1NJ7w3MjMycrWzoI2/exec';
 const estadoApp = { rol: null, requiereEstado: false, requiereOPT: false, estadoSel: null, optSel: null, subRolSel: null };
 const ROLES_CON_ESTADO = ['GERENCIA_ESTADO', 'JEFE_OPT', 'ANALISTA_OPT'];
@@ -1911,7 +1911,6 @@ async function enviarAlBackend() {
     iniciarApp(resp);
   } catch (err) { Swal.fire('Error de conexión', err.message, 'error'); btn.disabled = false; btn.textContent = '🔑 Ingresar al Sistema'; }
 }
-
 function iniciarApp(r) {
   document.getElementById('pantallaLogin').style.display = 'none';
   document.getElementById('pantallaApp').style.display = 'block';
@@ -1934,7 +1933,7 @@ function iniciarApp(r) {
     cargarPanelOperaciones(); cargarTablaDespachos();
   } else if (r.rol === 'COORD_ENCAM') {
     mostrar('appEncaminamiento');
-    mostrar('btnInformeMariela'); // <--- LÍNEA CRÍTICA PARA MARIANA
+    mostrar('btnInformeMariela'); // Línea crítica para Mariela
     modalRecibirCamion = new bootstrap.Modal(document.getElementById('modalRecibirCamion'));
     modalEntregarMRW = new bootstrap.Modal(document.getElementById('modalEntregarMRW'));
     modalCrearMaster = new bootstrap.Modal(document.getElementById('modalCrearMaster'));
@@ -1978,40 +1977,80 @@ async function cargarPanelOperaciones() {
 }
 
 function abrirModalOperaciones() {
-  document.getElementById('opGuia').value = ''; document.getElementById('opOrigen').value = 'España'; document.getElementById('opPrecinto').value = '';
-  document.getElementById('opFechaLlegada').value = new Date().toISOString().slice(0, 16); document.getElementById('opFechaSalida').value = new Date().toISOString().slice(0, 16);
-  document.getElementById('opValijas').value = ''; document.getElementById('opPiezas').value = ''; document.getElementById('opKg').value = '';
-  document.getElementById('opEstado').value = 'Conforme'; document.getElementById('opNovedad').value = ''; document.getElementById('opFoto').value = '';
+  document.getElementById('opGuia').value = ''; 
+  document.getElementById('opOrigen').value = 'España'; 
+  document.getElementById('opPrecinto').value = '';
+  document.getElementById('opFechaLlegada').value = new Date().toISOString().slice(0, 16); 
+  document.getElementById('opFechaSalida').value = new Date().toISOString().slice(0, 16);
+  document.getElementById('opValijas').value = ''; 
+  document.getElementById('opPiezas').value = ''; 
+  document.getElementById('opKg').value = '';
+  document.getElementById('opEstado').value = 'Conforme'; 
+  document.getElementById('opNovedad').value = ''; 
+  document.getElementById('opFoto').value = '';
   modalOperaciones.show();
 }
 
 async function guardarVueloOperaciones() {
-  const payload = { accion: 'registrarVueloOperaciones', idVuelo: 'VUELO-' + Math.floor(Math.random() * 10000), guiaAerea: document.getElementById('opGuia').value, paisOrigen: document.getElementById('opOrigen').value, fechaLlegadaAero: document.getElementById('opFechaLlegada').value, precinto: document.getElementById('opPrecinto').value, fechaSalidaCPC: document.getElementById('opFechaSalida').value, valijas: document.getElementById('opValijas').value, piezas: document.getElementById('opPiezas').value, kg: document.getElementById('opKg').value, estado: document.getElementById('opEstado').value, novedad: document.getElementById('opNovedad').value, foto: "https://drive.google.com/foto_simulada", gps: "10.123, -66.456" };
+  const payload = { 
+    accion: 'registrarVueloOperaciones', 
+    idVuelo: 'VUELO-' + Math.floor(Math.random() * 10000), 
+    guiaAerea: document.getElementById('opGuia').value, 
+    paisOrigen: document.getElementById('opOrigen').value, 
+    fechaLlegadaAero: document.getElementById('opFechaLlegada').value, 
+    precinto: document.getElementById('opPrecinto').value, 
+    fechaSalidaCPC: document.getElementById('opFechaSalida').value, 
+    valijas: document.getElementById('opValijas').value, 
+    piezas: document.getElementById('opPiezas').value, 
+    kg: document.getElementById('opKg').value, 
+    estado: document.getElementById('opEstado').value, 
+    novedad: document.getElementById('opNovedad').value, 
+    foto: "https://drive.google.com/foto_simulada", 
+    gps: "10.123, -66.456" 
+  };
   if (!payload.guiaAerea || !payload.valijas) return Swal.fire('Atención', 'Complete los campos obligatorios.', 'warning');
   Swal.fire({ title: 'Guardando...', didOpen: () => Swal.showLoading() });
   const r = await postAPI(payload);
-  if (r.exito) { modalOperaciones.hide(); Swal.fire('Vuelo Registrado', 'La carga ha sido registrada.', 'success'); cargarPanelOperaciones(); } else Swal.fire('Error', r.mensaje, 'error');
+  if (r.exito) { 
+    modalOperaciones.hide(); 
+    Swal.fire('Vuelo Registrado', 'La carga ha sido registrada.', 'success'); 
+    cargarPanelOperaciones(); 
+  } else { 
+    Swal.fire('Error', r.mensaje, 'error'); 
+  }
 }
 
 function abrirModalDespachoCamion() {
-  if(!modalDespachoCamion) modalDespachoCamion = new bootstrap.Modal(document.getElementById('modalDespachoCamion'));
+  if (!modalDespachoCamion) modalDespachoCamion = new bootstrap.Modal(document.getElementById('modalDespachoCamion'));
   document.getElementById('camFechaSalida').value = new Date().toISOString().slice(0, 16);
-  document.getElementById('camValijas').value = ''; document.getElementById('camPiezas').value = '';
-  document.getElementById('camEntregaNombre').value = ''; document.getElementById('camEntregaCedula').value = '';
-  document.getElementById('camRecibeNombre').value = ''; document.getElementById('camRecibeCedula').value = '';
-  document.getElementById('camFoto').value = ''; document.getElementById('camPrecinto').value = '';
+  document.getElementById('camValijas').value = ''; 
+  document.getElementById('camPiezas').value = '';
+  document.getElementById('camEntregaNombre').value = ''; 
+  document.getElementById('camEntregaCedula').value = '';
+  document.getElementById('camRecibeNombre').value = ''; 
+  document.getElementById('camRecibeCedula').value = '';
+  document.getElementById('camFoto').value = ''; 
+  document.getElementById('camPrecinto').value = '';
   
   const selectGuia = document.getElementById('camGuiaOrigen');
   selectGuia.innerHTML = '<option value="">-- Seleccione Vuelo --</option>';
-  postAPI({accion: 'obtenerDatosOperaciones'}).then(r => { if(r.exito) { r.datos.forEach(v => selectGuia.innerHTML += `<option value="${v.guia}">${v.guia} (${v.fechaLlegada ? v.fechaLlegada.split('T')[0] : 's/f'})</option>`); } });
+  postAPI({ accion: 'obtenerDatosOperaciones' }).then(r => { 
+    if (r.exito) { r.datos.forEach(v => selectGuia.innerHTML += `<option value="${v.guia}">${v.guia} (${v.fechaLlegada ? v.fechaLlegada.split('T')[0] : 's/f'})</option>`); } 
+  });
   
   const selectVehiculo = document.getElementById('camVehiculo');
   selectVehiculo.innerHTML = '<option value="">-- Cargando... --</option>';
-  postAPI({ accion: 'obtenerFlotaVehiculos' }).then(r => { selectVehiculo.innerHTML = '<option value="">-- Seleccione Vehículo --</option>'; if(r.exito && r.datos) { r.datos.forEach(v => selectVehiculo.innerHTML += `<option value="${v.placa}">${v.placa} - ${v.tipo}</option>`); } });
+  postAPI({ accion: 'obtenerFlotaVehiculos' }).then(r => { 
+    selectVehiculo.innerHTML = '<option value="">-- Seleccione Vehículo --</option>'; 
+    if (r.exito && r.datos) { r.datos.forEach(v => selectVehiculo.innerHTML += `<option value="${v.placa}">${v.placa} - ${v.tipo}</option>`); } 
+  });
   
   const selectConductor = document.getElementById('camConductor');
   selectConductor.innerHTML = '<option value="">-- Cargando... --</option>';
-  postAPI({ accion: 'obtenerFlotaConductores' }).then(r => { selectConductor.innerHTML = '<option value="">-- Seleccione Conductor --</option>'; if(r.exito && r.datos) { r.datos.forEach(c => selectConductor.innerHTML += `<option value="${c.cedula}|${c.nombre}">${c.nombre} (${c.cedula})</option>`); } });
+  postAPI({ accion: 'obtenerFlotaConductores' }).then(r => { 
+    selectConductor.innerHTML = '<option value="">-- Seleccione Conductor --</option>'; 
+    if (r.exito && r.datos) { r.datos.forEach(c => selectConductor.innerHTML += `<option value="${c.cedula}|${c.nombre}">${c.nombre} (${c.cedula})</option>`); } 
+  });
   
   modalDespachoCamion.show();
 }
@@ -2021,11 +2060,34 @@ async function guardarDespachoCamion() {
   const partesConductor = conductorSelect.split('|');
   const cedulaConductor = partesConductor[0];
   const nombreConductor = partesConductor[1] || '';
-  const payload = { accion: 'registrarDespachoCamion', guiaAerea: document.getElementById('camGuiaOrigen').value, valijas: document.getElementById('camValijas').value, piezas: document.getElementById('camPiezas').value, vehiculo: document.getElementById('camVehiculo').value, conductor: nombreConductor, cedulaConductor: cedulaConductor, precinto: document.getElementById('camPrecinto').value, entregaNombre: document.getElementById('camEntregaNombre').value, entregaCedula: document.getElementById('camEntregaCedula').value, recibeNombre: document.getElementById('camRecibeNombre').value, recibeCedula: document.getElementById('camRecibeCedula').value, fechaSalidaCPC: document.getElementById('camFechaSalida').value, foto: "https://drive.google.com/foto_simulada" };
-  if (!payload.guiaAerea || !payload.vehiculo || !payload.precinto || !payload.entregaNombre || !payload.recibeNombre || !document.getElementById('camFoto').files[0]) return Swal.fire('Atención', 'Complete todos los campos obligatorios y adjunte la foto.', 'warning');
+  const payload = { 
+    accion: 'registrarDespachoCamion', 
+    guiaAerea: document.getElementById('camGuiaOrigen').value, 
+    valijas: document.getElementById('camValijas').value, 
+    piezas: document.getElementById('camPiezas').value, 
+    vehiculo: document.getElementById('camVehiculo').value, 
+    conductor: nombreConductor, 
+    cedulaConductor: cedulaConductor, 
+    precinto: document.getElementById('camPrecinto').value, 
+    entregaNombre: document.getElementById('camEntregaNombre').value, 
+    entregaCedula: document.getElementById('camEntregaCedula').value, 
+    recibeNombre: document.getElementById('camRecibeNombre').value, 
+    recibeCedula: document.getElementById('camRecibeCedula').value, 
+    fechaSalidaCPC: document.getElementById('camFechaSalida').value, 
+    foto: "https://drive.google.com/foto_simulada" 
+  };
+  if (!payload.guiaAerea || !payload.vehiculo || !payload.precinto || !payload.entregaNombre || !payload.recibeNombre || !document.getElementById('camFoto').files[0]) {
+    return Swal.fire('Atención', 'Complete todos los campos obligatorios y adjunte la foto.', 'warning');
+  }
   Swal.fire({ title: 'Registrando cadena de custodia...', didOpen: () => Swal.showLoading() });
   const r = await postAPI(payload);
-  if (r.exito) { modalDespachoCamion.hide(); Swal.fire('Despacho Creado', 'El camión ha sido registrado con su carga y cadena de custodia.', 'success'); cargarTablaDespachos(); } else Swal.fire('Error', r.mensaje, 'error');
+  if (r.exito) { 
+    modalDespachoCamion.hide(); 
+    Swal.fire('Despacho Creado', 'El camión ha sido registrado con su carga y cadena de custodia.', 'success'); 
+    cargarTablaDespachos(); 
+  } else { 
+    Swal.fire('Error', r.mensaje, 'error'); 
+  }
 }
 
 async function cargarTablaDespachos() {
@@ -2035,11 +2097,13 @@ async function cargarTablaDespachos() {
     const r = await postAPI({ accion: 'obtenerDespachosCamiones' });
     if (!r.exito) throw new Error(r.mensaje);
     tbody.innerHTML = '';
-    if(r.datos.length === 0) return tbody.innerHTML = '<tr><td colspan="6" class="text-center py-3">Sin despachos registrados.</td></tr>';
+    if (r.datos.length === 0) return tbody.innerHTML = '<tr><td colspan="6" class="text-center py-3">Sin despachos registrados.</td></tr>';
     r.datos.forEach(d => {
       tbody.innerHTML += `<tr><td><b>${d.vehiculo}</b><br><small>${d.conductor}</small></td><td>${d.precinto}</td><td>Guía: ${d.guiaAerea}<br><small>${d.valijas} Val | ${d.piezas} Pzs</small></td><td><small class="d-block"><b>Entregó:</b> ${d.entregaNombre}</small><small class="d-block"><b>Recibió:</b> ${d.recibeNombre}</small></td><td>${d.fechaSalida}</td><td><i class="bi bi-image text-success"></i></td></tr>`;
     });
-  } catch(e) { tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">${e.message}</td></tr>`; }
+  } catch(e) { 
+    tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">${e.message}</td></tr>`; 
+  }
 }
 
 // ==========================================
@@ -2144,7 +2208,6 @@ async function cargarCustodia() {
   } catch (e) { tbody.innerHTML = `<tr><td colspan="7" class="text-center text-danger">${e.message}</td></tr>`; }
 }
 
-// CORRECCIÓN DEFINITIVA DE LA FUNCIÓN PROBLEMÁTICA
 function abrirModalEntrega(codigo, piezas) {
   document.getElementById('entCodigo').textContent = codigo;
   let detalle = piezas;
@@ -2153,7 +2216,6 @@ function abrirModalEntrega(codigo, piezas) {
     if(f.innerText.includes(codigo)) { 
       const celdas = f.querySelectorAll('td'); 
       if(celdas[2] && celdas[2].innerText.includes('Cert')) { 
-        // Aquí estaba el error: usamos \n para representar el salto de línea
         detalle = celdas[2].innerText.replace(/\n/g, ' - '); 
       } 
     } 
@@ -2293,7 +2355,7 @@ function renderTablaOPTs(filtro, fmt, fmtFecha) {
 }
 
 function filtrarOPTs(tipo) { const fmt = (num, dec=0) => Number(num || 0).toLocaleString('es-VE', { minimumFractionDigits: dec, maximumFractionDigits: dec }); const fmtFecha = (f) => { if (!f) return '—'; const d = new Date(f); return d.toLocaleDateString('es-VE') + ' ' + d.toLocaleTimeString('es-VE', {hour: '2-digit', minute:'2-digit'}); }; renderTablaOPTs(tipo, fmt, fmtFecha); }
-
+          
 function actualizarGrafico(regiones, fmt) {
   const ctx = document.getElementById('graficoRegiones').getContext('2d');
   const data = regiones.map(r => r.efectividad);
