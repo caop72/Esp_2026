@@ -2014,10 +2014,15 @@ async function generarInformeMariela() {
   Swal.fire({ title: 'Generando Informe...', didOpen: () => Swal.showLoading() });
 
   try {
+    // Pedimos los datos de la analítica y de los reportes operativos
     const r = await postAPI({ accion: 'obtenerAnaliticaAvanzada', fechaInicio: desde, fechaFin: hasta });
-    
     if (!r.exito) throw new Error(r.mensaje);
 
+    // Pedimos el desglose operativo para el informe
+    const rData = await postAPI({ accion: 'obtenerDatosInformeCPC', fechaInicio: desde, fechaFin: hasta });
+    if (!rData.exito) throw new Error(rData.mensaje);
+
+    // Construimos el HTML del PDF
     let contenidoHTML = `
       <html>
       <head>
@@ -2026,11 +2031,12 @@ async function generarInformeMariela() {
           body { font-family: Arial, sans-serif; padding: 20px; color: #333; }
           h1 { color: #003366; text-align: center; }
           h3 { color: #003366; border-bottom: 2px solid #003366; padding-bottom: 5px; margin-top: 30px; }
-          table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+          table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 12px; }
           th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
           th { background-color: #003366; color: white; }
-          .kpi-box { display: inline-block; border: 1px solid #ccc; padding: 15px; margin: 5px; width: 30%; text-align: center; border-radius: 8px; }
+          .kpi-box { display: inline-block; border: 1px solid #ccc; padding: 10px; margin: 5px; width: 30%; text-align: center; border-radius: 8px; }
           .footer { text-align: center; margin-top: 40px; font-size: 12px; color: #666; }
+          .text-left { text-align: left; }
         </style>
       </head>
       <body>
@@ -2039,12 +2045,66 @@ async function generarInformeMariela() {
         
         <h3>Principales Indicadores de Operatividad</h3>
         <div style="text-align: center;">
-          <div class="kpi-box"><b>T. Prom. Recepción</b><br><span style="font-size: 24px;">${r.kpis.tiempoPromedioRecepcion} hrs</span></div>
-          <div class="kpi-box"><b>Eficiencia Despacho</b><br><span style="font-size: 24px;">${r.kpis.eficienciaDespacho}%</span></div>
-          <div class="kpi-box"><b>Combinaciones Críticas</b><br><span style="font-size: 24px;">${r.kpis.combinacionesCriticas}</span></div>
+          <div class="kpi-box"><b>T. Prom. Recepción</b><br><span style="font-size: 20px;">${r.kpis.tiempoPromedioRecepcion} hrs</span></div>
+          <div class="kpi-box"><b>Eficiencia Despacho</b><br><span style="font-size: 20px;">${r.kpis.eficienciaDespacho}%</span></div>
+          <div class="kpi-box"><b>Combinaciones Críticas</b><br><span style="font-size: 20px;">${r.kpis.combinacionesCriticas}</span></div>
         </div>
 
-        <h3>Motivos de Incidencias</h3>
+        <h3>Reporte: Cargas Recibidas</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Entregadas por:</th><th>Cant.</th><th>Valijas</th><th>Certificadas</th><th>Ordinarias</th><th>Mixtas</th><th>Fecha/Hora</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rData.recibidas.map(item => `
+              <tr>
+                <td class="text-left">${item.origen}</td>
+                <td>${item.cantidad}</td>
+                <td>${item.valijas}</td>
+                <td>${item.certificadas}</td>
+                <td>${item.ordinarias}</td>
+                <td>${item.mixtas}</td>
+                <td>${item.fecha}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+
+        <h3>Reporte: Cargas Despachadas</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Entrega a:</th><th>Master</th><th>Paquetes</th><th>Piezas</th><th>Certificadas</th><th>Ordinarias</th><th>Fecha/Hora</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rData.despachadas.map(item => `
+              <tr>
+                <td class="text-left">${item.destino}</td>
+                <td>${item.master}</td>
+                <td>${item.paquetes}</td>
+                <td>${item.piezas}</td>
+                <td>${item.certificadas}</td>
+                <td>${item.ordinarias}</td>
+                <td>${item.fecha}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+
+        <h3>Controles de Tiempos y Porcentajes de Operatividad</h3>
+        <table>
+          <tr><th>Indicador</th><th>Valor</th><th>Meta / SLA</th></tr>
+          <tr><td class="text-left">% Valijas Recibidas y Redistribuidas</td><td>${rData.controles.pctValijasRedistribuidas}%</td><td>100%</td></tr>
+          <tr><td class="text-left">% Paquetes Enviados a Estados</td><td>${rData.controles.pctPaquetesEnviados}%</td><td>100%</td></tr>
+          <tr><td class="text-left">% Piezas Devueltas para Reencaminar</td><td>${rData.controles.pctPiezasDevueltas}%</td><td>&lt; 5%</td></tr>
+          <tr><td class="text-left">Tiempo Promedio de Procesamiento</td><td>${rData.controles.tiempoPromedio} hrs</td><td>Máx. 24 hrs</td></tr>
+          <tr><td class="text-left">Cumplimiento del SLA (24h)</td><td>${rData.controles.cumplimientoSLA}%</td><td>100%</td></tr>
+        </table>
+
+        <h3>Motivos de Incidencias (Control de Transporte)</h3>
         <table>
           <tr><th>Motivo de Falla</th><th>Cantidad</th></tr>
           ${(r.motivosFalla || []).map(m => `<tr><td>${m.motivo}</td><td>${m.cantidad}</td></tr>`).join('')}
@@ -2062,7 +2122,7 @@ async function generarInformeMariela() {
           ${(r.combinacionesPeligrosas || []).map(c => `<tr><td>${c.conductor} (${c.cedula})</td><td>${c.vehiculo}</td><td>${c.viajes}</td><td>${c.incidencias}</td><td>${c.tasaFalla}%</td></tr>`).join('')}
         </table>
 
-        <div class="footer">IPOSTEL - Observatorio Estadístico Postal - Elecciones España 2026</div>
+        <div class="footer">IPOSTEL - Observatorio Estratégico Postal - Elecciones España 2026</div>
         <script>window.onload = function() { window.print(); }<\/script>
       </body>
       </html>
