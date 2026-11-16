@@ -42,7 +42,7 @@
 
 <div id="pantallaBienvenida">
   <div class="logo-bienvenida">🗳️</div> 
-  <h1>OBSERVATORIO ESTRATÉGICO POSTAL <span>ELECCIONES DE ESPAÑA 2026</span></h1>
+  <h1>OBSERVATORIO Estadístico POSTAL <span>ELECCIONES DE ESPAÑA 2026</span></h1>
   <button class="btn btn-bienvenida" onclick="entrarAlSistema()">Ingresar al Sistema</button>
 </div>
 
@@ -318,34 +318,34 @@
       <h4 class="text-primary mb-3 fw-bold"><i class="bi bi-signpost-split"></i> Encaminamiento (CPC)</h4>
       <div class="alert alert-info py-2 small"><i class="bi bi-info-circle"></i> Recepción de carga, clasificación y entrega a MRW.</div>
       
-      <!-- NUEVOS KPIs DE MARIELA -->
+           <!-- PRINCIPALES INDICADORES DE MARIELA (ENFOQUE POSTAL) -->
       <div class="row g-2 mb-3">
           <div class="col-6 col-md-3">
               <div class="stat-mini bg-primary bg-opacity-10">
-                  <small class="text-primary fw-bold">Recibidos IPOSTEL</small>
-                  <h4 class="text-primary mb-0" id="kpiRecibidosIPOSTEL">0</h4>
-                  <small class="text-muted">Camiones</small>
+                  <small class="text-primary fw-bold">Piezas Recibidas</small>
+                  <h4 class="text-primary mb-0" id="indRecibidosIPOSTEL">0</h4>
+                  <small class="text-muted">Cert: <span id="indCertRecibidos">0</span> | Ord: <span id="indOrdRecibidos">0</span></small>
               </div>
           </div>
           <div class="col-6 col-md-3">
               <div class="stat-mini bg-success bg-opacity-10">
-                  <small class="text-success fw-bold">Despachados a Estados</small>
-                  <h4 class="text-success mb-0" id="kpiDespachadosMRW">0</h4>
-                  <small class="text-muted">Másters</small>
+                  <small class="text-success fw-bold">Piezas Despachadas</small>
+                  <h4 class="text-success mb-0" id="indDespachadosMRW">0</h4>
+                  <small class="text-muted">Cert: <span id="indCertDespachados">0</span> | Ord: <span id="indOrdDespachados">0</span></small>
               </div>
           </div>
           <div class="col-6 col-md-3">
               <div class="stat-mini bg-info bg-opacity-10">
-                  <small class="text-info fw-bold">Operatividad (CPC)</small>
-                  <h4 class="text-info mb-0" id="kpiOperatividad">0%</h4>
-                  <small class="text-muted">Eficiencia</small>
+                  <small class="text-info fw-bold">Tiempo Promedio CPC</small>
+                  <h4 class="text-info mb-0" id="indTiempoPromCPC">0h</h4>
+                  <small class="text-muted">Desde recepción a despacho</small>
               </div>
           </div>
           <div class="col-6 col-md-3">
               <div class="stat-mini bg-danger bg-opacity-10">
-                  <small class="text-danger fw-bold">Incidencias</small>
-                  <h4 class="text-danger mb-0" id="kpiIncidencias">0</h4>
-                  <small class="text-muted">Fallas / Accidentes</small>
+                  <small class="text-danger fw-bold">Piezas en Riesgo (>24h)</small>
+                  <h4 class="text-danger mb-0" id="indPiezasRiesgo">0</h4>
+                  <small class="text-muted">Retenidas o sin despachar</small>
               </div>
           </div>
       </div>
@@ -460,7 +460,7 @@
 
     <!-- PANEL OBSERVATORIO -->
     <div id="appObservatorio" class="oculto">
-      <h5 class="text-primary mb-3">Observatorio Estratégico (KPIs)</h5>
+      <h5 class="text-primary mb-3">Observatorio Estadístico (Indicadores)</h5>
       <div id="dashboardObservatorio">Cargando datos...</div>
     </div>
   </div>
@@ -1304,14 +1304,19 @@ function abrirModalDespachoCamion() {
 }
 
 async function guardarDespachoCamion() {
+  const conductorSelect = document.getElementById('camConductor').value;
+  const partesConductor = conductorSelect.split('|');
+  const cedulaConductor = partesConductor[0];
+  const nombreConductor = partesConductor[1] || '';
+
   const payload = {
     accion: 'registrarDespachoCamion',
     guiaAerea: document.getElementById('camGuiaOrigen').value,
     valijas: document.getElementById('camValijas').value,
     piezas: document.getElementById('camPiezas').value,
     vehiculo: document.getElementById('camVehiculo').value,
-    conductor: document.getElementById('camConductor').value,
-    cedulaConductor: document.getElementById('camCedulaConductor').value,
+    conductor: nombreConductor,
+    cedulaConductor: cedulaConductor,
     precinto: document.getElementById('camPrecinto').value,
     entregaNombre: document.getElementById('camEntregaNombre').value,
     entregaCedula: document.getElementById('camEntregaCedula').value,
@@ -1678,7 +1683,7 @@ function generarInformeCNC() {
         <tr><th>Oficina (OPT)</th><th>T. Prom (hrs)</th><th>Custodia</th><th>Riesgo</th><th>Incid.</th><th>% Efectividad</th></tr>
         ${document.getElementById('tablaCNC_OPTs').innerHTML}
       </table>
-      <div class="footer">IPOSTEL - Observatorio Estratégico Postal - Elecciones España 2026</div>
+      <div class="footer">IPOSTEL - Observatorio Estadístico Postal - Elecciones España 2026</div>
       <script>window.onload = function() { window.print(); }<\/script>
     </body>
     </html>
@@ -1690,10 +1695,32 @@ function generarInformeCNC() {
 }
 
 // ==========================================
-// LÓGICA ENCAMINAMIENTO (MARIELA)
+// LÓGICA ENCAMINAMIENTO (MARIELA) - NUEVOS INDICADORES Y AUDITORÍA
 // ==========================================
 
-// 1. RECIBIR DE IPOSTEL (AEROPUERTO)
+let modalTrazabilidad, modalHistorialMRW, modalIncidencia, modalAnalitica;
+let chartMotivos, chartSistemas, chartConductores, chartVehiculos;
+
+// 1. Actualizar Indicadores de Mariela
+async function cargarIndicadoresEncaminamiento() {
+    try {
+        const r = await postAPI({ accion: 'obtenerIndicadoresEncaminamiento' });
+        if (r.exito) {
+            document.getElementById('indRecibidosIPOSTEL').textContent = r.indicadores.totalPiezasRecibidas;
+            document.getElementById('indCertRecibidos').textContent = r.indicadores.certRecibidas;
+            document.getElementById('indOrdRecibidos').textContent = r.indicadores.ordRecibidas;
+            
+            document.getElementById('indDespachadosMRW').textContent = r.indicadores.totalPiezasDespachadas;
+            document.getElementById('indCertDespachados').textContent = r.indicadores.certDespachadas;
+            document.getElementById('indOrdDespachados').textContent = r.indicadores.ordDespachadas;
+            
+            document.getElementById('indTiempoPromCPC').textContent = r.indicadores.tiempoPromedio + 'h';
+            document.getElementById('indPiezasRiesgo').textContent = r.indicadores.piezasEnRiesgo;
+        }
+    } catch (e) { console.error("Error cargando Indicadores", e); }
+}
+
+// 2. Cargar Camiones de IPOSTEL (Actualiza Indicadores)
 async function cargarCamionesPorRecibir() {
   const tbody = document.getElementById('tablaCamionesPorRecibir');
   if(!tbody) return; 
@@ -1703,6 +1730,8 @@ async function cargarCamionesPorRecibir() {
     const r = await postAPI({ accion: 'obtenerDespachosCamiones' }); 
     if (!r.exito) throw new Error(r.mensaje);
     
+    cargarIndicadoresEncaminamiento(); // <--- ACTUALIZA LOS INDICADORES
+
     tbody.innerHTML = '';
     if(r.datos.length === 0) return tbody.innerHTML = '<tr><td colspan="5" class="text-center py-3">No hay camiones de IPOSTEL en tránsito.</td></tr>';
     
@@ -1720,34 +1749,150 @@ async function cargarCamionesPorRecibir() {
   }
 }
 
-function abrirModalRecibirCamion(id, vehiculo, conductor, precinto, guia, valijas, piezas) {
-  document.getElementById('recCamVehiculoTxt').textContent = vehiculo;
-  document.getElementById('recCamConductorTxt').textContent = conductor;
-  document.getElementById('recCamPrecintoTxt').textContent = precinto;
-  document.getElementById('recCamGuiaTxt').textContent = guia;
-  document.getElementById('recCamValijasTxt').textContent = valijas;
-  document.getElementById('recCamPiezasTxt').textContent = piezas;
-  
-  // Poner la hora actual por defecto
-  const ahora = new Date();
-  ahora.setMinutes(ahora.getMinutes() - ahora.getTimezoneOffset());
-  document.getElementById('recCamHoraLlegadaInp').value = ahora.toISOString().slice(0, 16);
-  
-  document.getElementById('recCamIntactoInp').value = 'SI';
-  document.getElementById('recCamObsInp').value = '';
-  document.getElementById('recCamFotoInp').value = '';
-  
-  if(!modalRecibirCamion) modalRecibirCamion = new bootstrap.Modal(document.getElementById('modalRecibirCamion'));
-  modalRecibirCamion.show();
+// 3. Abrir Modal Trazabilidad
+async function abrirModalTrazabilidad() {
+    if (!modalTrazabilidad) modalTrazabilidad = new bootstrap.Modal(document.getElementById('modalTrazabilidad'));
+    const tbody = document.getElementById('tablaTrazabilidad');
+    tbody.innerHTML = '<tr><td colspan="5" class="text-center py-3 text-muted">Analizando datos...</td></tr>';
+    modalTrazabilidad.show();
+
+    try {
+        const r = await postAPI({ accion: 'obtenerTrazabilidadVehiculos' });
+        if (!r.exito) throw new Error(r.mensaje);
+
+        tbody.innerHTML = '';
+        if (r.datos.length === 0) return tbody.innerHTML = '<tr><td colspan="5" class="text-center">No hay datos registrados.</td></tr>';
+
+        r.datos.forEach(d => {
+            let colorBadge = d.tasaFalla > 10 ? 'bg-danger' : (d.tasaFalla > 0 ? 'bg-warning text-dark' : 'bg-success');
+            tbody.innerHTML += `<tr>
+                <td><b>${d.placa}</b></td>
+                <td>${d.conductor} (${d.cedula})</td>
+                <td class="text-center">${d.viajes}</td>
+                <td class="text-center fw-bold text-danger">${d.incidencias}</td>
+                <td class="text-center"><span class="badge ${colorBadge}">${d.tasaFalla}%</span></td>
+            </tr>`;
+        });
+    } catch (e) {
+        tbody.innerHTML = `<tr><td colspan="5" class="text-center text-danger">${e.message}</td></tr>`;
+    }
 }
 
-let modalAnalitica;
-let chartMotivos, chartSistemas, chartConductores, chartVehiculos;
+// 4. Cargar Historial de MRW (Pestaña 2)
+async function cargarHistorialDespachosMRW() {
+    if (!modalHistorialMRW) modalHistorialMRW = new bootstrap.Modal(document.getElementById('modalHistorialMRW'));
+    const tbody = document.getElementById('tablaHistorialMRW');
+    tbody.innerHTML = '<tr><td colspan="6" class="text-center py-3">Cargando...</td></tr>';
+    modalHistorialMRW.show();
 
+    try {
+        const r = await postAPI({ accion: 'obtenerHistorialDespachosMRW' });
+        if (!r.exito) throw new Error(r.mensaje);
+
+        tbody.innerHTML = '';
+        if (r.datos.length === 0) return tbody.innerHTML = '<tr><td colspan="6" class="text-center">No hay registros.</td></tr>';
+
+        r.datos.forEach(d => {
+            tbody.innerHTML += `<tr>
+                <td>${d.fecha}</td>
+                <td><b>${d.guia}</b></td>
+                <td>${d.estado}</td>
+                <td>${d.chofer}</td>
+                <td>${d.placa}</td>
+                <td>${d.piezas}</td>
+            </tr>`;
+        });
+    } catch (e) {
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">${e.message}</td></tr>`;
+    }
+}
+
+// 5. Reportar Incidencia
+function abrirModalIncidencias() {
+    if (!modalIncidencia) modalIncidencia = new bootstrap.Modal(document.getElementById('modalIncidencia'));
+    
+    document.getElementById('incOrigen').value = 'Mecánica';
+    document.getElementById('incSistema').value = 'N/A';
+    document.getElementById('incTipo').value = 'Falla en Ruta';
+    document.getElementById('incDesc').value = '';
+    
+    const selectPlaca = document.getElementById('incPlaca');
+    selectPlaca.innerHTML = '<option value="">-- Cargando... --</option>';
+    
+    postAPI({ accion: 'obtenerFlotaVehiculos' }).then(r => {
+        selectPlaca.innerHTML = '<option value="">-- Seleccione Vehículo --</option>';
+        if(r.exito && r.datos) {
+            r.datos.forEach(v => selectPlaca.innerHTML += `<option value="${v.placa}">${v.placa}</option>`);
+        }
+    }).catch(e => {
+        selectPlaca.innerHTML = '<option value="">-- Error al cargar --</option>';
+    });
+    
+    modalIncidencia.show();
+}
+
+async function guardarIncidencia() {
+    const placa = document.getElementById('incPlaca').value;
+    const origen = document.getElementById('incOrigen').value;
+    const sistema = document.getElementById('incSistema').value;
+    const tipo = document.getElementById('incTipo').value;
+    const desc = document.getElementById('incDesc').value;
+    
+    if (!placa || !desc) return Swal.fire('Atención', 'Complete la placa y la descripción.', 'warning');
+
+    Swal.fire({ title: 'Registrando...', didOpen: () => Swal.showLoading() });
+    
+    const r = await postAPI({ 
+        accion: 'registrarIncidenciaTransporte', 
+        placa: placa, 
+        origen: origen, 
+        sistema: sistema,
+        tipo: tipo, 
+        descripcion: desc 
+    });
+    
+    if (r.exito) {
+        modalIncidencia.hide();
+        Swal.fire('Registrado', 'La incidencia ha sido guardada.', 'success');
+        cargarIndicadoresEncaminamiento(); 
+    } else {
+        Swal.fire('Error', r.mensaje, 'error');
+    }
+}
+
+// 6. Cargar Valijas MRW (Pestaña 2)
+async function cargarValijasMRW() {
+  const tbody = document.getElementById('tablaValijasMRW');
+  if(!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="4" class="text-center py-3 text-muted">Cargando másters...</td></tr>';
+  
+  setTimeout(() => {
+    tbody.innerHTML = `
+      <tr>
+        <td>MST-001</td>
+        <td>15 Val / 45 Pzs</td>
+        <td>2026-11-15 10:00</td>
+        <td><button class="btn btn-sm btn-primary" onclick="abrirModalEntregarMRW('MST-001', 45)">Entregar a MRW</button></td>
+      </tr>
+    `;
+  }, 1000);
+}
+
+// 7. Recibir Camiones de MRW (Pestaña 3)
+async function cargarCamionesMRWPorRecibir() {
+  const tbody = document.getElementById('tablaCamionesMRWPorRecibir');
+  if(!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="5" class="text-center py-3 text-muted">Cargando camiones de MRW...</td></tr>';
+  
+  setTimeout(() => {
+    tbody.innerHTML = '<tr><td colspan="5" class="text-center py-3 text-muted">No hay camiones de MRW en tránsito.</td></tr>';
+  }, 1000);
+}
+
+// 8. Abrir Modal Analítica Avanzada
 function abrirModalAnalitica() {
     if (!modalAnalitica) modalAnalitica = new bootstrap.Modal(document.getElementById('modalAnalitica'));
     
-    // Poner fechas por defecto (hoy y hace 15 días)
     const hoy = new Date().toISOString().split('T')[0];
     const hace15 = new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
     document.getElementById('anaFechaInicio').value = hace15;
@@ -1764,28 +1909,18 @@ async function cargarAnalitica() {
     document.getElementById('tablaCombinacionesPeligrosas').innerHTML = '<tr><td colspan="5" class="text-center py-3">Analizando datos...</td></tr>';
 
     try {
-        // Enviamos los parámetros exactos que el backend espera
         const r = await postAPI({ accion: 'obtenerAnaliticaAvanzada', fechaInicio: desde, fechaFin: hasta });
-        
-        // Si el backend falla o no devuelve la estructura correcta, lanzamos error controlado
-        if (!r || !r.exito) {
-            throw new Error(r && r.mensaje ? r.mensaje : 'No se pudo obtener la analítica.');
-        }
+        if (!r.exito) throw new Error(r.mensaje);
 
-        // Actualizar KPIs de forma segura
-        if (r.kpis) {
-            document.getElementById('kpiTiempoRecepcion').textContent = (r.kpis.tiempoPromedioRecepcion || 0) + ' hrs';
-            document.getElementById('kpiEficienciaDespacho').textContent = (r.kpis.eficienciaDespacho || 0) + '%';
-            document.getElementById('kpiCombinacionesCriticas').textContent = r.kpis.combinacionesCriticas || 0;
-        }
+        document.getElementById('kpiTiempoRecepcion').textContent = (r.kpis.tiempoPromedioRecepcion || 0) + ' hrs';
+        document.getElementById('kpiEficienciaDespacho').textContent = (r.kpis.eficienciaDespacho || 0) + '%';
+        document.getElementById('kpiCombinacionesCriticas').textContent = r.kpis.combinacionesCriticas || 0;
 
-        // Renderizar gráficos (pasando arrays vacíos si no vienen datos)
         renderChartMotivos(r.motivosFalla || []);
         renderChartSistemas(r.sistemasFalla || []);
         renderChartConductores(r.topConductores || []);
         renderChartVehiculos(r.topVehiculos || []);
 
-        // Tabla de Combinaciones
         const tbody = document.getElementById('tablaCombinacionesPeligrosas');
         tbody.innerHTML = '';
         if (!r.combinacionesPeligrosas || r.combinacionesPeligrosas.length === 0) {
@@ -1804,7 +1939,6 @@ async function cargarAnalitica() {
         }
 
     } catch (e) {
-        // Si algo falla, mostramos el error en la tabla en lugar de un popup
         document.getElementById('tablaCombinacionesPeligrosas').innerHTML = `<tr><td colspan="5" class="text-center text-danger">Error: ${e.message}</td></tr>`;
         Swal.fire('Error', 'No se pudieron cargar las analíticas: ' + e.message, 'error');
     }
@@ -1854,367 +1988,9 @@ function renderChartVehiculos(datos) {
         data: { labels: datos.map(d => d.placa), datasets: [{ label: 'Fallas', data: datos.map(d => d.incidencias), backgroundColor: '#ffc107', borderRadius: 5 }] }
         , options: { indexAxis: 'y', maintainAspectRatio: false, plugins: { legend: { display: false } } }
     });
-}  
-async function confirmarRecepcionCamion() {
-  const vehiculo = document.getElementById('recCamVehiculoTxt').textContent;
-  const guia = document.getElementById('recCamGuiaTxt').textContent;
-  const valijas = document.getElementById('recCamValijasTxt').textContent;
-  const piezas = document.getElementById('recCamPiezasTxt').textContent;
-  const precinto = document.getElementById('recCamPrecintoTxt').textContent;
-  
-  const horaLlegada = document.getElementById('recCamHoraLlegadaInp').value;
-  const intacto = document.getElementById('recCamIntactoInp').value;
-  const obs = document.getElementById('recCamObsInp').value;
-  const foto = document.getElementById('recCamFotoInp').files[0];
-  
-  if (!horaLlegada || !foto) return Swal.fire('Atención', 'Debe indicar la hora de llegada y adjuntar la foto.', 'warning');
-  
-  Swal.fire({ title: 'Confirmando recepción...', didOpen: () => Swal.showLoading() });
-  
-  const r = await postAPI({ 
-    accion: 'confirmarRecepcionCamion', 
-    vehiculo: vehiculo,
-    guiaAerea: guia,
-    valijas: valijas,
-    piezas: piezas,
-    precinto: precinto,
-    horaLlegada: horaLlegada,
-    intacto: intacto, 
-    obs: obs, 
-    foto: 'url_simulada' 
-  });
-  
-  if (r.exito) {
-    modalRecibirCamion.hide();
-    Swal.fire('Recibido', 'El camión ha sido recibido y movido al historial.', 'success');
-    cargarCamionesPorRecibir(); // Esto lo hará desaparecer de la lista
-  } else { 
-    Swal.fire('Error', r.mensaje, 'error'); 
-  }
 }
 
-let modalHistorialCamiones;
-async function cargarHistorialCamionesRecibidos() {
-  if(!modalHistorialCamiones) modalHistorialCamiones = new bootstrap.Modal(document.getElementById('modalHistorialCamiones'));
-  
-  // Poner fechas de hoy por defecto
-  const hoy = new Date().toISOString().split('T')[0];
-  document.getElementById('histFechaInicio').value = hoy;
-  document.getElementById('histFechaFin').value = hoy;
-  
-  modalHistorialCamiones.show();
-  filtrarHistorial();
-}
-
-async function filtrarHistorial() {
-  const tbody = document.getElementById('tablaHistorialCamiones');
-  tbody.innerHTML = '<tr><td colspan="7" class="text-center py-3 text-muted">Filtrando...</td></tr>';
-  
-  const desde = document.getElementById('histFechaInicio').value;
-  const hasta = document.getElementById('histFechaFin').value;
-  
-  try {
-    const r = await postAPI({ accion: 'obtenerHistorialCamiones', fechaInicio: desde, fechaFin: hasta });
-    
-    if (!r || !r.exito) {
-      throw new Error(r && r.mensaje ? r.mensaje : 'Error al cargar historial');
-    }
-
-    if (r.kpis) {
-      document.getElementById('kpiHistCamiones').textContent = r.kpis.totCamiones || 0;
-      document.getElementById('kpiHistValijas').textContent = r.kpis.totValijas || 0;
-      document.getElementById('kpiHistPiezas').textContent = r.kpis.totPiezas || 0;
-      document.getElementById('kpiHistIncidencias').textContent = r.kpis.totIncidencias || 0;
-    }
-
-    tbody.innerHTML = '';
-    if (!r.datos || r.datos.length === 0) {
-      return tbody.innerHTML = '<tr><td colspan="7" class="text-center py-3 text-muted">No hay registros en este rango de fechas.</td></tr>';
-    }
-    
-    r.datos.forEach(d => {
-      let badgeNovedad = (d.novedad === 'Sin Novedad' || !d.novedad) ? 'bg-success' : 'bg-danger';
-      tbody.innerHTML += `<tr>
-        <td><b>${d.fechaLlegada || '—'}</b></td>
-        <td>${d.vehiculo || '—'}</td>
-        <td>${d.guiaAerea || '—'}</td>
-        <td>${d.valijas || 0} Val / ${d.piezas || 0} Pzs</td>
-        <td>${d.recibio || '—'}</td>
-        <td>${d.precinto || '—'}</td>
-        <td><span class="badge ${badgeNovedad}">${d.novedad || 'Sin Novedad'}</span></td>
-      </tr>`;
-    });
-  } catch(e) { 
-    tbody.innerHTML = `<tr><td colspan="7" class="text-center text-danger">Error al cargar: ${e.message}</td></tr>`; 
-  }
-}
-function abrirModalEntregarMRW(guia, piezas) {
-  document.getElementById('mrwGuiaTxt').textContent = guia;
-  document.getElementById('mrwPiezasTxt').textContent = piezas;
-  document.getElementById('mrwEstadoDestinoInp').value = '';
-  document.getElementById('mrwChoferInp').value = '';
-  document.getElementById('mrwPlacaInp').value = '';
-  document.getElementById('mrwFotoInp').value = '';
-  
-  if(!modalEntregarMRW) modalEntregarMRW = new bootstrap.Modal(document.getElementById('modalEntregarMRW'));
-  modalEntregarMRW.show();
-}
-
-async function confirmarEntregaMRW() {
-  const guia = document.getElementById('mrwGuiaTxt').textContent;
-  const piezas = document.getElementById('mrwPiezasTxt').textContent;
-  const estado = document.getElementById('mrwEstadoDestinoInp').value;
-  const chofer = document.getElementById('mrwChoferInp').value;
-  const placa = document.getElementById('mrwPlacaInp').value;
-  const foto = document.getElementById('mrwFotoInp').files[0];
-  
-  if (!estado || !chofer || !placa || !foto) {
-    return Swal.fire('Atención', 'Complete todos los campos y adjunte la foto.', 'warning');
-  }
-  
-  Swal.fire({ title: 'Entregando a MRW...', didOpen: () => Swal.showLoading() });
-  const r = await postAPI({ accion: 'registrarEntregaMRW', guiaAerea: guia, piezas: piezas, estadoDestino: estado, choferMRW: chofer, placaMRW: placa, foto: 'url_simulada' });
-  
-  if(r.exito) {
-    modalEntregarMRW.hide();
-    Swal.fire('Entregado', 'La carga ha sido entregada a MRW.', 'success');
-    cargarValijasMRW();
-  } else {
-    Swal.fire('Error', r.mensaje, 'error');
-  }
-}
-
-// 3. CREAR MASTER (CLASIFICACIÓN)
-function abrirCrearMaster(guia, piezas) {
-  if(!modalCrearMaster) modalCrearMaster = new bootstrap.Modal(document.getElementById('modalCrearMaster'));
-  document.getElementById('masterValijaOrigen').textContent = guia;
-  document.getElementById('masterPiezasDisponibles').textContent = piezas;
-  document.getElementById('masterId').value = 'MST-' + Math.floor(Math.random() * 10000);
-  document.getElementById('masterEstadoDestino').value = '';
-  document.getElementById('masterSerialDesde').value = '';
-  document.getElementById('masterSerialHasta').value = '';
-  modalCrearMaster.show();
-}
-
-async function guardarMaster() {
-  const idMaster = document.getElementById('masterId').value;
-  const valijaOrigen = document.getElementById('masterValijaOrigen').textContent;
-  const estado = document.getElementById('masterEstadoDestino').value;
-  const serialDesde = document.getElementById('masterSerialDesde').value;
-  const serialHasta = document.getElementById('masterSerialHasta').value;
-  
-  if (!estado || !serialDesde || !serialHasta) return Swal.fire('Atención', 'Complete todos los campos.', 'warning');
-  
-  Swal.fire({ title: 'Clasificando piezas...', didOpen: () => Swal.showLoading() });
-  
-  const r = await postAPI({ 
-    accion: 'crearPaqueteConSeriales', 
-    idPaquete: idMaster, 
-    valijaOrigen: valijaOrigen, 
-    estadoDestino: estado, 
-    serialDesde: serialDesde, 
-    serialHasta: serialHasta
-  });
-  
-  if (r.exito) {
-    modalCrearMaster.hide();
-    Swal.fire('Clasificado', 'Las piezas han sido enviadas al estado destino y notificadas a la OPT.', 'success');
-    cargarValijasMRW(); 
-  } else { 
-    Swal.fire('Error', r.mensaje, 'error'); 
-  }
-}
-// 4. RECIBIR DE MRW (DESDE ESTADOS)
-async function cargarCamionesMRWPorRecibir() {
-  const tbody = document.getElementById('tablaCamionesMRWPorRecibir');
-  if(!tbody) return;
-  tbody.innerHTML = '<tr><td colspan="5" class="text-center py-3 text-muted">Cargando camiones de MRW...</td></tr>';
-  
-  setTimeout(() => {
-    tbody.innerHTML = '<tr><td colspan="5" class="text-center py-3 text-muted">No hay camiones de MRW en tránsito.</td></tr>';
-  }, 1000);
-}
-
-// 5. Cargar Valijas para MRW (La función que te daba error)
-async function cargarValijasMRW() {
-  const tbody = document.getElementById('tablaValijasMRW');
-  if(!tbody) return;
-  tbody.innerHTML = '<tr><td colspan="4" class="text-center py-3 text-muted">Cargando másters...</td></tr>';
-  
-  // Simulación para que no de error mientras conectas el backend
-  setTimeout(() => {
-    tbody.innerHTML = `
-      <tr>
-        <td>MST-001</td>
-        <td>15 Val / 45 Pzs</td>
-        <td>2026-11-15 10:00</td>
-        <td><button class="btn btn-sm btn-primary" onclick="abrirModalEntregarMRW('MST-001', 45)">Entregar a MRW</button></td>
-      </tr>
-    `;
-  }, 1000);
-}
-  // --- LÓGICA DE LOS NUEVOS KPIs Y AUDITORÍA DE MARIELA ---
-
-let modalTrazabilidad, modalHistorialMRW, modalIncidencia;
-
-// Función para actualizar los KPIs
-async function cargarKPIsEncaminamiento() {
-    try {
-        const r = await postAPI({ accion: 'obtenerKPIsEncaminamiento' });
-        if (r.exito) {
-            document.getElementById('kpiRecibidosIPOSTEL').textContent = r.kpis.recibidos;
-            document.getElementById('kpiDespachadosMRW').textContent = r.kpis.despachados;
-            document.getElementById('kpiOperatividad').textContent = r.kpis.operatividad + '%';
-            document.getElementById('kpiIncidencias').textContent = r.kpis.incidencias;
-        }
-    } catch (e) { console.error("Error cargando KPIs", e); }
-}
-
-// Llamar a cargarKPIsEncaminamiento al iniciar el panel (agrégalo a tu función iniciarApp si quieres que cargue al entrar)
-// O simplemente llámalo desde cargarCamionesPorRecibir()
-
-// Función para abrir el Modal de Trazabilidad
-async function abrirModalTrazabilidad() {
-    if (!modalTrazabilidad) modalTrazabilidad = new bootstrap.Modal(document.getElementById('modalTrazabilidad'));
-    const tbody = document.getElementById('tablaTrazabilidad');
-    tbody.innerHTML = '<tr><td colspan="5" class="text-center py-3 text-muted">Analizando datos...</td></tr>';
-    modalTrazabilidad.show();
-
-    try {
-        const r = await postAPI({ accion: 'obtenerTrazabilidadVehiculos' });
-        if (!r.exito) throw new Error(r.mensaje);
-
-        tbody.innerHTML = '';
-        if (r.datos.length === 0) return tbody.innerHTML = '<tr><td colspan="5" class="text-center">No hay datos registrados.</td></tr>';
-
-        r.datos.forEach(d => {
-            let colorBadge = d.tasaFalla > 10 ? 'bg-danger' : (d.tasaFalla > 0 ? 'bg-warning text-dark' : 'bg-success');
-            tbody.innerHTML += `<tr>
-                <td><b>${d.placa}</b></td>
-                <td>${d.conductor} (${d.cedula})</td>
-                <td class="text-center">${d.viajes}</td>
-                <td class="text-center fw-bold text-danger">${d.incidencias}</td>
-                <td class="text-center"><span class="badge ${colorBadge}">${d.tasaFalla}%</span></td>
-            </tr>`;
-        });
-    } catch (e) {
-        tbody.innerHTML = `<tr><td colspan="5" class="text-center text-danger">${e.message}</td></tr>`;
-    }
-}
-
-// Función para Historial de MRW (Pestaña 2)
-async function cargarHistorialDespachosMRW() {
-    if (!modalHistorialMRW) modalHistorialMRW = new bootstrap.Modal(document.getElementById('modalHistorialMRW'));
-    const tbody = document.getElementById('tablaHistorialMRW');
-    tbody.innerHTML = '<tr><td colspan="6" class="text-center py-3">Cargando...</td></tr>';
-    modalHistorialMRW.show();
-
-    try {
-        const r = await postAPI({ accion: 'obtenerHistorialDespachosMRW' });
-        if (!r.exito) throw new Error(r.mensaje);
-
-        tbody.innerHTML = '';
-        if (r.datos.length === 0) return tbody.innerHTML = '<tr><td colspan="6" class="text-center">No hay registros.</td></tr>';
-
-        r.datos.forEach(d => {
-            tbody.innerHTML += `<tr>
-                <td>${d.fecha}</td>
-                <td><b>${d.guia}</b></td>
-                <td>${d.estado}</td>
-                <td>${d.chofer}</td>
-                <td>${d.placa}</td>
-                <td>${d.piezas}</td>
-            </tr>`;
-        });
-    } catch (e) {
-        tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">${e.message}</td></tr>`;
-    }
-}
-
-// Función para reportar incidencia
-async function abrirModalIncidencias() {
-    if (!modalIncidencia) modalIncidencia = new bootstrap.Modal(document.getElementById('modalIncidencia'));
-    
-    document.getElementById('incOrigen').value = 'Mecánica';
-    document.getElementById('incSistema').value = 'N/A';
-    document.getElementById('incTipo').value = 'Falla en Ruta';
-    document.getElementById('incDesc').value = '';
-    
-    // Llenar el select de vehículos
-    const selectPlaca = document.getElementById('incPlaca');
-    selectPlaca.innerHTML = '<option value="">-- Cargando... --</option>';
-    
-    try {
-        const r = await postAPI({ accion: 'obtenerFlotaVehiculos' });
-        selectPlaca.innerHTML = '<option value="">-- Seleccione Vehículo --</option>';
-        if(r.exito && r.datos) {
-            r.datos.forEach(v => selectPlaca.innerHTML += `<option value="${v.placa}">${v.placa}</option>`);
-        }
-    } catch (e) {
-        selectPlaca.innerHTML = '<option value="">-- Error al cargar --</option>';
-    }
-    
-    modalIncidencia.show();
-}
-
-async function guardarIncidencia() {
-    const placa = document.getElementById('incPlaca').value;
-    const origen = document.getElementById('incOrigen').value;
-    const sistema = document.getElementById('incSistema').value;
-    const tipo = document.getElementById('incTipo').value;
-    const desc = document.getElementById('incDesc').value;
-    
-    if (!placa || !desc) return Swal.fire('Atención', 'Complete la placa y la descripción.', 'warning');
-
-    Swal.fire({ title: 'Registrando...', didOpen: () => Swal.showLoading() });
-    
-    const r = await postAPI({ 
-        accion: 'registrarIncidenciaTransporte', 
-        placa: placa, 
-        origen: origen, 
-        sistema: sistema,
-        tipo: tipo, 
-        descripcion: desc 
-    });
-    
-    if (r.exito) {
-        modalIncidencia.hide();
-        Swal.fire('Registrado', 'La incidencia ha sido guardada.', 'success');
-        cargarKPIsEncaminamiento(); 
-    } else {
-        Swal.fire('Error', r.mensaje, 'error');
-    }
-}
-
-// Modificar cargarCamionesPorRecibir para que actualice los KPIs al entrar
-async function cargarCamionesPorRecibir() {
-  const tbody = document.getElementById('tablaCamionesPorRecibir');
-  if(!tbody) return; 
-  tbody.innerHTML = '<tr><td colspan="5" class="text-center py-3 text-muted">Cargando...</td></tr>';
-  
-  try {
-    const r = await postAPI({ accion: 'obtenerDespachosCamiones' }); 
-    if (!r.exito) throw new Error(r.mensaje);
-    
-    cargarKPIsEncaminamiento(); // <--- ACTUALIZA LOS KPIs
-
-    tbody.innerHTML = '';
-    if(r.datos.length === 0) return tbody.innerHTML = '<tr><td colspan="5" class="text-center py-3">No hay camiones de IPOSTEL en tránsito.</td></tr>';
-    
-    r.datos.forEach(d => {
-      tbody.innerHTML += `<tr>
-        <td><b>${d.vehiculo}</b><br><small>${d.conductor}</small></td>
-        <td>${d.precinto}</td>
-        <td>Guía: ${d.guiaAerea}<br><small>${d.valijas} Val | ${d.piezas} Pzs</small></td>
-        <td>${d.fechaSalida}</td>
-        <td><button class="btn btn-sm btn-primary fw-bold" onclick="abrirModalRecibirCamion('${d.id}', '${d.vehiculo}', '${d.conductor}', '${d.precinto}', '${d.guiaAerea}', '${d.valijas}', '${d.piezas}')">Recibir</button></td>
-      </tr>`;
-    });
-  } catch(e) { 
-    tbody.innerHTML = `<tr><td colspan="5" class="text-center text-danger">${e.message}</td></tr>`; 
-  }
-}
-
+// 9. Informe de Mariela
 let modalInformeMariela;
 
 function abrirModalInformeMariela() {
@@ -2238,12 +2014,10 @@ async function generarInformeMariela() {
   Swal.fire({ title: 'Generando Informe...', didOpen: () => Swal.showLoading() });
 
   try {
-    // Pedimos los datos de la analítica que ya programamos
     const r = await postAPI({ accion: 'obtenerAnaliticaAvanzada', fechaInicio: desde, fechaFin: hasta });
     
     if (!r.exito) throw new Error(r.mensaje);
 
-    // Construimos el HTML del PDF
     let contenidoHTML = `
       <html>
       <head>
@@ -2263,7 +2037,7 @@ async function generarInformeMariela() {
         <h1>Informe de Gestión CPC</h1>
         <p style="text-align: center;">Período: <b>${desde}</b> al <b>${hasta}</b></p>
         
-        <h3>KPIs de Operatividad</h3>
+        <h3>Principales Indicadores de Operatividad</h3>
         <div style="text-align: center;">
           <div class="kpi-box"><b>T. Prom. Recepción</b><br><span style="font-size: 24px;">${r.kpis.tiempoPromedioRecepcion} hrs</span></div>
           <div class="kpi-box"><b>Eficiencia Despacho</b><br><span style="font-size: 24px;">${r.kpis.eficienciaDespacho}%</span></div>
@@ -2288,7 +2062,7 @@ async function generarInformeMariela() {
           ${(r.combinacionesPeligrosas || []).map(c => `<tr><td>${c.conductor} (${c.cedula})</td><td>${c.vehiculo}</td><td>${c.viajes}</td><td>${c.incidencias}</td><td>${c.tasaFalla}%</td></tr>`).join('')}
         </table>
 
-        <div class="footer">IPOSTEL - Observatorio Estratégico Postal - Elecciones España 2026</div>
+        <div class="footer">IPOSTEL - Observatorio Estadístico Postal - Elecciones España 2026</div>
         <script>window.onload = function() { window.print(); }<\/script>
       </body>
       </html>
@@ -2304,9 +2078,8 @@ async function generarInformeMariela() {
     Swal.fire('Error', 'No se pudo generar el informe: ' + e.message, 'error');
   }
 }
-  
+
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-
