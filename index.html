@@ -1470,10 +1470,10 @@ async function cargarCustodia() {
 }
 
 function abrirModalEntrega(codigo, piezas) {
-  document.getElementById('entCodigo').textContent = codigo;
-  let detalle = piezas;
-  const filas = document.querySelectorAll('#tablaCustodia tr');
-  for(let f of filas) { if(f.innerText.includes(codigo)) { const celdas = f.querySelectorAll('td'); if(celdas[2] && celdas[2].innerText.includes('Cert')) { detalle = celdas[2].innerText.replace('\n', ' - '); } } }
+  document.getElementById('entCodigo').textContent = codigo; let detalle = piezas;
+    const filas = document.querySelectorAll('#tablaCustodia tr');
+    for (let f of filas) { if(f.innerText.includes(codigo)) {
+      const celdas = f.querySelectorAll('td'); if(celdas[2] && celdas[2].innerText.includes('Cert')) { detalle = celdas[2].innerText.replace('\n','-'); } } }
   document.getElementById('entPiezas').textContent = detalle;
   document.getElementById('entNombreReceptor').value = ''; document.getElementById('entCedulaReceptor').value = ''; document.getElementById('entRelacion').value = ''; document.getElementById('entEstadoPaquete').value = ''; document.getElementById('fotoEntrega').value = '';
   modalEntrega.show();
