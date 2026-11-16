@@ -1,1 +1,425 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IPOSTEL — Elecciones España 2026</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  :root { --ipostel-azul: #003366; --ipostel-rojo: #c8102e; --ipostel-amarillo: #ffc72c; --ipostel-gris: #f4f6f9; }
+  body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; min-height: 100vh; background-color: var(--ipostel-gris); }
+  #pantallaBienvenida { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, var(--ipostel-azul) 0%, #001a33 100%); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; color: white; transition: opacity 0.6s ease; }
+  .logo-bienvenida { font-size: 4rem; margin-bottom: 20px; }
+  #pantallaBienvenida h1 { font-size: 2.8rem; font-weight: 800; text-align: center; line-height: 1.1; }
+  #pantallaBienvenida h1 span { color: var(--ipostel-amarillo); display: block; font-size: 1.5rem; margin-top: 5px; letter-spacing: 2px; }
+  .btn-bienvenida { background: var(--ipostel-rojo); border: none; color: white; padding: 12px 50px; border-radius: 30px; font-weight: 700; font-size: 1.1rem; }
+  #pantallaLogin, #pantallaApp { display: none; min-height: 100vh; padding: 40px 20px; background: linear-gradient(135deg, var(--ipostel-azul) 0%, #001a33 100%); }
+  .card-ipostel { background: #fff; color: #222; border-radius: 12px; box-shadow: 0 8px 25px rgba(0,0,0,0.2); width: 100%; max-width: 1200px; margin: auto; padding: 30px; border-top: 5px solid var(--ipostel-rojo); }
+  .titulo { color: var(--ipostel-azul); font-weight: 800; }
+  .btn-ipostel { background: var(--ipostel-azul); color: #fff; font-weight: 600; border: none; padding: 12px; border-radius: 8px; }
+  .form-control, .form-select { border-radius: 8px; border: 1px solid #ced4da; }
+  .oculto { display: none !important; }
+  .box-clave { background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #e9ecef; }
+  .nav-tabs .nav-link { color: var(--ipostel-azul); font-weight: 700; border: none; border-bottom: 3px solid transparent; }
+  .nav-tabs .nav-link.active { background: transparent; border-bottom-color: var(--ipostel-amarillo); color: var(--ipostel-azul); }
+  .card-vector { border-left: 5px solid; }
+  .vector-recepcion { border-left-color: #fd7e14; }
+  .vector-custodia { border-left-color: #0d6efd; }
+  .vector-historial { border-left-color: #6f42c1; }
+  .codigo-5d { font-family: 'Courier New', monospace; font-weight: 900; color: var(--ipostel-azul); background: #e7f1ff; padding: 3px 8px; border-radius: 5px; }
+  .fila-alerta { background-color: #fff3cd !important; }
+  .fila-critica { background-color: #f8d7da !important; }
+  .stat-mini { text-align: center; padding: 10px; border-radius: 10px; }
+  .stat-mini h3 { margin: 0; font-weight: 800; }
+  .stat-mini small { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; }
+  .upae-disclaimer { background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 10px; font-size: 0.85rem; color: #856404; }
+</style>
+</head>
+<body>
 
+<div id="pantallaBienvenida">
+  <div class="logo-bienvenida">🗳️</div> 
+  <h1>OBSERVATORIO Estadístico POSTAL <span>ELECCIONES DE ESPAÑA 2026</span></h1>
+  <button class="btn btn-bienvenida" onclick="entrarAlSistema()">Ingresar al Sistema</button>
+</div>
+<div id="pantallaLogin">
+  <div class="card card-ipostel" style="max-width: 600px;">
+    <div class="text-center mb-4">
+      <h2 class="titulo">Control Electoral</h2>
+      <span class="subtitulo">Seleccione su rol para continuar</span>
+    </div>
+    <div id="pasoRol" class="mb-3">
+      <label class="form-label text-primary fw-bold">Seleccione su Rol</label>
+      <select id="selRol" class="form-select fw-bold" onchange="cambiarRol()">
+        <option value="">-- Seleccione su rol --</option>
+        <option value="PRESIDENCIA">Presidencia</option>
+        <option value="DESPACHO">Despacho</option>
+        <option value="OBSERVATORIO">Observatorio</option>
+        <option value="DIRECCION">Dirección (CNC / Operaciones)</option>
+        <option value="GER_OPER">Gerente de Operaciones (CPC)</option>
+        <option value="GERENCIA_ESTADO">Gerencia de Estado</option>
+        <option value="COORDINADOR">Coordinador</option>
+        <option value="JEFE_OPT">Jefe de OPT</option>
+        <option value="ANALISTA_OPT">Analista de OPT</option>
+      </select>
+    </div>
+    <div id="pasoSubRol">
+      <label class="form-label">Seleccione opción</label>
+      <select id="selSubRol" class="form-select" onchange="verificarUsuario()"><option value="">-- Seleccione --</option></select>
+    </div>
+    <div id="pasoEstado" class="mb-3 oculto">
+      <label class="form-label">Estado</label>
+      <select id="selEstado" class="form-select" onchange="cambiarEstado()"><option value="">-- Seleccione Estado --</option></select>
+    </div>
+    <div id="pasoOPT" class="mb-3 oculto">
+      <label class="form-label">Oficina Postal (OPT)</label>
+      <select id="selOPT" class="form-select" onchange="verificarUsuario()"><option value="">-- Seleccione OPT --</option></select>
+    </div>
+    <div id="pasoCredenciales" class="oculto">
+      <div id="boxLoginExistente" class="mb-3 box-clave oculto">
+        <label class="form-label">Clave de Acceso</label>
+        <input id="inpClave" type="password" class="form-control" placeholder="••••">
+      </div>
+    </div>
+    <div class="mt-3">
+      <button id="btnIngresar" class="btn btn-ipostel w-100 mb-2 oculto" onclick="enviarAlBackend()">🔑 Ingresar al Sistema</button>
+      <button id="btnVolver" class="btn btn-outline-secondary w-100 oculto" onclick="volverAtras()">⬅ Volver / Cancelar</button>
+    </div>
+  </div>
+</div>
+<div id="pantallaApp">
+  <div class="card card-ipostel">
+    <div class="d-flex justify-content-between align-items-center mb-3 bg-dark text-white p-3 rounded">
+      <h5 class="m-0" id="lblBienvenida">Cargando...</h5>
+      <div>
+        <button id="btnInformeCNC" class="btn btn-sm btn-outline-primary me-2 oculto" onclick="abrirModalInformeCNC()"><i class="bi bi-file-earmark-pdf"></i> Informe CNC</button>
+        <button id="btnInformeGerente" class="btn btn-sm btn-outline-info me-2 oculto" onclick="abrirModalInformeGerente()"><i class="bi bi-file-earmark-bar-graph"></i> Informe de Estado</button>
+        <button id="btnInformeOPT" class="btn btn-sm btn-outline-warning me-2 oculto" onclick="abrirModalInforme()"><i class="bi bi-file-earmark-bar-graph"></i> Informe OPT</button>
+        <button id="btnInformeMariela" class="btn btn-sm btn-outline-success me-2 oculto" onclick="abrirModalInformeMariela()"><i class="bi bi-file-earmark-spreadsheet"></i> Informe CPC</button>
+        <button class="btn btn-sm btn-outline-light" onclick="location.reload()">Salir</button>
+      </div>
+    </div>
+    <!-- PANEL JEFE OPT -->
+    <div id="appOPT" class="oculto">
+      <div class="row g-2 mb-3">
+        <div class="col-6 col-md-3"><div class="stat-mini bg-warning bg-opacity-25"><small class="text-warning fw-bold">Por Recibir</small><h3 class="text-warning" id="statRecibir">0</h3></div></div>
+        <div class="col-6 col-md-3"><div class="stat-mini bg-primary bg-opacity-10"><small class="text-primary fw-bold">En Custodia</small><h3 class="text-primary" id="statCustodia">0</h3></div></div>
+        <div class="col-6 col-md-3"><div class="stat-mini bg-success bg-opacity-10"><small class="text-success fw-bold">Entregados Hoy</small><h3 class="text-success" id="statEntregados">0</h3></div></div>
+        <div class="col-6 col-md-3"><div class="stat-mini bg-danger bg-opacity-10"><small class="text-danger fw-bold">Incidencias</small><h3 class="text-danger" id="statRetrasados">0</h3></div></div>
+      </div>
+      <ul class="nav nav-tabs mb-3" id="tabsOPT" role="tablist">
+        <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-recepcion" type="button"><i class="bi bi-inbox-fill text-warning"></i> Recibido del Estado</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-custodia" type="button"><i class="bi bi-box-seam-fill text-primary"></i> En Custodia</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-historial" type="button"><i class="bi bi-clock-history"></i> Historial Entregas</button></li>
+      </ul>
+      <div class="tab-content">
+        <div class="tab-pane fade show active" id="tab-recepcion">
+          <div class="card shadow-sm card-vector vector-recepcion">
+            <div class="card-header bg-white d-flex justify-content-between py-3">
+              <h6 class="mb-0 fw-bold">Paquetes en Tránsito hacia mi OPT</h6>
+              <button class="btn btn-warning btn-sm fw-bold" onclick="cargarPorRecibir()"><i class="bi bi-arrow-clockwise"></i> Actualizar</button>
+            </div>
+            <div class="card-body p-0 table-responsive">
+              <table class="table table-hover mb-0">
+                <thead><tr><th>Guía/Paquete</th><th>Master</th><th>Piezas</th><th>Fecha Envío</th><th>Días</th><th>Acción</th></tr></thead>
+                <tbody id="tablaPorRecibir"><tr><td colspan="6" class="text-center py-3">Cargando...</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="tab-pane fade" id="tab-custodia">
+          <div class="card shadow-sm card-vector vector-custodia">
+            <div class="card-header bg-white d-flex justify-content-between py-3">
+              <h6 class="mb-0 fw-bold">Piezas en Custodia (Semáforo SLA)</h6>
+              <button class="btn btn-primary btn-sm fw-bold" onclick="cargarCustodia()"><i class="bi bi-arrow-clockwise"></i> Actualizar</button>
+            </div>
+            <div class="card-body p-0 table-responsive">
+              <table class="table table-hover mb-0">
+                <thead><tr><th>Guía/Paquete</th><th>Destinatario</th><th>Piezas</th><th>Recepción</th><th>Días</th><th>SLA</th><th>Acción</th></tr></thead>
+                <tbody id="tablaCustodia"><tr><td colspan="7" class="text-center py-3">Cargando...</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="tab-pane fade" id="tab-historial">
+          <div class="card shadow-sm card-vector vector-historial">
+            <div class="card-header bg-white d-flex justify-content-between py-3">
+              <h6 class="mb-0 fw-bold">Actas de Entrega Registradas</h6>
+              <button class="btn btn-outline-success btn-sm" onclick="cargarHistorialEntregas()"><i class="bi bi-arrow-clockwise"></i> Actualizar</button>
+            </div>
+            <div class="card-body p-0 table-responsive">
+              <table class="table table-sm table-hover mb-0">
+                <thead><tr><th>Acta</th><th>Guía</th><th>Quien Retiró</th><th>Cédula</th><th>Hora</th><th>GPS</th><th>Foto</th></tr></thead>
+                <tbody id="tablaHistorial"><tr><td colspan="7" class="text-center py-3">Cargando...</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- PANEL ENCAMINAMIENTO (MARIELA) -->
+    <div id="appEncaminamiento" class="oculto">
+      <h4 class="text-primary mb-3 fw-bold"><i class="bi bi-signpost-split"></i> Encaminamiento (CPC)</h4>
+      <div class="alert alert-info py-2 small"><i class="bi bi-info-circle"></i> Recepción de carga, clasificación y entrega a MRW.</div>
+      <div class="row g-2 mb-3">
+        <div class="col-6 col-md-3"><div class="stat-mini bg-primary bg-opacity-10"><small class="text-primary fw-bold">Piezas Recibidas</small><h4 class="text-primary mb-0" id="indRecibidosIPOSTEL">0</h4><small class="text-muted">Cert: <span id="indCertRecibidos">0</span> | Ord: <span id="indOrdRecibidos">0</span></small></div></div>
+        <div class="col-6 col-md-3"><div class="stat-mini bg-success bg-opacity-10"><small class="text-success fw-bold">Piezas Despachadas</small><h4 class="text-success mb-0" id="indDespachadosMRW">0</h4><small class="text-muted">Cert: <span id="indCertDespachados">0</span> | Ord: <span id="indOrdDespachados">0</span></small></div></div>
+        <div class="col-6 col-md-3"><div class="stat-mini bg-info bg-opacity-10"><small class="text-info fw-bold">Tiempo Promedio CPC</small><h4 class="text-info mb-0" id="indTiempoPromCPC">0h</h4><small class="text-muted">Desde recepción a despacho</small></div></div>
+        <div class="col-6 col-md-3"><div class="stat-mini bg-danger bg-opacity-10"><small class="text-danger fw-bold">Piezas en Riesgo (>24h)</small><h4 class="text-danger mb-0" id="indPiezasRiesgo">0</h4><small class="text-muted">Retenidas o sin despachar</small></div></div>
+      </div>
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h5 class="text-secondary m-0"><i class="bi bi-clipboard-data"></i> Control de Operaciones</h5>
+        <button class="btn btn-outline-danger btn-sm fw-bold" onclick="abrirModalTrazabilidad()"><i class="bi bi-truck"></i> Auditoría de Vehículos y Conductores</button>
+        <button class="btn btn-outline-dark btn-sm fw-bold me-2" onclick="abrirModalAnalitica()"><i class="bi bi-bar-chart-line"></i> Analítica Forense</button>
+      </div>
+      <ul class="nav nav-tabs mb-3" id="tabsEncaminamiento" role="tablist">
+        <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-recibe-ipostel" type="button"><i class="bi bi-truck text-primary"></i> 1. Recibir de IPOSTEL</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-clasificar-mrw" type="button"><i class="bi bi-box-seam text-warning"></i> 2. Entregar a MRW (Estados)</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-recibe-mrw" type="button"><i class="bi bi-arrow-down-left-circle text-success"></i> 3. Recibir de MRW</button></li>
+      </ul>
+      <div class="tab-content">
+        <div class="tab-pane fade show active" id="tab-recibe-ipostel">
+          <div class="card shadow-sm">
+            <div class="card-header bg-white d-flex justify-content-between py-3">
+              <h6 class="mb-0 fw-bold">Camiones de IPOSTEL (Maiquetía)</h6>
+              <div>
+                <button class="btn btn-primary btn-sm fw-bold" onclick="cargarCamionesPorRecibir()"><i class="bi bi-arrow-clockwise"></i> Actualizar</button>
+                <button class="btn btn-outline-secondary btn-sm fw-bold" onclick="cargarHistorialCamionesRecibidos()"><i class="bi bi-clock-history"></i> Ver Historial</button>
+              </div>
+            </div>
+            <div class="card-body p-0 table-responsive">
+              <table class="table table-hover mb-0 align-middle">
+                <thead class="table-light"><tr><th>Vehículo / Conductor</th><th>Precinto</th><th>Carga Asignada</th><th>Salida CPI</th><th>Acción</th></tr></thead>
+                <tbody id="tablaCamionesPorRecibir"><tr><td colspan="5" class="text-center py-3 text-muted">Cargando...</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="tab-pane fade" id="tab-clasificar-mrw">
+          <div class="card shadow-sm">
+            <div class="card-header bg-white d-flex justify-content-between py-3">
+              <h6 class="mb-0 fw-bold">Másters en CPC (Listos para Estados)</h6>
+              <div>
+                <button class="btn btn-warning btn-sm fw-bold" onclick="cargarValijasMRW()"><i class="bi bi-arrow-clockwise"></i> Actualizar</button>
+                <button class="btn btn-outline-secondary btn-sm fw-bold" onclick="cargarHistorialDespachosMRW()"><i class="bi bi-clock-history"></i> Ver Historial</button>
+              </div>
+            </div>
+            <div class="card-body p-0 table-responsive">
+              <table class="table table-hover mb-0 align-middle">
+                <thead class="table-light"><tr><th>Guía Aérea / Máster</th><th>Valijas / Piezas</th><th>Fecha Recepción CPC</th><th>Acción</th></tr></thead>
+                <tbody id="tablaValijasMRW"><tr><td colspan="4" class="text-center py-3 text-muted">Cargando...</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="tab-pane fade" id="tab-recibe-mrw">
+          <div class="card shadow-sm">
+            <div class="card-header bg-white d-flex justify-content-between py-3">
+              <h6 class="mb-0 fw-bold">Camiones de MRW (Desde Estados)</h6>
+              <div>
+                <button class="btn btn-success btn-sm fw-bold" onclick="cargarCamionesMRWPorRecibir()"><i class="bi bi-arrow-clockwise"></i> Actualizar</button>
+                <button class="btn btn-outline-danger btn-sm fw-bold" onclick="abrirModalIncidencias()"><i class="bi bi-exclamation-triangle"></i> Reportar Incidencia</button>
+              </div>
+            </div>
+            <div class="card-body p-0 table-responsive">
+              <table class="table table-hover mb-0 align-middle">
+                <thead class="table-light"><tr><th>Vehículo / Conductor</th><th>Precinto</th><th>Carga Asignada</th><th>Salida Estado</th><th>Acción</th></tr></thead>
+                <tbody id="tablaCamionesMRWPorRecibir"><tr><td colspan="5" class="text-center py-3 text-muted">Cargando...</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+</div>
+</div>
+
+<!-- MODAL ANALITICA -->
+<div class="modal fade" id="modalAnalitica" tabindex="-1">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header bg-dark text-white">
+        <h5 class="modal-title fw-bold"><i class="bi bi-graph-up-arrow"></i> Panel de Control y Analítica (Encaminamiento)</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body bg-light">
+        <div class="row g-2 mb-4 align-items-end bg-white p-3 rounded border shadow-sm">
+          <div class="col-md-4"><label class="form-label fw-bold mb-1 small">Desde</label><input type="date" class="form-control form-control-sm" id="anaFechaInicio"></div>
+          <div class="col-md-4"><label class="form-label fw-bold mb-1 small">Hasta</label><input type="date" class="form-control form-control-sm" id="anaFechaFin"></div>
+          <div class="col-md-4"><button class="btn btn-primary btn-sm w-100 fw-bold" onclick="cargarAnalitica()"><i class="bi bi-filter"></i> Filtrar Datos</button></div>
+        </div>
+        <div class="row g-3 mb-4">
+          <div class="col-md-4"><div class="card border-primary shadow-sm h-100"><div class="card-body text-center py-2"><h6 class="text-primary fw-bold mb-1">Tiempo Promedio de Recepción</h6><h3 class="mb-0 fw-bold" id="kpiTiempoRecepcion">0 hrs</h3></div></div></div>
+          <div class="col-md-4"><div class="card border-success shadow-sm h-100"><div class="card-body text-center py-2"><h6 class="text-success fw-bold mb-1">Eficiencia de Despacho</h6><h3 class="mb-0 fw-bold" id="kpiEficienciaDespacho">0%</h3></div></div></div>
+          <div class="col-md-4"><div class="card border-danger shadow-sm h-100"><div class="card-body text-center py-2"><h6 class="text-danger fw-bold mb-1">Combinaciones Críticas</h6><h3 class="mb-0 fw-bold" id="kpiCombinacionesCriticas">0</h3></div></div></div>
+        </div>
+        <div class="row g-3 mb-4">
+          <div class="col-md-6"><div class="card shadow-sm h-100"><div class="card-header bg-white fw-bold text-danger"><i class="bi bi-pie-chart-fill"></i> Motivos de Incidencias</div><div class="card-body" style="height: 200px; position: relative;"><canvas id="chartMotivosFalla"></canvas></div></div></div>
+          <div class="col-md-6"><div class="card shadow-sm h-100"><div class="card-header bg-white fw-bold text-warning"><i class="bi bi-wrench-adjustable"></i> Sistemas Afectados</div><div class="card-body" style="height: 200px; position: relative;"><canvas id="chartSistemasFalla"></canvas></div></div></div>
+        </div>
+        <div class="row g-3 mb-4">
+          <div class="col-md-6"><div class="card shadow-sm h-100"><div class="card-header bg-white fw-bold text-danger"><i class="bi bi-person-x"></i> Top 5 Conductores</div><div class="card-body" style="height: 200px; position: relative;"><canvas id="chartConductores"></canvas></div></div></div>
+          <div class="col-md-6"><div class="card shadow-sm h-100"><div class="card-header bg-white fw-bold text-warning"><i class="bi bi-truck"></i> Top 5 Vehículos</div><div class="card-body" style="height: 200px; position: relative;"><canvas id="chartVehiculos"></canvas></div></div></div>
+        </div>
+        <div class="card shadow-sm border-danger">
+          <div class="card-header bg-danger text-white fw-bold"><i class="bi bi-exclamation-octagon"></i> Matriz Forense: Combinaciones Peligrosas</div>
+          <div class="card-body p-0 table-responsive" style="max-height: 250px; overflow-y: auto;">
+            <table class="table table-hover table-sm mb-0">
+              <thead class="table-light sticky-top"><tr><th>Conductor (C.I.)</th><th>Vehículo (Placa)</th><th class="text-center">Viajes Juntos</th><th class="text-center">Incidencias</th><th class="text-center text-danger">Tasa de Falla (%)</th></tr></thead>
+              <tbody id="tablaCombinacionesPeligrosas"><tr><td colspan="5" class="text-center py-3">Analizando datos...</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL INFORME MARIELA -->
+<div class="modal fade" id="modalInformeMariela" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-dark text-white">
+        <h5 class="modal-title fw-bold">Informe de Gestión - Encaminamiento (CPC)</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row g-3">
+          <div class="col-6"><label class="form-label fw-bold">Desde</label><input type="date" class="form-control" id="infoMarielaFechaInicio"></div>
+          <div class="col-6"><label class="form-label fw-bold">Hasta</label><input type="date" class="form-control" id="infoMarielaFechaFin"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button class="btn btn-success fw-bold" onclick="generarInformeMariela()">Generar e Imprimir</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const API_URL = 'https://script.google.com/macros/s/AKfycbzx_AeJRGOOXphA0N5sUFEMJbDBwsyzfElr0hH38dmzUmFt9dy1NJ7w3MjMycrWzoI2/exec';
+const estadoApp = { rol: null, requiereEstado: false, requiereOPT: false, estadoSel: null, optSel: null, subRolSel: null };
+const ROLES_CON_ESTADO = ['GERENCIA_ESTADO', 'JEFE_OPT', 'ANALISTA_OPT'];
+const ROLES_CON_OPT = ['JEFE_OPT', 'ANALISTA_OPT'];
+
+function ocultar(id) { document.getElementById(id).classList.add('oculto'); }
+function mostrar(id) { document.getElementById(id).classList.remove('oculto'); }
+function ocultarTodo() { ['pasoSubRol', 'pasoEstado', 'pasoOPT', 'pasoCredenciales', 'boxLoginExistente', 'btnIngresar', 'btnVolver'].forEach(id => ocultar(id)); }
+
+function entrarAlSistema() {
+  document.getElementById('pantallaBienvenida').style.opacity = '0';
+  setTimeout(() => {
+    document.getElementById('pantallaBienvenida').style.display = 'none';
+    document.getElementById('pantallaLogin').style.display = 'block';
+  }, 600);
+}
+
+function cambiarRol() {
+  const rol = document.getElementById('selRol').value;
+  ocultarTodo();
+  estadoApp.rol = rol; estadoApp.estadoSel = null; estadoApp.optSel = null; estadoApp.subRolSel = null;
+  if (!rol) return;
+  estadoApp.requiereEstado = ROLES_CON_ESTADO.includes(rol);
+  estadoApp.requiereOPT = ROLES_CON_OPT.includes(rol);
+  if (rol === 'DIRECCION') { mostrar('pasoSubRol'); mostrar('btnVolver'); document.getElementById('selSubRol').innerHTML = `<option value="">-- Seleccione --</option><option value="CNC">Dirección CNC</option><option value="OPERACIONES">Dirección de Operaciones</option>`; }
+  else if (rol === 'COORDINADOR') { mostrar('pasoSubRol'); mostrar('btnVolver'); document.getElementById('selSubRol').innerHTML = `<option value="">-- Seleccione --</option><option value="ENCAMINAMIENTO">Encaminamiento</option><option value="ALIANZA">Control del Aliado</option><option value="CNC_MICRO">CNC-Micro Entrega</option>`; }
+  else if (estadoApp.requiereEstado) { mostrar('pasoEstado'); mostrar('btnVolver'); cargarEstados(); }
+  else { mostrar('pasoCredenciales'); mostrar('boxLoginExistente'); mostrar('btnIngresar'); }
+}
+
+function cambiarEstado() {
+  estadoApp.estadoSel = document.getElementById('selEstado').value;
+  ocultarTodo();
+  if (!estadoApp.estadoSel) { mostrar('pasoEstado'); mostrar('btnVolver'); return; }
+  if (estadoApp.requiereOPT) { mostrar('pasoEstado'); mostrar('pasoOPT'); mostrar('btnVolver'); cargarOPTs(estadoApp.estadoSel); }
+  else { mostrar('pasoEstado'); mostrar('btnVolver'); verificarUsuario(); }
+}
+
+async function verificarUsuario() {
+  if (estadoApp.rol === 'DIRECCION' || estadoApp.rol === 'COORDINADOR') { estadoApp.subRolSel = document.getElementById('selSubRol').value; if (!estadoApp.subRolSel) return; }
+  if (estadoApp.requiereOPT) { estadoApp.optSel = document.getElementById('selOPT').value; if (!estadoApp.optSel) { mostrar('pasoEstado'); mostrar('pasoOPT'); mostrar('btnVolver'); return; } }
+  mostrar('pasoCredenciales'); mostrar('boxLoginExistente'); mostrar('btnIngresar'); mostrar('btnVolver');
+}
+
+async function enviarAlBackend() { 
+  const rol = estadoApp.rol;
+  let payload = { accion: 'loginArbol', rol: rol, clave: document.getElementById('inpClave').value.trim() };
+  if (['PRESIDENCIA', 'DESPACHO', 'OBSERVATORIO'].includes(rol)) { if (rol === 'PRESIDENCIA') payload.usuario = 'Presidencia'; if (rol === 'DESPACHO') payload.usuario = 'Despacho'; if (rol === 'OBSERVATORIO') payload.usuario = 'Observatorio'; }
+  else if (rol === 'DIRECCION' || rol === 'COORDINADOR') { payload.subRol = estadoApp.subRolSel; if (rol === 'DIRECCION') payload.usuario = (estadoApp.subRolSel === 'CNC') ? 'Director_CNC' : 'Director_Operaciones'; }
+  else if (rol === 'GER_OPER') { payload.usuario = 'Gerente de Operaciones (CPC)'; }
+  else if (estadoApp.requiereEstado) { payload.estado = estadoApp.estadoSel; }
+  if (estadoApp.requiereOPT) { payload.codigoOPT = estadoApp.optSel; }
+  const btn = document.getElementById('btnIngresar'); btn.disabled = true; btn.textContent = 'Validando...';
+  try {
+    const resp = await postAPI(payload);
+    if (!resp.exito) { Swal.fire('Acceso denegado', resp.mensaje || 'No autorizado', 'error'); btn.disabled = false; btn.textContent = '🔑 Ingresar al Sistema'; return; }
+    iniciarApp(resp);
+  } catch (err) { Swal.fire('Error de conexión', err.message, 'error'); btn.disabled = false; btn.textContent = '🔑 Ingresar al Sistema'; }
+}
+
+function iniciarApp(r) {
+  document.getElementById('pantallaLogin').style.display = 'none';
+  document.getElementById('pantallaApp').style.display = 'block';
+  document.getElementById('lblBienvenida').innerText = `Rol: ${r.rol} | Estado: ${estadoApp.estadoSel || ''} | OPT: ${estadoApp.optSel || ''}`;
+  
+  if (r.rol === 'JEFE_OPT' || r.rol === 'ANALISTA_OPT') {
+    mostrar('appOPT'); mostrar('btnInformeOPT');
+    cargarEstadisticasOPT(); cargarPorRecibir(); cargarCustodia(); cargarHistorialEntregas();
+  } else if (r.rol === 'DIR_CNC' || r.rol === 'COORD_CNC') {
+    mostrar('appCNC'); mostrar('btnInformeCNC'); 
+    cargarCNC();
+  } else if (r.rol === 'DIR_OPER' || r.rol === 'GER_OPER') {
+    mostrar('appOperaciones'); 
+    cargarPanelOperaciones();
+    cargarTablaDespachos();
+  } else if (r.rol === 'COORD_ENCAM') { 
+    mostrar('appEncaminamiento'); 
+    mostrar('btnInformeMariela');
+    cargarCamionesPorRecibir();
+    cargarValijasMRW();
+  } else if (r.rol === 'COORD_ALIANZA') {
+    mostrar('appAliado'); 
+    cargarPanelAliado();
+  } else if (r.rol === 'GERENTE_ESTADO') {
+    mostrar('appGerente'); mostrar('btnInformeGerente');
+    iniciarGerente();
+  } else {
+    mostrar('appObservatorio'); cargarObservatorio();
+  }
+}
+
+async function cargarIndicadoresEncaminamiento() {
+    try {
+        const r = await postAPI({ accion: 'obtenerIndicadoresEncaminamiento' });
+        if (r.exito) {
+            document.getElementById('indRecibidosIPOSTEL').textContent = r.indicadores.totalPiezasRecibidas;
+            document.getElementById('indCertRecibidos').textContent = r.indicadores.certRecibidas;
+            document.getElementById('indOrdRecibidos').textContent = r.indicadores.ordRecibidas;
+            document.getElementById('indDespachadosMRW').textContent = r.indicadores.totalPiezasDespachadas;
+            document.getElementById('indCertDespachados').textContent = r.indicadores.certDespachadas;
+            document.getElementById('indOrdDespachados').textContent = r.indicadores.ordDespachadas;
+            document.getElementById('indTiempoPromCPC').textContent = r.indicadores.tiempoPromedio + 'h';
+            document.getElementById('indPiezasRiesgo').textContent = r.indicadores.piezasEnRiesgo;
+        }
+    } catch (e) { console.error("Error cargando Indicadores", e); }
+}
+
+function volverAtras() {
+  if (!document.getElementById('pasoCredenciales').classList.contains('oculto')) { document.getElementById('pasoCredenciales').classList.add('oculto'); if (estadoApp.requiereOPT) { mostrar('pasoEstado'); mostrar('pasoOPT'); } else if (estadoApp.requiereEstado) { mostrar('pasoEstado'); } else { document.getElementById('selRol').value = ''; cambiarRol(); } return; }
+  if (!document.getElementById('pasoOPT').classList.contains('oculto')) { document.getElementById('pasoOPT').classList.add('oculto'); mostrar('pasoEstado'); return; }
+  if (!document.getElementById('pasoEstado').classList.contains('oculto')) { document.getElementById('pasoEstado').classList.add('oculto'); document.getElementById('selRol').value = ''; cambiarRol(); return; }
+  document.getElementById('selRol').value = ''; cambiarRol();
+}
+async function cargarEstados() { try { const r = await postAPI({accion: 'obtenerEstados'}); if (r.exito) { const sel = document.getElementById('selEstado'); sel.innerHTML = '<option value="">-- Seleccione Estado --</option>'; r.estados.forEach(e => sel.innerHTML += `<option value="${e}">${e}</option>`); } } catch(e) { console.error(e); } }
+async function cargarOPTs(estado) { try { const r = await postAPI({accion: 'obtenerOPTsPorEstado', estado: estado}); if (r.exito) { const sel = document.getElementById('selOPT'); sel.innerHTML = '<option value="">-- Seleccione OPT --</option>'; r.opts.forEach(o => sel.innerHTML += `<option value="${o.codigo}">${o.nombre}</option>`); mostrar('pasoOPT'); } } catch(e) { console.error(e); } }
+function postAPI(payload) { return fetch(API_URL, { method: 'POST', body: JSON.stringify(payload), headers: { 'Content-Type': 'text/plain;charset=utf-8' } }).then(r => r.json()); }
+async function cargarObservatorio() { document.getElementById('dashboardObservatorio').innerHTML = '<p class="text-muted">Cargando...</p>'; }
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
