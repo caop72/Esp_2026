@@ -1477,34 +1477,44 @@ async function filtrarHistorial() {
   
   try {
     const r = await postAPI({ accion: 'obtenerHistorialCamiones', fechaInicio: desde, fechaFin: hasta });
-    if(!r.exito) throw new Error(r.mensaje);
     
-    // Actualizar KPIs
-    document.getElementById('kpiHistCamiones').textContent = r.kpis.totCamiones || 0;
-    document.getElementById('kpiHistValijas').textContent = r.kpis.totValijas || 0;
-    document.getElementById('kpiHistPiezas').textContent = r.kpis.totPiezas || 0;
-    document.getElementById('kpiHistIncidencias').textContent = r.kpis.totIncidencias || 0;
+    // PROTECCIÓN 1: Verificar si el backend falló o no devolvió nada
+    if (!r || !r.exito) {
+      throw new Error(r && r.mensaje ? r.mensaje : 'No se pudo conectar con el historial.');
+    }
+    
+    // PROTECCIÓN 2: Actualizar KPIs solo si vienen en la respuesta
+    if (r.kpis) {
+      document.getElementById('kpiHistCamiones').textContent = r.kpis.totCamiones || 0;
+      document.getElementById('kpiHistValijas').textContent = r.kpis.totValijas || 0;
+      document.getElementById('kpiHistPiezas').textContent = r.kpis.totPiezas || 0;
+      document.getElementById('kpiHistIncidencias').textContent = r.kpis.totIncidencias || 0;
+    }
 
     tbody.innerHTML = '';
-    if(r.datos.length === 0) return tbody.innerHTML = '<tr><td colspan="7" class="text-center py-3">No hay registros en este rango de fechas.</td></tr>';
+    
+    // PROTECCIÓN 3: Verificar que r.datos exista antes de leerlo
+    if(!r.datos || r.datos.length === 0) {
+      return tbody.innerHTML = '<tr><td colspan="7" class="text-center py-3 text-muted">No hay registros en este rango de fechas.</td></tr>';
+    }
     
     r.datos.forEach(d => {
-      let badgeNovedad = d.novedad === 'Sin Novedad' ? 'bg-success' : 'bg-danger';
+      let badgeNovedad = (d.novedad === 'Sin Novedad' || !d.novedad) ? 'bg-success' : 'bg-danger';
       tbody.innerHTML += `<tr>
-        <td><b>${d.fechaLlegada}</b></td>
-        <td>${d.vehiculo}</td>
-        <td>${d.guiaAerea}</td>
-        <td>${d.valijas} Val / ${d.piezas} Pzs</td>
-        <td>${d.recibio}</td>
-        <td>${d.precinto}</td>
-        <td><span class="badge ${badgeNovedad}">${d.novedad}</span></td>
+        <td><b>${d.fechaLlegada || '—'}</b></td>
+        <td>${d.vehiculo || '—'}</td>
+        <td>${d.guiaAerea || '—'}</td>
+        <td>${d.valijas || 0} Val / ${d.piezas || 0} Pzs</td>
+        <td>${d.recibio || '—'}</td>
+        <td>${d.precinto || '—'}</td>
+        <td><span class="badge ${badgeNovedad}">${d.novedad || 'Sin Novedad'}</span></td>
       </tr>`;
     });
   } catch(e) { 
-    tbody.innerHTML = `<tr><td colspan="7" class="text-center text-danger">${e.message}</td></tr>`; 
+    // Si algo falla, mostramos un mensaje controlado en la tabla
+    tbody.innerHTML = `<tr><td colspan="7" class="text-center text-danger">Error al cargar: ${e.message}</td></tr>`; 
   }
 }
-
 function abrirModalEntregarMRW(guia, piezas) {
   document.getElementById('mrwGuiaTxt').textContent = guia;
   document.getElementById('mrwPiezasTxt').textContent = piezas;
