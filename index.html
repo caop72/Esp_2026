@@ -1715,34 +1715,47 @@ function abrirModalRecibirCamion(id, vehiculo, conductor, precinto, guia, valija
 }
 
 let modalAnalitica;
-let chartConductores, chartVehiculos;
+let chartMotivos, chartSistemas, chartConductores, chartVehiculos;
 
-async function abrirModalAnalitica() {
+function abrirModalAnalitica() {
     if (!modalAnalitica) modalAnalitica = new bootstrap.Modal(document.getElementById('modalAnalitica'));
     
-    // Limpiar tablas
-    document.getElementById('tablaCombinacionesPeligrosas').innerHTML = '<tr><td colspan="5" class="text-center py-3">Analizando datos...</td></tr>';
+    // Poner fechas por defecto (hoy y hace 15 días)
+    const hoy = new Date().toISOString().split('T')[0];
+    const hace15 = new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    document.getElementById('anaFechaInicio').value = hace15;
+    document.getElementById('anaFechaFin').value = hoy;
     
     modalAnalitica.show();
+    cargarAnalitica();
+}
+
+async function cargarAnalitica() {
+    const desde = document.getElementById('anaFechaInicio').value;
+    const hasta = document.getElementById('anaFechaFin').value;
+    
+    document.getElementById('tablaCombinacionesPeligrosas').innerHTML = '<tr><td colspan="5" class="text-center py-3">Analizando datos...</td></tr>';
 
     try {
-        const r = await postAPI({ accion: 'obtenerAnaliticaAvanzada' });
+        const r = await postAPI({ accion: 'obtenerAnaliticaAvanzada', fechaInicio: desde, fechaFin: hasta });
         if (!r.exito) throw new Error(r.mensaje);
 
-        // 1. Actualizar KPIs
+        // KPIs
         document.getElementById('kpiTiempoRecepcion').textContent = r.kpis.tiempoPromedioRecepcion + ' hrs';
         document.getElementById('kpiEficienciaDespacho').textContent = r.kpis.eficienciaDespacho + '%';
         document.getElementById('kpiCombinacionesCriticas').textContent = r.kpis.combinacionesCriticas;
 
-        // 2. Gráficos
+        // Gráficos
+        renderChartMotivos(r.motivosFalla);
+        renderChartSistemas(r.sistemasFalla);
         renderChartConductores(r.topConductores);
         renderChartVehiculos(r.topVehiculos);
 
-        // 3. Tabla de Combinaciones
+        // Tabla Combinaciones
         const tbody = document.getElementById('tablaCombinacionesPeligrosas');
         tbody.innerHTML = '';
         if (r.combinacionesPeligrosas.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">No hay combinaciones con alto riesgo.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">No hay combinaciones con alto riesgo en este período.</td></tr>';
         } else {
             r.combinacionesPeligrosas.forEach(c => {
                 let color = c.tasaFalla > 70 ? 'bg-danger' : (c.tasaFalla > 40 ? 'bg-warning text-dark' : 'bg-secondary');
@@ -1761,21 +1774,39 @@ async function abrirModalAnalitica() {
     }
 }
 
+function renderChartMotivos(datos) {
+    if (chartMotivos) chartMotivos.destroy();
+    const ctx = document.getElementById('chartMotivosFalla').getContext('2d');
+    chartMotivos = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: datos.map(d => d.motivo),
+            datasets: [{ data: datos.map(d => d.cantidad), backgroundColor: ['#dc3545', '#0d6efd', '#ffc107'] }]
+        },
+        options: { maintainAspectRatio: false, plugins: { legend: { position: 'right' } } }
+    });
+}
+
+function renderChartSistemas(datos) {
+    if (chartSistemas) chartSistemas.destroy();
+    const ctx = document.getElementById('chartSistemasFalla').getContext('2d');
+    chartSistemas = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: datos.map(d => d.sistema),
+            datasets: [{ label: 'Fallas', data: datos.map(d => d.cantidad), backgroundColor: '#6c757d', borderRadius: 5 }]
+        },
+        options: { maintainAspectRatio: false, plugins: { legend: { display: false } } }
+    });
+}
+
 function renderChartConductores(datos) {
     if (chartConductores) chartConductores.destroy();
     const ctx = document.getElementById('chartConductores').getContext('2d');
     chartConductores = new Chart(ctx, {
         type: 'bar',
-        data: {
-            labels: datos.map(d => d.nombre),
-            datasets: [{
-                label: 'Incidencias',
-                data: datos.map(d => d.incidencias),
-                backgroundColor: '#dc3545',
-                borderRadius: 5
-            }]
-        },
-        options: { indexAxis: 'y', plugins: { legend: { display: false } } }
+        data: { labels: datos.map(d => d.nombre), datasets: [{ label: 'Incidencias', data: datos.map(d => d.incidencias), backgroundColor: '#dc3545', borderRadius: 5 }] },
+        options: { indexAxis: 'y', maintainAspectRatio: false, plugins: { legend: { display: false } } }
     });
 }
 
@@ -1784,19 +1815,10 @@ function renderChartVehiculos(datos) {
     const ctx = document.getElementById('chartVehiculos').getContext('2d');
     chartVehiculos = new Chart(ctx, {
         type: 'bar',
-        data: {
-            labels: datos.map(d => d.placa),
-            datasets: [{
-                label: 'Fallas',
-                data: datos.map(d => d.incidencias),
-                backgroundColor: '#ffc107',
-                borderRadius: 5
-            }]
-        },
-        options: { indexAxis: 'y', plugins: { legend: { display: false } } }
+        data: { labels: datos.map(d => d.placa), datasets: [{ label: 'Fallas', data: datos.map(d => d.incidencias), backgroundColor: '#ffc107', borderRadius: 5 }] }
+        , options: { indexAxis: 'y', maintainAspectRatio: false, plugins: { legend: { display: false } } }
     });
-}
-  
+}  
 async function confirmarRecepcionCamion() {
   const vehiculo = document.getElementById('recCamVehiculoTxt').textContent;
   const guia = document.getElementById('recCamGuiaTxt').textContent;
