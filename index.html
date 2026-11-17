@@ -460,9 +460,10 @@
 
 <div id="appObservatorio" class="oculto">
   <div class="d-flex justify-content-between align-items-center mb-3 bg-dark text-white p-3 rounded">
-    <h4 class="m-0 fw-bold"><i class="bi bi-display"></i> Observatorio Estadístico Master</h4>
+    <h4 class="m-0 fw-bold"><i class="bi bi-display"></i> Observatorio Gerencial Master</h4>
     <div>
-        <span class="badge bg-primary fs-6">Consolidado Nacional</span>
+        <button class="btn btn-sm btn-danger fw-bold me-2" onclick="generarReportePDF()"><i class="bi bi-file-earmark-pdf"></i> Exportar PDF</button>
+        <button class="btn btn-sm btn-warning fw-bold text-dark" onclick="generarReporteSlides()"><i class="bi bi-file-earmark-slides"></i> Exportar Slides</button>
     </div>
   </div>
 
@@ -482,7 +483,6 @@
             <label class="form-label fw-bold text-muted mb-1 small">Estado / Región</label>
             <select class="form-select" id="obsFiltroEstado">
                 <option value="TODOS">Todos los Estados</option>
-                <!-- Se llena con JS -->
             </select>
         </div>
         <div class="col-md-3">
@@ -492,92 +492,91 @@
     </div>
   </div>
 
-  <!-- KPIs de Cadena -->
+  <!-- KPIs Maestros (Estilo PDF) -->
   <div class="row g-3 mb-4">
-    <div class="col-6 col-md-2">
-        <div class="card bg-info text-white shadow-sm border-0 h-100">
-            <div class="card-body text-center p-2">
-                <small class="fw-bold">Vuelos Arribados</small>
-                <h3 class="mb-0" id="obsKpiVuelos">0</h3>
-            </div>
-        </div>
-    </div>
-    <div class="col-6 col-md-2">
+    <div class="col-6 col-md-3">
         <div class="card bg-primary text-white shadow-sm border-0 h-100">
-            <div class="card-body text-center p-2">
-                <small class="fw-bold">Camiones (Trans.)</small>
-                <h3 class="mb-0" id="obsKpiCamiones">0</h3>
+            <div class="card-body text-center p-3">
+                <h6 class="text-uppercase text-white-50 mb-1">Recibidas (Nacional)</h6>
+                <h2 class="mb-0 fw-bold" id="obsKpiRecibidas">0</h2>
+                <small>Piezas</small>
             </div>
         </div>
     </div>
-    <div class="col-6 col-md-2">
+    <div class="col-6 col-md-3">
         <div class="card bg-secondary text-white shadow-sm border-0 h-100">
-            <div class="card-body text-center p-2">
-                <small class="fw-bold">Despachado a OPT</small>
-                <h3 class="mb-0" id="obsKpiDespachados">0</h3>
+            <div class="card-body text-center p-3">
+                <h6 class="text-uppercase text-white-50 mb-1">Distribuidas a Estados</h6>
+                <h2 class="mb-0 fw-bold" id="obsKpiDistribuidas">0</h2>
+                <small>Piezas</small>
             </div>
         </div>
     </div>
-    <div class="col-6 col-md-2">
+    <div class="col-6 col-md-3">
         <div class="card bg-success text-white shadow-sm border-0 h-100">
-            <div class="card-body text-center p-2">
-                <small class="fw-bold">Entregado Elector</small>
-                <h3 class="mb-0" id="obsKpiEntregados">0</h3>
+            <div class="card-body text-center p-3">
+                <h6 class="text-uppercase text-white-50 mb-1">Entregadas al Elector</h6>
+                <h2 class="mb-0 fw-bold" id="obsKpiEntregadas">0</h2>
+                <small><span id="obsKpiPct">0%</span> de Cumplimiento</small>
             </div>
         </div>
     </div>
-    <div class="col-6 col-md-2">
+    <div class="col-6 col-md-3">
         <div class="card bg-warning text-dark shadow-sm border-0 h-100">
-            <div class="card-body text-center p-2">
-                <small class="fw-bold">Total Incidencias</small>
-                <h3 class="mb-0" id="obsKpiIncidencias">0</h3>
+            <div class="card-body text-center p-3">
+                <h6 class="text-uppercase text-dark-50 mb-1">Piezas por Entregar</h6>
+                <h2 class="mb-0 fw-bold" id="obsKpiPendientes">0</h2>
+                <small class="text-danger fw-bold" id="obsKpiReencaminadas">0 Reencaminadas</small>
             </div>
         </div>
     </div>
-    <div class="col-6 col-md-2">
-        <div class="card bg-danger text-white shadow-sm border-0 h-100">
-            <div class="card-body text-center p-2">
-                <small class="fw-bold">% Efectividad</small>
-                <h3 class="mb-0" id="obsKpiEfectividad">0%</h3>
-            </div>
-        </div>
-    </div>
+  </div>
+
+  <!-- Análisis de la IA -->
+  <div class="card shadow-sm mb-4 border-info">
+      <div class="card-header bg-info text-white fw-bold d-flex justify-content-between">
+          <span><i class="bi bi-robot"></i> Análisis Cualitativo del Reporte (IA)</span>
+          <button class="btn btn-sm btn-light fw-bold" onclick="generarAnalisisIA()">Generar Análisis</button>
+      </div>
+      <div class="card-body">
+          <textarea class="form-control" id="obsTextoAnalisis" rows="3" placeholder="Haga clic en 'Generar Análisis' para que la IA redacte el resumen ejecutivo basado en los datos..."></textarea>
+      </div>
   </div>
 
   <!-- Gráficos -->
   <div class="row g-3 mb-4">
-    <div class="col-md-7">
+    <div class="col-md-12">
         <div class="card shadow-sm h-100">
-            <div class="card-header bg-white fw-bold"><i class="bi bi-funnel text-primary"></i> Embudo de Trazabilidad (Piezas)</div>
-            <div class="card-body" style="height: 300px; position: relative;">
-                <canvas id="obsChartEmbudo"></canvas>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-5">
-        <div class="card shadow-sm h-100">
-            <div class="card-header bg-white fw-bold"><i class="bi bi-pie-chart-fill text-danger"></i> Top Incidencias (Transporte)</div>
-            <div class="card-body" style="height: 300px; position: relative;">
-                <canvas id="obsChartIncidencias"></canvas>
+            <div class="card-header bg-white fw-bold"><i class="bi bi-bar-chart-fill text-primary"></i> Desempeño por Estado (Enviadas vs Recibidas vs Entregadas)</div>
+            <div class="card-body" style="height: 350px; position: relative;">
+                <canvas id="obsChartBarras"></canvas>
             </div>
         </div>
     </div>
   </div>
-  
-  <div class="row g-3 mb-4">
-      <div class="col-md-12">
-          <div class="card shadow-sm h-100">
-              <div class="card-header bg-white fw-bold"><i class="bi bi-graph-up-arrow text-success"></i> Tendencia Nacional (Recibidas vs Entregadas)</div>
-              <div class="card-body" style="height: 250px; position: relative;">
-                  <canvas id="obsChartTendencia"></canvas>
-              </div>
-          </div>
-      </div>
-  </div>
-</div>
-  </div>
-</div>
 
+  <!-- Tabla Detallada -->
+  <div class="card shadow-sm border-0">
+    <div class="card-header bg-dark text-white fw-bold"><i class="bi bi-table"></i> Reporte de Distribución por Estado</div>
+    <div class="card-body p-0 table-responsive" style="max-height: 400px; overflow-y: auto;">
+        <table class="table table-hover mb-0 align-middle">
+            <thead class="table-light" style="position: sticky; top: 0; z-index: 1;">
+                <tr>
+                    <th>Región</th>
+                    <th>Estado</th>
+                    <th class="text-center">Piezas Enviadas CPC</th>
+                    <th class="text-center">Piezas Recibidas OPT</th>
+                    <th class="text-center">Piezas Entregadas</th>
+                </tr>
+            </thead>
+            <tbody id="obsTablaEstados">
+                <tr><td colspan="5" class="text-center py-3">Cargando datos...</td></tr>
+            </tbody>
+        </table>
+    </div>
+  </div>
+</div>
+    
 <!-- MODALES (OPT) -->
 <div class="modal fade" id="modalRecepcion" tabindex="-1">
   <div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header bg-warning text-dark"><h5 class="modal-title fw-bold">Confirmar Recepción</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body">
