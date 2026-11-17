@@ -1755,85 +1755,9 @@ async function cargarEstadosObservatorio() {
         }
     } catch(e) {}
 }
-
+  
+let obsChartBarras = null;
 async function cargarObservatorio() {
-  if (document.getElementById('obsFiltroEstado').options.length === 1) {
-      await cargarEstadosObservatorio();
-  }
-  if (!document.getElementById('obsFiltroDesde').value) {
-      const hoy = new Date().toISOString().split('T')[0];
-      const hace7 = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-      document.getElementById('obsFiltroDesde').value = hace7;
-      document.getElementById('obsFiltroHasta').value = hoy;
-  }
-
-  const desde = document.getElementById('obsFiltroDesde').value;
-  const hasta = document.getElementById('obsFiltroHasta').value;
-  const estadoFiltro = document.getElementById('obsFiltroEstado').value;
-
-  Swal.fire({ title: 'Analizando datos nacionales...', didOpen: () => Swal.showLoading() });
-
-  try {
-    const r = await postAPI({ accion: 'obtenerDatosObservatorioMaster', fechaInicio: desde, fechaFin: hasta, estadoFiltro: estadoFiltro });
-    if (!r.exito) throw new Error(r.mensaje);
-    Swal.close();
-
-    const d = r.datos;
-    const fmt = (num) => Number(num || 0).toLocaleString('es-VE');
-
-    // KPIs
-    document.getElementById('obsKpiVuelos').textContent = fmt(d.kpis.vuelos);
-    document.getElementById('obsKpiCamiones').textContent = fmt(d.kpis.camiones);
-    document.getElementById('obsKpiDespachados').textContent = fmt(d.kpis.piezasDespachadas);
-    document.getElementById('obsKpiEntregados').textContent = fmt(d.kpis.entregadasOPT);
-    document.getElementById('obsKpiIncidencias').textContent = fmt(d.kpis.incidencias);
-    
-    let efec = d.kpis.recibidasOPT > 0 ? Math.round((d.kpis.entregadasOPT / d.kpis.recibidasOPT) * 100) : 0;
-    document.getElementById('obsKpiEfectividad').textContent = efec + '%';
-
-    // Embudo
-    if (obsChartEmbudo) obsChartEmbudo.destroy();
-    const ctxEmb = document.getElementById('obsChartEmbudo').getContext('2d');
-    obsChartEmbudo = new Chart(ctxEmb, {
-      type: 'bar',
-      data: {
-        labels: d.embudo.map(e => e.etapa),
-        datasets: [{ label: 'Piezas', data: d.embudo.map(e => e.valor), backgroundColor: ['#0dcaf0', '#0d6efd', '#6c757d', '#198754', '#20c997'], borderRadius: 5 }]
-      },
-      options: { indexAxis: 'y', maintainAspectRatio: false, plugins: { legend: { display: false } } }
-    });
-
-    // Torta Incidencias
-    if (obsChartIncidencias) obsChartIncidencias.destroy();
-    const ctxInc = document.getElementById('obsChartIncidencias').getContext('2d');
-    obsChartIncidencias = new Chart(ctxInc, {
-      type: 'doughnut',
-      data: {
-        labels: d.topIncidencias.map(i => i.tipo),
-        datasets: [{ data: d.topIncidencias.map(i => i.cant), backgroundColor: ['#dc3545', '#ffc107', '#6c757d', '#0dcaf0', '#198754'], borderWidth: 0 }]
-      },
-      options: { maintainAspectRatio: false, cutout: '60%', plugins: { legend: { position: 'right' } } }
-    });
-
-    // Tendencia
-    if (obsChartTendencia) obsChartTendencia.destroy();
-    const ctxTend = document.getElementById('obsChartTendencia').getContext('2d');
-    obsChartTendencia = new Chart(ctxTend, {
-      type: 'line',
-      data: {
-        labels: d.tendenciaDiaria.map(t => t.fecha),
-        datasets: [
-          { label: 'Recibidas', data: d.tendenciaDiaria.map(t => t.rec), borderColor: '#0d6efd', backgroundColor: 'rgba(13, 110, 253, 0.1)', fill: true, tension: 0.3 },
-          { label: 'Entregadas', data: d.tendenciaDiaria.map(t => t.ent), borderColor: '#198754', backgroundColor: 'rgba(25, 135, 84, 0.1)', fill: true, tension: 0.3 }
-        ]
-      },
-      options: { maintainAspectRatio: false, plugins: { legend: { position: 'top' } } }
-    });
-
-  } catch(e) {
-    Swal.fire('Error', e.message, 'error');
-  }
-}
 function volverAtras() {
   if (!document.getElementById('pasoCredenciales').classList.contains('oculto')) { document.getElementById('pasoCredenciales').classList.add('oculto'); if (estadoApp.requiereOPT) { mostrar('pasoEstado'); mostrar('pasoOPT'); } else if (estadoApp.requiereEstado) { mostrar('pasoEstado'); } else { document.getElementById('selRol').value = ''; cambiarRol(); } return; }
   if (!document.getElementById('pasoOPT').classList.contains('oculto')) { document.getElementById('pasoOPT').classList.add('oculto'); mostrar('pasoEstado'); return; }
