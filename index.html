@@ -2121,7 +2121,7 @@ async function generarInformeMariela() {
           .kpi-box { display: inline-block; border: 1px solid #ccc; padding: 10px; margin: 5px; width: 30%; text-align: center; border-radius: 8px; }
           .footer { text-align: center; margin-top: 40px; font-size: 12px; color: #666; }
           .text-left { text-align: left; }
-          .total-box { background-color: #f8f9fa; font-weight: bold; margin-bottom: 10px; padding: 10px; border: 1px solid #ddd; border-radius: 5px; }
+          .total-box { background-color: #e9ecef; font-weight: bold; margin-bottom: 10px; padding: 15px; border: 1px solid #ccc; border-radius: 5px; font-size: 13px; line-height: 1.6;}
         </style>
       </head>
       <body>
@@ -2136,14 +2136,20 @@ async function generarInformeMariela() {
         </div>
 
         <h3>Reporte: Cargas Recibidas</h3>
-        <!-- Recuadro de Totales Recibidas -->
+        <!-- Recuadro de Totales Recibidas Detallado -->
         <div class="total-box">
-          TOTALES EN EL PERIODO: Valijas: ${rData.totales.valijas} | Piezas: ${rData.totales.piezas}
+          TOTALES EN EL PERIODO:<br>
+          Valijas Certificadas: <span style="color:#0d6efd;">${rData.totales.recCert}</span> | 
+          Valijas Ordinarias: <span style="color:#0d6efd;">${rData.totales.recOrd}</span> | 
+          <b>Total Valijas: ${rData.totales.recValijas}</b><br>
+          Piezas Certificadas: <span style="color:#198754;">${rData.totales.recCert}</span> | 
+          Piezas Ordinarias: <span style="color:#198754;">${rData.totales.recOrd}</span> | 
+          <b>Total Piezas: ${rData.totales.recPiezasTotal}</b>
         </div>
         <table>
           <thead>
             <tr>
-              <th>Fecha</th><th>Entregadas por:</th><th>Cant.</th><th>Valijas</th><th>Certificadas</th><th>Ordinarias</th><th>Mixtas</th>
+              <th>Fecha</th><th>Entregadas por:</th><th>Cant.</th><th>Valijas</th><th>Piezas Cert.</th><th>Piezas Ord.</th><th>Mixtas</th>
             </tr>
           </thead>
           <tbody>
@@ -2162,14 +2168,21 @@ async function generarInformeMariela() {
         </table>
 
         <h3>Reporte: Cargas Despachadas</h3>
-        <!-- Recuadro de Totales Despachadas -->
+        <!-- Recuadro de Totales Despachadas Detallado -->
         <div class="total-box">
-          TOTALES EN EL PERIODO: Masters: ${rData.totales.master} | Piezas Despachadas: ${rData.totales.piezasDespachadas}
+          TOTALES EN EL PERIODO:<br>
+          Masters: <span style="color:#6f42c1;">${rData.totales.masterTotal}</span><br>
+          Valijas Certificadas: <span style="color:#0d6efd;">${rData.totales.desCert}</span> | 
+          Valijas Ordinarias: <span style="color:#0d6efd;">${rData.totales.desOrd}</span> | 
+          <b>Total Valijas: ${rData.totales.desValijas}</b><br>
+          Piezas Certificadas: <span style="color:#198754;">${rData.totales.desCert}</span> | 
+          Piezas Ordinarias: <span style="color:#198754;">${rData.totales.desOrd}</span> | 
+          <b>Total Piezas: ${rData.totales.desPiezasTotal}</b>
         </div>
         <table>
           <thead>
             <tr>
-              <th>Fecha</th><th>Entrega a:</th><th>Master</th><th>Paquetes</th><th>Piezas</th><th>Certificadas</th><th>Ordinarias</th>
+              <th>Fecha</th><th>Entrega a:</th><th>Master</th><th>Paquetes</th><th>Valijas</th><th>Piezas Cert.</th><th>Piezas Ord.</th>
             </tr>
           </thead>
           <tbody>
@@ -2179,7 +2192,7 @@ async function generarInformeMariela() {
                 <td class="text-left">${item.destino}</td>
                 <td>${item.master}</td>
                 <td>${item.paquetes}</td>
-                <td>${item.piezas}</td>
+                <td>${item.valijas}</td>
                 <td>${item.certificadas}</td>
                 <td>${item.ordinarias}</td>
               </tr>
