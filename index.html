@@ -1735,24 +1735,6 @@ function actualizarGrafico(regiones, fmt) {
   chartRegiones = new Chart(ctx, { type: 'bar', data: { labels: regiones.map(r => r.region), datasets: [{ label: '% Efectividad', data: data, backgroundColor: bgColors, borderRadius: 5 }] }, options: { indexAxis: 'y', responsive: true, plugins: { legend: { display: false } }, scales: { x: { max: 100, beginAtZero: true } } } });
 }
 
-// ==========================================
-// UTILIDADES LOGIN
-// ==========================================
-let obsChartEmbudo = null;
-let obsChartIncidencias = null;
-let obsChartTendencia = null;
-
-async function cargarEstadosObservatorio() {
-    try {
-        const r = await postAPI({ accion: 'obtenerEstados' });
-        if(r.exito) {
-            const sel = document.getElementById('obsFiltroEstado');
-            sel.innerHTML = '<option value="TODOS">Todos los Estados</option>';
-            r.estados.forEach(e => sel.innerHTML += `<option value="${e}">${e}</option>`);
-        }
-    } catch(e) {}
-}
-
 async function cargarObservatorio() {
   if (document.getElementById('obsFiltroEstado').options.length === 1) {
       await cargarEstadosObservatorio();
@@ -2426,7 +2408,7 @@ async function generarInformeMariela() {
     Swal.fire('Error', 'No se pudo generar el informe: ' + e.message, 'error');
   }
 }
-  // ==========================================
+// ==========================================
 // LÓGICA DEL OBSERVATORIO Y EXPORTACIÓN (NUEVO)
 // ==========================================
 
