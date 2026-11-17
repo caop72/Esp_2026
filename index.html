@@ -1740,10 +1740,12 @@ async function cargarCamionesPorRecibir() {
     const r = await postAPI({ accion: 'obtenerDespachosCamiones' }); 
     if (!r.exito) throw new Error(r.mensaje);
     
-    cargarIndicadoresEncaminamiento(); // <--- ACTUALIZA LOS INDICADORES
+    if (typeof cargarIndicadoresEncaminamiento === 'function') {
+        cargarIndicadoresEncaminamiento(); 
+    }
 
     tbody.innerHTML = '';
-    if(r.datos.length === 0) return tbody.innerHTML = '<tr><td colspan="5" class="text-center py-3">No hay camiones de IPOSTEL en tránsito.</td></tr>';
+    if(r.datos.length === 0) return tbody.innerHTML = '<tr><td colspan="5" class="text-center py-3">No hay camiones en tránsito.</td></tr>';
     
     r.datos.forEach(d => {
       tbody.innerHTML += `<tr>
@@ -1751,14 +1753,79 @@ async function cargarCamionesPorRecibir() {
         <td>${d.precinto}</td>
         <td>Guía: ${d.guiaAerea}<br><small>${d.valijas} Val | ${d.piezas} Pzs</small></td>
         <td>${d.fechaSalida}</td>
-        <td><button class="btn btn-sm btn-primary fw-bold" onclick="abrirModalRecibirCamion('${d.id}', '${d.vehiculo}', '${d.conductor}', '${d.precinto}', '${d.guiaAerea}', '${d.valijas}', '${d.piezas}')">Recibir</button></td>
+        <td><button class="btn btn-sm btn-primary fw-bold" onclick="abrirModalRecibirCamion('${d.idDespacho}', '${d.vehiculo}', '${d.conductor}', '${d.precinto}', '${d.guiaAerea}', '${d.valijas}', '${d.piezas}')">Recibir</button></td>
       </tr>`;
     });
   } catch(e) { 
     tbody.innerHTML = `<tr><td colspan="5" class="text-center text-danger">${e.message}</td></tr>`; 
   }
 }
+let modalRecibirCamionInstance = null;
+let idDespachoActual = '';
 
+function abrirModalRecibirCamion(idDespacho, vehiculo, conductor, precinto, guia, valijas, piezas) {
+    if (!modalRecibirCamionInstance) {
+        modalRecibirCamionInstance = new bootstrap.Modal(document.getElementById('modalRecibirCamion'));
+    }
+    idDespachoActual = idDespacho;
+    
+    document.getElementById('recCamVehiculoTxt').textContent = vehiculo;
+    document.getElementById('recCamConductorTxt').textContent = conductor;
+    document.getElementById('recCamPrecintoTxt').textContent = precinto;
+    document.getElementById('recCamGuiaTxt').textContent = guia;
+    document.getElementById('recCamValijasTxt').textContent = valijas;
+    document.getElementById('recCamPiezasTxt').textContent = piezas;
+    
+    // Autoseleccionar la empresa según el vehículo registrado
+    if(vehiculo.toUpperCase().includes('MRW')) {
+        document.getElementById('recCamEmpresaInp').value = 'MRW';
+    } else if(vehiculo.toUpperCase().includes('IPOSTEL')) {
+        document.getElementById('recCamEmpresaInp').value = 'IPOSTEL';
+    } else {
+        document.getElementById('recCamEmpresaInp').value = 'OTRO';
+    }
+    
+    document.getElementById('recCamHoraLlegadaInp').value = new Date().toISOString().slice(0, 16);
+    document.getElementById('recCamIntactoInp').value = 'SI';
+    document.getElementById('recCamObsInp').value = '';
+    document.getElementById('recCamFotoInp').value = '';
+    
+    modalRecibirCamionInstance.show();
+}
+async function confirmarRecepcionCamion() {
+    const condicion = document.getElementById('recCamIntactoInp').value === 'SI' ? 'Intacto' : 'Novedad';
+    const foto = document.getElementById('recCamFotoInp').files[0];
+    const empresa = document.getElementById('recCamEmpresaInp').value;
+    
+    if (!foto && condicion === 'Novedad') {
+        return Swal.fire('Atención', 'Si hay una novedad, debe adjuntar una foto obligatoriamente.', 'warning');
+    }
+
+    const payload = {
+        accion: 'confirmarRecepcionCamion',
+        idDespacho: idDespachoActual,
+        empresa: empresa, 
+        guiaAerea: document.getElementById('recCamGuiaTxt').textContent,
+        valijas: document.getElementById('recCamValijasTxt').textContent,
+        piezas: document.getElementById('recCamPiezasTxt').textContent,
+        precinto: document.getElementById('recCamPrecintoTxt').textContent,
+        condicion: condicion
+    };
+    
+    Swal.fire({ title: 'Registrando recepción...', didOpen: () => Swal.showLoading() });
+    
+    try {
+        const r = await postAPI(payload);
+        if (!r.exito) throw new Error(r.mensaje);
+        
+        modalRecibirCamionInstance.hide();
+        Swal.fire('✅ Recibido', 'El camión ha sido ingresado al CPC.', 'success');
+        cargarCamionesPorRecibir();
+    } catch(e) {
+        Swal.fire('Error', e.message, 'error');
+    }
+}
+  
 // 3. Abrir Modal Trazabilidad
 async function abrirModalTrazabilidad() {
     if (!modalTrazabilidad) modalTrazabilidad = new bootstrap.Modal(document.getElementById('modalTrazabilidad'));
@@ -1876,16 +1943,26 @@ async function cargarValijasMRW() {
   if(!tbody) return;
   tbody.innerHTML = '<tr><td colspan="4" class="text-center py-3 text-muted">Cargando másters...</td></tr>';
   
-  setTimeout(() => {
-    tbody.innerHTML = `
-      <tr>
-        <td>MST-001</td>
-        <td>15 Val / 45 Pzs</td>
-        <td>2026-11-15 10:00</td>
-        <td><button class="btn btn-sm btn-primary" onclick="abrirModalEntregarMRW('MST-001', 45)">Entregar a MRW</button></td>
-      </tr>
-    `;
-  }, 1000);
+  try {
+    const r = await postAPI({ accion: 'obtenerValijasCPC' }); 
+    if (!r.exito) throw new Error(r.mensaje);
+    
+    tbody.innerHTML = '';
+    if(r.datos.length === 0) {
+      return tbody.innerHTML = '<tr><td colspan="4" class="text-center py-3">No hay másters listos para MRW.</td></tr>';
+    }
+    
+    r.datos.forEach(d => {
+      tbody.innerHTML += `<tr>
+        <td>${d.guiaAerea}</td>
+        <td>${d.valijas} Val / ${d.piezas} Pzs</td>
+        <td>${d.fechaRecepcion}</td>
+        <td><button class="btn btn-sm btn-primary" onclick="abrirModalEntregarMRW('${d.idMaster}', '${d.piezas}')">Entregar a MRW</button></td>
+      </tr>`;
+    });
+  } catch(e) { 
+    tbody.innerHTML = `<tr><td colspan="4" class="text-center text-danger">${e.message}</td></tr>`; 
+  }
 }
 
 // 7. Recibir Camiones de MRW (Pestaña 3)
@@ -2024,15 +2101,12 @@ async function generarInformeMariela() {
   Swal.fire({ title: 'Generando Informe...', didOpen: () => Swal.showLoading() });
 
   try {
-    // Pedimos los datos de la analítica y de los reportes operativos
     const r = await postAPI({ accion: 'obtenerAnaliticaAvanzada', fechaInicio: desde, fechaFin: hasta });
     if (!r.exito) throw new Error(r.mensaje);
 
-    // Pedimos el desglose operativo para el informe
     const rData = await postAPI({ accion: 'obtenerDatosInformeCPC', fechaInicio: desde, fechaFin: hasta });
     if (!rData.exito) throw new Error(rData.mensaje);
 
-    // Construimos el HTML del PDF
     let contenidoHTML = `
       <html>
       <head>
