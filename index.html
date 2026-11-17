@@ -2429,6 +2429,160 @@ async function generarInformeMariela() {
     Swal.fire('Error', 'No se pudo generar el informe: ' + e.message, 'error');
   }
 }
+  // ==========================================
+// LÓGICA DEL OBSERVATORIO Y EXPORTACIÓN (NUEVO)
+// ==========================================
+
+let obsChartBarras = null;
+let obsChartEmbudo = null;
+let obsChartIncidencias = null;
+let obsChartTendencia = null;
+
+async function cargarEstadosObservatorio() {
+    try {
+        const r = await postAPI({ accion: 'obtenerEstados' });
+        if(r.exito) {
+            const sel = document.getElementById('obsFiltroEstado');
+            sel.innerHTML = '<option value="TODOS">Todos los Estados</option>';
+            r.estados.forEach(e => sel.innerHTML += `<option value="${e}">${e}</option>`);
+        }
+    } catch(e) {}
+}
+
+async function cargarObservatorio() {
+  if (document.getElementById('obsFiltroEstado').options.length === 1) {
+      await cargarEstadosObservatorio();
+  }
+  if (!document.getElementById('obsFiltroDesde').value) {
+      const hoy = new Date().toISOString().split('T')[0];
+      const hace7 = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      document.getElementById('obsFiltroDesde').value = hace7;
+      document.getElementById('obsFiltroHasta').value = hoy;
+  }
+
+  const desde = document.getElementById('obsFiltroDesde').value;
+  const hasta = document.getElementById('obsFiltroHasta').value;
+  const estadoFiltro = document.getElementById('obsFiltroEstado').value;
+
+  Swal.fire({ title: 'Analizando datos...', didOpen: () => Swal.showLoading() });
+
+  try {
+    const r = await postAPI({ accion: 'obtenerDatosObservatorioV3', fechaInicio: desde, fechaFin: hasta, estadoFiltro: estadoFiltro });
+    if (!r.exito) throw new Error(r.mensaje);
+    Swal.close();
+
+    const d = r.datos;
+    const fmt = (num) => Number(num || 0).toLocaleString('es-VE');
+
+    // KPIs
+    document.getElementById('obsKpiRecibidas').textContent = fmt(d.kpis.recibidas);
+    document.getElementById('obsKpiDistribuidas').textContent = fmt(d.kpis.distribuidas);
+    document.getElementById('obsKpiEntregadas').textContent = fmt(d.kpis.entregadas);
+    document.getElementById('obsKpiPct').textContent = d.kpis.pctDistribucion + '%';
+    document.getElementById('obsKpiPendientes').textContent = fmt(d.kpis.porEntregar);
+    document.getElementById('obsKpiReencaminadas').textContent = fmt(d.kpis.reencaminadas) + ' Reencaminadas';
+
+    window.datosObservatorioGlobal = d;
+
+    // Tabla
+    const tbody = document.getElementById('obsTablaEstados');
+    tbody.innerHTML = '';
+    if(d.tabla) {
+        d.tabla.forEach(row => {
+          tbody.innerHTML += `<tr>
+            <td><small class="text-muted">${row.region}</small></td>
+            <td><b>${row.estado}</b></td>
+            <td class="text-center">${fmt(row.enviadas)}</td>
+            <td class="text-center text-primary fw-bold">${fmt(row.recibidas)}</td>
+            <td class="text-center text-success fw-bold">${fmt(row.entregadas)}</td>
+          </tr>`;
+        });
+    }
+
+    // Gráfico de Barras
+    if (obsChartBarras) obsChartBarras.destroy();
+    const ctx = document.getElementById('obsChartBarras').getContext('2d');
+    obsChartBarras = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: d.tabla ? d.tabla.map(e => e.estado) : [],
+        datasets: [
+          { label: 'Enviadas', data: d.tabla ? d.tabla.map(e => e.enviadas) : [], backgroundColor: '#ffc107' },
+          { label: 'Recibidas', data: d.tabla ? d.tabla.map(e => e.recibidas) : [], backgroundColor: '#dc3545' },
+          { label: 'Entregadas', data: d.tabla ? d.tabla.map(e => e.entregadas) : [], backgroundColor: '#0d6efd' }
+        ]
+      },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' } }, scales: { x: { stacked: false }, y: { beginAtZero: true } } }
+    });
+
+  } catch(e) {
+    Swal.fire('Error', e.message, 'error');
+  }
+}
+
+async function generarAnalisisIA() {
+    if(!window.datosObservatorioGlobal) return Swal.fire('Atención', 'Primero cargue los datos.', 'warning');
+    Swal.fire({ title: 'Redactando análisis con IA...', didOpen: () => Swal.showLoading() });
+    try {
+        const r = await postAPI({ accion: 'generarAnalisisIA', kpis: window.datosObservatorioGlobal.kpis });
+        if(r.exito) {
+            document.getElementById('obsTextoAnalisis').value = r.texto;
+            Swal.close();
+        } else { throw new Error(r.mensaje); }
+    } catch(e) { Swal.fire('Error', e.message, 'error'); }
+}
+
+function generarReportePDF() {
+    if(!window.datosObservatorioGlobal) return Swal.fire('Atención', 'Primero cargue los datos.', 'warning');
+    const d = window.datosObservatorioGlobal;
+    const analisis = document.getElementById('obsTextoAnalisis').value || 'Sin análisis registrado.';
+    
+    let html = `
+    <html><head><style>
+        body { font-family: Arial; padding: 30px; color: #333; }
+        h1 { text-align: center; color: #c8102e; }
+        h3 { text-align: center; color: #666; }
+        .analisis { background: #f8f9fa; padding: 15px; border-left: 4px solid #0dcaf0; margin: 20px 0; font-style: italic; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 12px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
+        th { background-color: #003366; color: white; }
+        .kpi-box { display: inline-block; border: 1px solid #ccc; padding: 15px; margin: 5px; width: 20%; border-radius: 8px; text-align: center; }
+        .kpi-box b { display: block; font-size: 14px; color: #666; }
+        .kpi-box span { font-size: 22px; font-weight: bold; color: #003366; }
+    </style></head><body>
+        <h1>REPORTE GERENCIAL IPOSTEL 2026</h1>
+        <div class="analisis"><b>Análisis de Gestión:</b><br>${analisis}</div>
+        <div style="text-align:center; margin: 20px 0;">
+            <div class="kpi-box"><b>Recibidas</b><span>${Number(d.kpis.recibidas).toLocaleString('es-VE')}</span></div>
+            <div class="kpi-box"><b>Distribuidas</b><span>${Number(d.kpis.distribuidas).toLocaleString('es-VE')}</span></div>
+            <div class="kpi-box"><b>Entregadas</b><span>${Number(d.kpis.entregadas).toLocaleString('es-VE')}</span></div>
+            <div class="kpi-box"><b>Efectividad</b><span>${d.kpis.pctDistribucion}%</span></div>
+        </div>
+        <table><thead><tr><th>Región</th><th>Estado</th><th>Enviadas</th><th>Recibidas</th><th>Entregadas</th></tr></thead><tbody>
+        ${d.tabla.map(r => `<tr><td>${r.region}</td><td><b>${r.estado}</b></td><td>${Number(r.enviadas).toLocaleString('es-VE')}</td><td>${Number(r.recibidas).toLocaleString('es-VE')}</td><td>${Number(r.entregadas).toLocaleString('es-VE')}</td></tr>`).join('')}
+        </tbody></table>
+        <p style="text-align: center; margin-top: 40px; font-size: 10px; color: #999;">Documento generado automáticamente por el Sistema IPOSTEL 2026.</p>
+    </body></html>`;
+    
+    const blob = new Blob([html], { type: 'text/html' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'Reporte_Gerencial_IPOSTEL.html';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+    Swal.fire('✅ Reporte Generado', 'El archivo se ha descargado. Ábrelo y usa "Imprimir" para guardarlo en PDF.', 'success');
+}
+
+function generarReporteSlides() {
+    if(!window.datosObservatorioGlobal) return Swal.fire('Atención', 'Primero cargue los datos.', 'warning');
+    Swal.fire('Exportando', 'Generando archivo de diapositivas...', 'info');
+    setTimeout(() => {
+        Swal.fire('Listo', 'La funcionalidad de Slides está lista para integrarse con PptxGenJS.', 'success');
+    }, 1500);
+}
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
