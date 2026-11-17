@@ -676,7 +676,17 @@
             </div>
           </div>
           
+          <div class="col-md-6">
+            <label class="form-label fw-bold text-primary">Empresa Transportista *</label>
+            <select class="form-select" id="recCamEmpresaInp" required>
+                <option value="IPOSTEL">IPOSTEL</option>
+                <option value="MRW">MRW</option>
+                <option value="OTRO">Otro (Especial)</option>
+            </select>
+          </div>
+          
           <div class="col-md-6"><label class="form-label fw-bold">Hora de Llegada al CPC *</label><input type="datetime-local" class="form-control" id="recCamHoraLlegadaInp" required></div>
+          
           <div class="col-md-6"><label class="form-label fw-bold">¿Precinto Intacto? *</label><select class="form-select" id="recCamIntactoInp"><option value="SI">✅ Sí</option><option value="NO">❌ No (Reportar Novedad)</option></select></div>
           
           <div class="col-12"><label class="form-label fw-bold">Condición de la Carga (Opcional)</label><textarea class="form-control" id="recCamObsInp" rows="2" placeholder="Ej: Llegó con 1 valija abollada..."></textarea></div>
