@@ -458,11 +458,123 @@
       </div>
     </div>
 
-    <!-- PANEL OBSERVATORIO -->
-    <div id="appObservatorio" class="oculto">
-      <h5 class="text-primary mb-3">Observatorio Estadístico (Indicadores)</h5>
-      <div id="dashboardObservatorio">Cargando datos...</div>
+<div id="appObservatorio" class="oculto">
+  <div class="d-flex justify-content-between align-items-center mb-3 bg-dark text-white p-3 rounded">
+    <h4 class="m-0 fw-bold"><i class="bi bi-display"></i> Observatorio Estadístico Master</h4>
+    <div>
+        <span class="badge bg-primary fs-6">Consolidado Nacional</span>
     </div>
+  </div>
+
+  <!-- Filtros -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <div class="row g-2 align-items-end">
+        <div class="col-md-3">
+            <label class="form-label fw-bold text-muted mb-1 small">Desde</label>
+            <input type="date" class="form-control" id="obsFiltroDesde">
+        </div>
+        <div class="col-md-3">
+            <label class="form-label fw-bold text-muted mb-1 small">Hasta</label>
+            <input type="date" class="form-control" id="obsFiltroHasta">
+        </div>
+        <div class="col-md-3">
+            <label class="form-label fw-bold text-muted mb-1 small">Estado / Región</label>
+            <select class="form-select" id="obsFiltroEstado">
+                <option value="TODOS">Todos los Estados</option>
+                <!-- Se llena con JS -->
+            </select>
+        </div>
+        <div class="col-md-3">
+            <button class="btn btn-primary w-100 fw-bold" onclick="cargarObservatorio()"><i class="bi bi-filter"></i> Filtrar Datos</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPIs de Cadena -->
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-md-2">
+        <div class="card bg-info text-white shadow-sm border-0 h-100">
+            <div class="card-body text-center p-2">
+                <small class="fw-bold">Vuelos Arribados</small>
+                <h3 class="mb-0" id="obsKpiVuelos">0</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-2">
+        <div class="card bg-primary text-white shadow-sm border-0 h-100">
+            <div class="card-body text-center p-2">
+                <small class="fw-bold">Camiones (Trans.)</small>
+                <h3 class="mb-0" id="obsKpiCamiones">0</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-2">
+        <div class="card bg-secondary text-white shadow-sm border-0 h-100">
+            <div class="card-body text-center p-2">
+                <small class="fw-bold">Despachado a OPT</small>
+                <h3 class="mb-0" id="obsKpiDespachados">0</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-2">
+        <div class="card bg-success text-white shadow-sm border-0 h-100">
+            <div class="card-body text-center p-2">
+                <small class="fw-bold">Entregado Elector</small>
+                <h3 class="mb-0" id="obsKpiEntregados">0</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-2">
+        <div class="card bg-warning text-dark shadow-sm border-0 h-100">
+            <div class="card-body text-center p-2">
+                <small class="fw-bold">Total Incidencias</small>
+                <h3 class="mb-0" id="obsKpiIncidencias">0</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-2">
+        <div class="card bg-danger text-white shadow-sm border-0 h-100">
+            <div class="card-body text-center p-2">
+                <small class="fw-bold">% Efectividad</small>
+                <h3 class="mb-0" id="obsKpiEfectividad">0%</h3>
+            </div>
+        </div>
+    </div>
+  </div>
+
+  <!-- Gráficos -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-7">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-white fw-bold"><i class="bi bi-funnel text-primary"></i> Embudo de Trazabilidad (Piezas)</div>
+            <div class="card-body" style="height: 300px; position: relative;">
+                <canvas id="obsChartEmbudo"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-5">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-white fw-bold"><i class="bi bi-pie-chart-fill text-danger"></i> Top Incidencias (Transporte)</div>
+            <div class="card-body" style="height: 300px; position: relative;">
+                <canvas id="obsChartIncidencias"></canvas>
+            </div>
+        </div>
+    </div>
+  </div>
+  
+  <div class="row g-3 mb-4">
+      <div class="col-md-12">
+          <div class="card shadow-sm h-100">
+              <div class="card-header bg-white fw-bold"><i class="bi bi-graph-up-arrow text-success"></i> Tendencia Nacional (Recibidas vs Entregadas)</div>
+              <div class="card-body" style="height: 250px; position: relative;">
+                  <canvas id="obsChartTendencia"></canvas>
+              </div>
+          </div>
+      </div>
+  </div>
+</div>
   </div>
 </div>
 
