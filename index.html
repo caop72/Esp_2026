@@ -2121,6 +2121,7 @@ async function generarInformeMariela() {
           .kpi-box { display: inline-block; border: 1px solid #ccc; padding: 10px; margin: 5px; width: 30%; text-align: center; border-radius: 8px; }
           .footer { text-align: center; margin-top: 40px; font-size: 12px; color: #666; }
           .text-left { text-align: left; }
+          .total-box { background-color: #f8f9fa; font-weight: bold; margin-bottom: 10px; padding: 10px; border: 1px solid #ddd; border-radius: 5px; }
         </style>
       </head>
       <body>
@@ -2135,44 +2136,52 @@ async function generarInformeMariela() {
         </div>
 
         <h3>Reporte: Cargas Recibidas</h3>
+        <!-- Recuadro de Totales Recibidas -->
+        <div class="total-box">
+          TOTALES EN EL PERIODO: Valijas: ${rData.totales.valijas} | Piezas: ${rData.totales.piezas}
+        </div>
         <table>
           <thead>
             <tr>
-              <th>Entregadas por:</th><th>Cant.</th><th>Valijas</th><th>Certificadas</th><th>Ordinarias</th><th>Mixtas</th><th>Fecha/Hora</th>
+              <th>Fecha</th><th>Entregadas por:</th><th>Cant.</th><th>Valijas</th><th>Certificadas</th><th>Ordinarias</th><th>Mixtas</th>
             </tr>
           </thead>
           <tbody>
             ${rData.recibidas.map(item => `
               <tr>
+                <td>${item.fecha}</td>
                 <td class="text-left">${item.origen}</td>
                 <td>${item.cantidad}</td>
                 <td>${item.valijas}</td>
                 <td>${item.certificadas}</td>
                 <td>${item.ordinarias}</td>
                 <td>${item.mixtas}</td>
-                <td>${item.fecha}</td>
               </tr>
             `).join('')}
           </tbody>
         </table>
 
         <h3>Reporte: Cargas Despachadas</h3>
+        <!-- Recuadro de Totales Despachadas -->
+        <div class="total-box">
+          TOTALES EN EL PERIODO: Masters: ${rData.totales.master} | Piezas Despachadas: ${rData.totales.piezasDespachadas}
+        </div>
         <table>
           <thead>
             <tr>
-              <th>Entrega a:</th><th>Master</th><th>Paquetes</th><th>Piezas</th><th>Certificadas</th><th>Ordinarias</th><th>Fecha/Hora</th>
+              <th>Fecha</th><th>Entrega a:</th><th>Master</th><th>Paquetes</th><th>Piezas</th><th>Certificadas</th><th>Ordinarias</th>
             </tr>
           </thead>
           <tbody>
             ${rData.despachadas.map(item => `
               <tr>
+                <td>${item.fecha}</td>
                 <td class="text-left">${item.destino}</td>
                 <td>${item.master}</td>
                 <td>${item.paquetes}</td>
                 <td>${item.piezas}</td>
                 <td>${item.certificadas}</td>
                 <td>${item.ordinarias}</td>
-                <td>${item.fecha}</td>
               </tr>
             `).join('')}
           </tbody>
@@ -2186,24 +2195,6 @@ async function generarInformeMariela() {
           <tr><td class="text-left">% Piezas Devueltas para Reencaminar</td><td>${rData.controles.pctPiezasDevueltas}%</td><td>&lt; 5%</td></tr>
           <tr><td class="text-left">Tiempo Promedio de Procesamiento</td><td>${rData.controles.tiempoPromedio} hrs</td><td>Máx. 24 hrs</td></tr>
           <tr><td class="text-left">Cumplimiento del SLA (24h)</td><td>${rData.controles.cumplimientoSLA}%</td><td>100%</td></tr>
-        </table>
-
-        <h3>Motivos de Incidencias (Control de Transporte)</h3>
-        <table>
-          <tr><th>Motivo de Falla</th><th>Cantidad</th></tr>
-          ${(r.motivosFalla || []).map(m => `<tr><td>${m.motivo}</td><td>${m.cantidad}</td></tr>`).join('')}
-        </table>
-
-        <h3>Top 5 Conductores con Incidencias</h3>
-        <table>
-          <tr><th>Conductor</th><th>Cédula</th><th>Incidencias</th></tr>
-          ${(r.topConductores || []).map(c => `<tr><td>${c.nombre}</td><td>${c.cedula}</td><td>${c.incidencias}</td></tr>`).join('')}
-        </table>
-
-        <h3>Matriz de Combinaciones Peligrosas</h3>
-        <table>
-          <tr><th>Conductor</th><th>Vehículo</th><th>Viajes Juntos</th><th>Incidencias</th><th>Tasa Falla</th></tr>
-          ${(r.combinacionesPeligrosas || []).map(c => `<tr><td>${c.conductor} (${c.cedula})</td><td>${c.vehiculo}</td><td>${c.viajes}</td><td>${c.incidencias}</td><td>${c.tasaFalla}%</td></tr>`).join('')}
         </table>
 
         <div class="footer">IPOSTEL - Observatorio Estratégico Postal - Elecciones España 2026</div>
