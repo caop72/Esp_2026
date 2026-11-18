@@ -458,121 +458,124 @@
       </div>
     </div>
 
-    <div id="appObservatorio" class="oculto">
-      <div class="d-flex justify-content-between align-items-center mb-3 bg-dark text-white p-3 rounded">
-        <h4 class="m-0 fw-bold"><i class="bi bi-display"></i> Observatorio Gerencial Master</h4>
-        <div>
-            <button class="btn btn-sm btn-danger fw-bold me-2" onclick="generarReportePDF()"><i class="bi bi-file-earmark-pdf"></i> Exportar PDF</button>
-            <button class="btn btn-sm btn-warning fw-bold text-dark" onclick="generarReporteSlides()"><i class="bi bi-file-earmark-slides"></i> Exportar Slides</button>
-        </div>
-      </div>
+<div id="appObservatorio" class="oculto">
+  <div class="d-flex justify-content-between align-items-center mb-3 bg-dark text-white p-3 rounded">
+    <h4 class="m-0 fw-bold"><i class="bi bi-display"></i> Observatorio Gerencial Master</h4>
+    <div>
+        <button class="btn btn-sm btn-danger fw-bold me-2" onclick="generarReportePDF()"><i class="bi bi-file-earmark-pdf"></i> Exportar PDF</button>
+        <button class="btn btn-sm btn-warning fw-bold text-dark" onclick="generarReporteSlides()"><i class="bi bi-file-earmark-slides"></i> Exportar Slides</button>
+    </div>
+  </div>
 
-      <!-- Filtros -->
-      <div class="card shadow-sm mb-4">
-        <div class="card-body">
-          <div class="row g-2 align-items-end">
-            <div class="col-md-3">
-                <label class="form-label fw-bold text-muted mb-1 small">Desde</label>
-                <input type="date" class="form-control" id="obsFiltroDesde">
-            </div>
-            <div class="col-md-3">
-                <label class="form-label fw-bold text-muted mb-1 small">Hasta</label>
-                <input type="date" class="form-control" id="obsFiltroHasta">
-            </div>
-            <div class="col-md-3">
-                <label class="form-label fw-bold text-muted mb-1 small">Estado / Región</label>
-                <select class="form-select" id="obsFiltroEstado">
-                    <option value="TODOS">Todos los Estados</option>
-                </select>
-            </div>
-            <div class="col-md-3">
-                <button class="btn btn-primary w-100 fw-bold" onclick="cargarObservatorio()"><i class="bi bi-filter"></i> Filtrar Datos</button>
-            </div>
-          </div>
+  <!-- Filtros -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <div class="row g-2 align-items-end">
+        <div class="col-md-3">
+            <label class="form-label fw-bold text-muted mb-1 small">Desde</label>
+            <input type="date" class="form-control" id="obsFiltroDesde">
         </div>
-      </div>
-
-      <!-- KPIs Maestros -->
-      <div class="row g-3 mb-4">
-        <div class="col-6 col-md-3">
-            <div class="card bg-primary text-white shadow-sm border-0 h-100">
-                <div class="card-body text-center p-3">
-                    <h6 class="text-uppercase text-white-50 mb-1">Recibidas (Nacional)</h6>
-                    <h2 class="mb-0 fw-bold" id="obsKpiRecibidas">0</h2>
-                </div>
-            </div>
+        <div class="col-md-3">
+            <label class="form-label fw-bold text-muted mb-1 small">Hasta</label>
+            <input type="date" class="form-control" id="obsFiltroHasta">
         </div>
-        <div class="col-6 col-md-3">
-            <div class="card bg-secondary text-white shadow-sm border-0 h-100">
-                <div class="card-body text-center p-3">
-                    <h6 class="text-uppercase text-white-50 mb-1">Distribuidas a Estados</h6>
-                    <h2 class="mb-0 fw-bold" id="obsKpiDistribuidas">0</h2>
-                </div>
-            </div>
+        <div class="col-md-3">
+            <label class="form-label fw-bold text-muted mb-1 small">Estado / Región</label>
+            <select class="form-select" id="obsFiltroEstado">
+                <option value="TODOS">Todos los Estados</option>
+            </select>
         </div>
-        <div class="col-6 col-md-3">
-            <div class="card bg-success text-white shadow-sm border-0 h-100">
-                <div class="card-body text-center p-3">
-                    <h6 class="text-uppercase text-white-50 mb-1">Entregadas al Elector</h6>
-                    <h2 class="mb-0 fw-bold" id="obsKpiEntregadas">0</h2>
-                </div>
-            </div>
-        </div>
-        <div class="col-6 col-md-3">
-            <div class="card bg-warning text-dark shadow-sm border-0 h-100">
-                <div class="card-body text-center p-3">
-                    <h6 class="text-uppercase text-dark-50 mb-1">Piezas por Entregar</h6>
-                    <h2 class="mb-0 fw-bold" id="obsKpiPendientes">0</h2>
-                    <small class="text-danger fw-bold" id="obsKpiReencaminadas">0 Reencaminadas</small>
-                </div>
-            </div>
-        </div>
-      </div>
-
-      <!-- Análisis de la IA -->
-      <div class="card shadow-sm mb-4 border-info">
-          <div class="card-header bg-info text-white fw-bold d-flex justify-content-between">
-              <span><i class="bi bi-robot"></i> Análisis Cualitativo del Reporte (IA)</span>
-              <button class="btn btn-sm btn-light fw-bold" onclick="generarAnalisisIA()">Generar Análisis</button>
-          </div>
-          <div class="card-body">
-              <textarea class="form-control" id="obsTextoAnalisis" rows="3" placeholder="Haga clic en 'Generar Análisis' para que la IA redacte el resumen ejecutivo..."></textarea>
-          </div>
-      </div>
-
-      <!-- Gráficos -->
-      <div class="row g-3 mb-4">
-        <div class="col-md-12">
-            <div class="card shadow-sm h-100">
-                <div class="card-header bg-white fw-bold"><i class="bi bi-bar-chart-fill text-primary"></i> Desempeño por Estado (Enviadas vs Recibidas vs Entregadas)</div>
-                <div class="card-body" style="height: 350px; position: relative;">
-                    <canvas id="obsChartBarras"></canvas>
-                </div>
-            </div>
-        </div>
-      </div>
-
-      <!-- Tabla Detallada -->
-      <div class="card shadow-sm border-0">
-        <div class="card-header bg-dark text-white fw-bold"><i class="bi bi-table"></i> Reporte de Distribución por Estado</div>
-        <div class="card-body p-0 table-responsive" style="max-height: 400px; overflow-y: auto;">
-            <table class="table table-hover mb-0 align-middle">
-                <thead class="table-light" style="position: sticky; top: 0; z-index: 1;">
-                    <tr>
-                        <th>Región</th>
-                        <th>Estado</th>
-                        <th class="text-center">Piezas Enviadas CPC</th>
-                        <th class="text-center">Piezas Recibidas OPT</th>
-                        <th class="text-center">Piezas Entregadas</th>
-                    </tr>
-                </thead>
-                <tbody id="obsTablaEstados">
-                    <tr><td colspan="5" class="text-center py-3">Cargando datos...</td></tr>
-                </tbody>
-            </table>
+        <div class="col-md-3">
+            <button class="btn btn-primary w-100 fw-bold" onclick="cargarObservatorio()"><i class="bi bi-filter"></i> Filtrar Datos</button>
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- KPIs Maestros (Estilo PDF) -->
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="card bg-primary text-white shadow-sm border-0 h-100">
+            <div class="card-body text-center p-3">
+                <h6 class="text-uppercase text-white-50 mb-1">Recibidas (Nacional)</h6>
+                <h2 class="mb-0 fw-bold" id="obsKpiRecibidas">0</h2>
+                <small>Piezas</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card bg-secondary text-white shadow-sm border-0 h-100">
+            <div class="card-body text-center p-3">
+                <h6 class="text-uppercase text-white-50 mb-1">Distribuidas a Estados</h6>
+                <h2 class="mb-0 fw-bold" id="obsKpiDistribuidas">0</h2>
+                <small>Piezas</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card bg-success text-white shadow-sm border-0 h-100">
+            <div class="card-body text-center p-3">
+                <h6 class="text-uppercase text-white-50 mb-1">Entregadas al Elector</h6>
+                <h2 class="mb-0 fw-bold" id="obsKpiEntregadas">0</h2>
+                <small><span id="obsKpiPct">0%</span> de Cumplimiento</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card bg-warning text-dark shadow-sm border-0 h-100">
+            <div class="card-body text-center p-3">
+                <h6 class="text-uppercase text-dark-50 mb-1">Piezas por Entregar</h6>
+                <h2 class="mb-0 fw-bold" id="obsKpiPendientes">0</h2>
+                <small class="text-danger fw-bold" id="obsKpiReencaminadas">0 Reencaminadas</small>
+            </div>
+        </div>
+    </div>
+  </div>
+
+  <!-- Análisis de la IA -->
+  <div class="card shadow-sm mb-4 border-info">
+      <div class="card-header bg-info text-white fw-bold d-flex justify-content-between">
+          <span><i class="bi bi-robot"></i> Análisis Cualitativo del Reporte (IA)</span>
+          <button class="btn btn-sm btn-light fw-bold" onclick="generarAnalisisIA()">Generar Análisis</button>
+      </div>
+      <div class="card-body">
+          <textarea class="form-control" id="obsTextoAnalisis" rows="3" placeholder="Haga clic en 'Generar Análisis' para que la IA redacte el resumen ejecutivo basado en los datos..."></textarea>
+      </div>
+  </div>
+
+  <!-- Gráficos -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-12">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-white fw-bold"><i class="bi bi-bar-chart-fill text-primary"></i> Desempeño por Estado (Enviadas vs Recibidas vs Entregadas)</div>
+            <div class="card-body" style="height: 350px; position: relative;">
+                <canvas id="obsChartBarras"></canvas>
+            </div>
+        </div>
+    </div>
+  </div>
+
+  <!-- Tabla Detallada -->
+  <div class="card shadow-sm border-0">
+    <div class="card-header bg-dark text-white fw-bold"><i class="bi bi-table"></i> Reporte de Distribución por Estado</div>
+    <div class="card-body p-0 table-responsive" style="max-height: 400px; overflow-y: auto;">
+        <table class="table table-hover mb-0 align-middle">
+            <thead class="table-light" style="position: sticky; top: 0; z-index: 1;">
+                <tr>
+                    <th>Región</th>
+                    <th>Estado</th>
+                    <th class="text-center">Piezas Enviadas CPC</th>
+                    <th class="text-center">Piezas Recibidas OPT</th>
+                    <th class="text-center">Piezas Entregadas</th>
+                </tr>
+            </thead>
+            <tbody id="obsTablaEstados">
+                <tr><td colspan="5" class="text-center py-3">Cargando datos...</td></tr>
+            </tbody>
+        </table>
+    </div>
+  </div>
+</div>
     
 <!-- MODALES (OPT) -->
 <div class="modal fade" id="modalRecepcion" tabindex="-1">
@@ -1752,85 +1755,9 @@ async function cargarEstadosObservatorio() {
         }
     } catch(e) {}
 }
-
+  
+let obsChartBarras = null;
 async function cargarObservatorio() {
-  if (document.getElementById('obsFiltroEstado').options.length === 1) {
-      await cargarEstadosObservatorio();
-  }
-  if (!document.getElementById('obsFiltroDesde').value) {
-      const hoy = new Date().toISOString().split('T')[0];
-      const hace7 = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-      document.getElementById('obsFiltroDesde').value = hace7;
-      document.getElementById('obsFiltroHasta').value = hoy;
-  }
-
-  const desde = document.getElementById('obsFiltroDesde').value;
-  const hasta = document.getElementById('obsFiltroHasta').value;
-  const estadoFiltro = document.getElementById('obsFiltroEstado').value;
-
-  Swal.fire({ title: 'Analizando datos nacionales...', didOpen: () => Swal.showLoading() });
-
-  try {
-    const r = await postAPI({ accion: 'obtenerDatosObservatorioMaster', fechaInicio: desde, fechaFin: hasta, estadoFiltro: estadoFiltro });
-    if (!r.exito) throw new Error(r.mensaje);
-    Swal.close();
-
-    const d = r.datos;
-    const fmt = (num) => Number(num || 0).toLocaleString('es-VE');
-
-    // KPIs
-    document.getElementById('obsKpiVuelos').textContent = fmt(d.kpis.vuelos);
-    document.getElementById('obsKpiCamiones').textContent = fmt(d.kpis.camiones);
-    document.getElementById('obsKpiDespachados').textContent = fmt(d.kpis.piezasDespachadas);
-    document.getElementById('obsKpiEntregados').textContent = fmt(d.kpis.entregadasOPT);
-    document.getElementById('obsKpiIncidencias').textContent = fmt(d.kpis.incidencias);
-    
-    let efec = d.kpis.recibidasOPT > 0 ? Math.round((d.kpis.entregadasOPT / d.kpis.recibidasOPT) * 100) : 0;
-    document.getElementById('obsKpiEfectividad').textContent = efec + '%';
-
-    // Embudo
-    if (obsChartEmbudo) obsChartEmbudo.destroy();
-    const ctxEmb = document.getElementById('obsChartEmbudo').getContext('2d');
-    obsChartEmbudo = new Chart(ctxEmb, {
-      type: 'bar',
-      data: {
-        labels: d.embudo.map(e => e.etapa),
-        datasets: [{ label: 'Piezas', data: d.embudo.map(e => e.valor), backgroundColor: ['#0dcaf0', '#0d6efd', '#6c757d', '#198754', '#20c997'], borderRadius: 5 }]
-      },
-      options: { indexAxis: 'y', maintainAspectRatio: false, plugins: { legend: { display: false } } }
-    });
-
-    // Torta Incidencias
-    if (obsChartIncidencias) obsChartIncidencias.destroy();
-    const ctxInc = document.getElementById('obsChartIncidencias').getContext('2d');
-    obsChartIncidencias = new Chart(ctxInc, {
-      type: 'doughnut',
-      data: {
-        labels: d.topIncidencias.map(i => i.tipo),
-        datasets: [{ data: d.topIncidencias.map(i => i.cant), backgroundColor: ['#dc3545', '#ffc107', '#6c757d', '#0dcaf0', '#198754'], borderWidth: 0 }]
-      },
-      options: { maintainAspectRatio: false, cutout: '60%', plugins: { legend: { position: 'right' } } }
-    });
-
-    // Tendencia
-    if (obsChartTendencia) obsChartTendencia.destroy();
-    const ctxTend = document.getElementById('obsChartTendencia').getContext('2d');
-    obsChartTendencia = new Chart(ctxTend, {
-      type: 'line',
-      data: {
-        labels: d.tendenciaDiaria.map(t => t.fecha),
-        datasets: [
-          { label: 'Recibidas', data: d.tendenciaDiaria.map(t => t.rec), borderColor: '#0d6efd', backgroundColor: 'rgba(13, 110, 253, 0.1)', fill: true, tension: 0.3 },
-          { label: 'Entregadas', data: d.tendenciaDiaria.map(t => t.ent), borderColor: '#198754', backgroundColor: 'rgba(25, 135, 84, 0.1)', fill: true, tension: 0.3 }
-        ]
-      },
-      options: { maintainAspectRatio: false, plugins: { legend: { position: 'top' } } }
-    });
-
-  } catch(e) {
-    Swal.fire('Error', e.message, 'error');
-  }
-}
 function volverAtras() {
   if (!document.getElementById('pasoCredenciales').classList.contains('oculto')) { document.getElementById('pasoCredenciales').classList.add('oculto'); if (estadoApp.requiereOPT) { mostrar('pasoEstado'); mostrar('pasoOPT'); } else if (estadoApp.requiereEstado) { mostrar('pasoEstado'); } else { document.getElementById('selRol').value = ''; cambiarRol(); } return; }
   if (!document.getElementById('pasoOPT').classList.contains('oculto')) { document.getElementById('pasoOPT').classList.add('oculto'); mostrar('pasoEstado'); return; }
@@ -2425,160 +2352,6 @@ async function generarInformeMariela() {
   } catch (e) {
     Swal.fire('Error', 'No se pudo generar el informe: ' + e.message, 'error');
   }
-}
-  // ==========================================
-// LÓGICA DEL OBSERVATORIO Y EXPORTACIÓN (NUEVO)
-// ==========================================
-
-let obsChartBarras = null;
-let obsChartEmbudo = null;
-let obsChartIncidencias = null;
-let obsChartTendencia = null;
-
-async function cargarEstadosObservatorio() {
-    try {
-        const r = await postAPI({ accion: 'obtenerEstados' });
-        if(r.exito) {
-            const sel = document.getElementById('obsFiltroEstado');
-            sel.innerHTML = '<option value="TODOS">Todos los Estados</option>';
-            r.estados.forEach(e => sel.innerHTML += `<option value="${e}">${e}</option>`);
-        }
-    } catch(e) {}
-}
-
-async function cargarObservatorio() {
-  if (document.getElementById('obsFiltroEstado').options.length === 1) {
-      await cargarEstadosObservatorio();
-  }
-  if (!document.getElementById('obsFiltroDesde').value) {
-      const hoy = new Date().toISOString().split('T')[0];
-      const hace7 = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-      document.getElementById('obsFiltroDesde').value = hace7;
-      document.getElementById('obsFiltroHasta').value = hoy;
-  }
-
-  const desde = document.getElementById('obsFiltroDesde').value;
-  const hasta = document.getElementById('obsFiltroHasta').value;
-  const estadoFiltro = document.getElementById('obsFiltroEstado').value;
-
-  Swal.fire({ title: 'Analizando datos...', didOpen: () => Swal.showLoading() });
-
-  try {
-    const r = await postAPI({ accion: 'obtenerDatosObservatorioV3', fechaInicio: desde, fechaFin: hasta, estadoFiltro: estadoFiltro });
-    if (!r.exito) throw new Error(r.mensaje);
-    Swal.close();
-
-    const d = r.datos;
-    const fmt = (num) => Number(num || 0).toLocaleString('es-VE');
-
-    // KPIs
-    document.getElementById('obsKpiRecibidas').textContent = fmt(d.kpis.recibidas);
-    document.getElementById('obsKpiDistribuidas').textContent = fmt(d.kpis.distribuidas);
-    document.getElementById('obsKpiEntregadas').textContent = fmt(d.kpis.entregadas);
-    document.getElementById('obsKpiPct').textContent = d.kpis.pctDistribucion + '%';
-    document.getElementById('obsKpiPendientes').textContent = fmt(d.kpis.porEntregar);
-    document.getElementById('obsKpiReencaminadas').textContent = fmt(d.kpis.reencaminadas) + ' Reencaminadas';
-
-    window.datosObservatorioGlobal = d;
-
-    // Tabla
-    const tbody = document.getElementById('obsTablaEstados');
-    tbody.innerHTML = '';
-    if(d.tabla) {
-        d.tabla.forEach(row => {
-          tbody.innerHTML += `<tr>
-            <td><small class="text-muted">${row.region}</small></td>
-            <td><b>${row.estado}</b></td>
-            <td class="text-center">${fmt(row.enviadas)}</td>
-            <td class="text-center text-primary fw-bold">${fmt(row.recibidas)}</td>
-            <td class="text-center text-success fw-bold">${fmt(row.entregadas)}</td>
-          </tr>`;
-        });
-    }
-
-    // Gráfico de Barras
-    if (obsChartBarras) obsChartBarras.destroy();
-    const ctx = document.getElementById('obsChartBarras').getContext('2d');
-    obsChartBarras = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: d.tabla ? d.tabla.map(e => e.estado) : [],
-        datasets: [
-          { label: 'Enviadas', data: d.tabla ? d.tabla.map(e => e.enviadas) : [], backgroundColor: '#ffc107' },
-          { label: 'Recibidas', data: d.tabla ? d.tabla.map(e => e.recibidas) : [], backgroundColor: '#dc3545' },
-          { label: 'Entregadas', data: d.tabla ? d.tabla.map(e => e.entregadas) : [], backgroundColor: '#0d6efd' }
-        ]
-      },
-      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' } }, scales: { x: { stacked: false }, y: { beginAtZero: true } } }
-    });
-
-  } catch(e) {
-    Swal.fire('Error', e.message, 'error');
-  }
-}
-
-async function generarAnalisisIA() {
-    if(!window.datosObservatorioGlobal) return Swal.fire('Atención', 'Primero cargue los datos.', 'warning');
-    Swal.fire({ title: 'Redactando análisis con IA...', didOpen: () => Swal.showLoading() });
-    try {
-        const r = await postAPI({ accion: 'generarAnalisisIA', kpis: window.datosObservatorioGlobal.kpis });
-        if(r.exito) {
-            document.getElementById('obsTextoAnalisis').value = r.texto;
-            Swal.close();
-        } else { throw new Error(r.mensaje); }
-    } catch(e) { Swal.fire('Error', e.message, 'error'); }
-}
-
-function generarReportePDF() {
-    if(!window.datosObservatorioGlobal) return Swal.fire('Atención', 'Primero cargue los datos.', 'warning');
-    const d = window.datosObservatorioGlobal;
-    const analisis = document.getElementById('obsTextoAnalisis').value || 'Sin análisis registrado.';
-    
-    let html = `
-    <html><head><style>
-        body { font-family: Arial; padding: 30px; color: #333; }
-        h1 { text-align: center; color: #c8102e; }
-        h3 { text-align: center; color: #666; }
-        .analisis { background: #f8f9fa; padding: 15px; border-left: 4px solid #0dcaf0; margin: 20px 0; font-style: italic; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 12px; }
-        th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
-        th { background-color: #003366; color: white; }
-        .kpi-box { display: inline-block; border: 1px solid #ccc; padding: 15px; margin: 5px; width: 20%; border-radius: 8px; text-align: center; }
-        .kpi-box b { display: block; font-size: 14px; color: #666; }
-        .kpi-box span { font-size: 22px; font-weight: bold; color: #003366; }
-    </style></head><body>
-        <h1>REPORTE GERENCIAL IPOSTEL 2026</h1>
-        <div class="analisis"><b>Análisis de Gestión:</b><br>${analisis}</div>
-        <div style="text-align:center; margin: 20px 0;">
-            <div class="kpi-box"><b>Recibidas</b><span>${Number(d.kpis.recibidas).toLocaleString('es-VE')}</span></div>
-            <div class="kpi-box"><b>Distribuidas</b><span>${Number(d.kpis.distribuidas).toLocaleString('es-VE')}</span></div>
-            <div class="kpi-box"><b>Entregadas</b><span>${Number(d.kpis.entregadas).toLocaleString('es-VE')}</span></div>
-            <div class="kpi-box"><b>Efectividad</b><span>${d.kpis.pctDistribucion}%</span></div>
-        </div>
-        <table><thead><tr><th>Región</th><th>Estado</th><th>Enviadas</th><th>Recibidas</th><th>Entregadas</th></tr></thead><tbody>
-        ${d.tabla.map(r => `<tr><td>${r.region}</td><td><b>${r.estado}</b></td><td>${Number(r.enviadas).toLocaleString('es-VE')}</td><td>${Number(r.recibidas).toLocaleString('es-VE')}</td><td>${Number(r.entregadas).toLocaleString('es-VE')}</td></tr>`).join('')}
-        </tbody></table>
-        <p style="text-align: center; margin-top: 40px; font-size: 10px; color: #999;">Documento generado automáticamente por el Sistema IPOSTEL 2026.</p>
-    </body></html>`;
-    
-    const blob = new Blob([html], { type: 'text/html' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'Reporte_Gerencial_IPOSTEL.html';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    window.URL.revokeObjectURL(url);
-    Swal.fire('✅ Reporte Generado', 'El archivo se ha descargado. Ábrelo y usa "Imprimir" para guardarlo en PDF.', 'success');
-}
-
-function generarReporteSlides() {
-    if(!window.datosObservatorioGlobal) return Swal.fire('Atención', 'Primero cargue los datos.', 'warning');
-    Swal.fire('Exportando', 'Generando archivo de diapositivas...', 'info');
-    setTimeout(() => {
-        Swal.fire('Listo', 'La funcionalidad de Slides está lista para integrarse con PptxGenJS.', 'success');
-    }, 1500);
 }
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
