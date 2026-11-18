@@ -2083,12 +2083,12 @@ async function cargarHistorialDespachosMRW() {
 
         r.datos.forEach(d => {
             tbody.innerHTML += `<tr>
-                <td>${d.fecha}</td>
-                <td><b>${d.guia}</b></td>
-                <td>${d.estado}</td>
-                <td>${d.chofer}</td>
-                <td>${d.placa}</td>
-                <td>${d.piezas}</td>
+                <td>${d.fecha || '—'}</td>
+                <td><b>${d.guia || '—'}</b></td>
+                <td>${d.estado || '—'}</td>
+                <td>${d.choferMRW || d.chofer || '—'}</td>
+                <td>${d.placaMRW || d.placa || '—'}</td>
+                <td>${d.piezas || '0'}</td>
             </tr>`;
         });
     } catch (e) {
