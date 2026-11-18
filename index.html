@@ -2524,12 +2524,12 @@ async function generarInformeMariela() {
     Swal.fire('Error', 'No se pudo generar el informe: ' + e.message, 'error');
   }
 }
-  // ==========================================
+// ==========================================
 // LÓGICA PARA EL INFORME DE LA OPT
 // ==========================================
 let modalInformeOPTInstance = null;
 
-function abrirModalInformeOPT() {
+function abrirModalInforme() {
     if (!modalInformeOPTInstance) {
         // Busca el modal en el HTML (asegúrate de que exista el div con id="modalInforme")
         modalInformeOPTInstance = new bootstrap.Modal(document.getElementById('modalInforme'));
