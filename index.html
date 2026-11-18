@@ -91,7 +91,6 @@
     </div>
   </div>
 </div>
-
 <div id="pantallaApp">
   <div class="card card-ipostel">
     <div class="d-flex justify-content-between align-items-center mb-3 bg-dark text-white p-3 rounded">
@@ -99,12 +98,14 @@
       <div>
         <button id="btnInformeCNC" class="btn btn-sm btn-outline-primary me-2 oculto" onclick="abrirModalInformeCNC()"><i class="bi bi-file-earmark-pdf"></i> Informe CNC</button>
         <button id="btnInformeGerente" class="btn btn-sm btn-outline-info me-2 oculto" onclick="abrirModalInformeGerente()"><i class="bi bi-file-earmark-bar-graph"></i> Informe de Estado</button>
+        
+        <!-- BOTÓN CORREGIDO AQUÍ (abrirModalInforme) -->
         <button id="btnInformeOPT" class="btn btn-sm btn-outline-warning me-2 oculto" onclick="abrirModalInforme()"><i class="bi bi-file-earmark-bar-graph"></i> Informe OPT</button>
+        
         <button id="btnInformeMariela" class="btn btn-sm btn-outline-success me-2 oculto" onclick="abrirModalInformeMariela()"><i class="bi bi-file-earmark-spreadsheet"></i> Informe CPC</button>
         <button class="btn btn-sm btn-outline-light" onclick="location.reload()">Salir</button>
       </div>
     </div>
-
     <!-- PANEL JEFE OPT (AEROPUERTO) -->
     <div id="appOPT" class="oculto">
       <div class="row g-2 mb-3">
