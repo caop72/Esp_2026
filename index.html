@@ -2542,8 +2542,7 @@ function abrirModalInforme() {
     
     modalInformeOPTInstance.show();
 }
-
-async function generarInformeOPT() {
+async function generarInforme() {
     const desde = document.getElementById('infoFechaInicio').value;
     const hasta = document.getElementById('infoFechaFin').value;
     
@@ -2621,10 +2620,15 @@ async function generarInformeOPT() {
           </html>
         `;
 
-                const ventana = window.open('', '_blank');
+        const ventana = window.open('', '_blank');
         ventana.document.write(contenidoHTML);
         ventana.document.close();
-        modalInformeOPTInstance.hide();
+        
+        // Cerramos el modal usando Bootstrap directamente
+        const modalElement = document.getElementById('modalInforme');
+        const modalInstance = bootstrap.Modal.getInstance(modalElement);
+        if (modalInstance) modalInstance.hide();
+        
         Swal.close();
 
     } catch (e) {
