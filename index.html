@@ -2165,18 +2165,81 @@ async function cargarValijasMRW() {
     }
     
     r.datos.forEach(d => {
+      // Ajustamos la fecha para que no diga 'undefined' si el backend no la envía
+      const fechaMostrar = d.fechaRecepcion || d.fecha || '—';
+      
       tbody.innerHTML += `<tr>
         <td>${d.guiaAerea}</td>
         <td>${d.valijas} Val / ${d.piezas} Pzs</td>
-        <td>${d.fechaRecepcion}</td>
-        <td><button class="btn btn-sm btn-primary" onclick="abrirModalEntregarMRW('${d.id}', '${d.piezas}')")">Entregar a MRW</button></td>
+        <td>${fechaMostrar}</td>
+        <td><button class="btn btn-sm btn-primary" onclick="abrirModalEntregarMRW('${d.id}', '${d.piezas}')">Entregar a MRW</button></td>
       </tr>`;
     });
   } catch(e) { 
     tbody.innerHTML = `<tr><td colspan="4" class="text-center text-danger">${e.message}</td></tr>`; 
   }
 }
+// ==========================================
+// LÓGICA PARA ENTREGAR A MRW (NUEVA)
+// ==========================================
+let modalEntregarMRWInstance = null;
+let idMasterActual = '';
+let piezasMasterActual = 0;
 
+function abrirModalEntregarMRW(idMaster, piezas) {
+    if (!modalEntregarMRWInstance) {
+        modalEntregarMRWInstance = new bootstrap.Modal(document.getElementById('modalEntregarMRW'));
+    }
+    
+    idMasterActual = idMaster;
+    piezasMasterActual = piezas;
+    
+    // Llenar los datos en el modal (asegúrate de que estos IDs existan en tu HTML)
+    document.getElementById('mrwGuiaTxt').textContent = idMaster;
+    document.getElementById('mrwPiezasTxt').textContent = piezas;
+    
+    // Limpiar campos
+    document.getElementById('mrwEstadoDestinoInp').value = '';
+    document.getElementById('mrwChoferInp').value = '';
+    document.getElementById('mrwPlacaInp').value = '';
+    document.getElementById('mrwFotoInp').value = '';
+    
+    modalEntregarMRWInstance.show();
+}
+
+async function confirmarEntregaMRW() {
+    const estadoDestino = document.getElementById('mrwEstadoDestinoInp').value;
+    const chofer = document.getElementById('mrwChoferInp').value;
+    const placa = document.getElementById('mrwPlacaInp').value;
+    const foto = document.getElementById('mrwFotoInp').files[0];
+
+    if (!estadoDestino || !chofer || !placa) {
+        return Swal.fire('Atención', 'Complete el estado destino, el chofer y la placa.', 'warning');
+    }
+
+    Swal.fire({ title: 'Registrando entrega...', didOpen: () => Swal.showLoading() });
+
+    try {
+        const payload = {
+            accion: 'registrarEntregaMRW',
+            idMaster: idMasterActual,
+            guiaAerea: idMasterActual, // Usamos el ID como guía para el backend
+            estadoDestino: estadoDestino,
+            choferMRW: chofer,
+            placaMRW: placa,
+            piezas: piezasMasterActual
+        };
+
+        const r = await postAPI(payload);
+        if (!r.exito) throw new Error(r.mensaje);
+
+        modalEntregarMRWInstance.hide();
+        Swal.fire('✅ Entregado', 'La carga ha sido entregada a MRW.', 'success');
+        cargarValijasMRW(); // Recargar la tabla
+    } catch (e) {
+        Swal.fire('Error', e.message, 'error');
+    }
+}
 // 7. Recibir Camiones de MRW (Pestaña 3)
 async function cargarCamionesMRWPorRecibir() {
   const tbody = document.getElementById('tablaCamionesMRWPorRecibir');
