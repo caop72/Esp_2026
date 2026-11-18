@@ -1913,26 +1913,35 @@ function generarInformeCNC() {
 
 let modalTrazabilidad, modalHistorialMRW, modalIncidencia, modalAnalitica;
 let chartMotivos, chartSistemas, chartConductores, chartVehiculos;
-
 // 1. Actualizar Indicadores de Mariela
 async function cargarIndicadoresEncaminamiento() {
     try {
         const r = await postAPI({ accion: 'obtenerIndicadoresEncaminamiento' });
         if (r.exito) {
-            document.getElementById('indRecibidosIPOSTEL').textContent = r.indicadores.totalPiezasRecibidas;
-            document.getElementById('indCertRecibidos').textContent = r.indicadores.certRecibidas;
-            document.getElementById('indOrdRecibidos').textContent = r.indicadores.ordRecibidas;
+            // Formateador: punto para miles, coma para decimales
+            const fmt = (num, dec = 0) => {
+                if (num === undefined || num === null || isNaN(num)) return '0';
+                let n = Number(num);
+                let str = n.toFixed(dec);
+                let partes = str.split('.');
+                partes[0] = partes[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+                return partes.join(',');
+            };
+
+            document.getElementById('indRecibidosIPOSTEL').textContent = fmt(r.indicadores.totalPiezasRecibidas);
+            document.getElementById('indCertRecibidos').textContent = fmt(r.indicadores.certRecibidas);
+            document.getElementById('indOrdRecibidos').textContent = fmt(r.indicadores.ordRecibidas);
             
-            document.getElementById('indDespachadosMRW').textContent = r.indicadores.totalPiezasDespachadas;
-            document.getElementById('indCertDespachados').textContent = r.indicadores.certDespachadas;
-            document.getElementById('indOrdDespachados').textContent = r.indicadores.ordDespachadas;
+            document.getElementById('indDespachadosMRW').textContent = fmt(r.indicadores.totalPiezasDespachadas);
+            document.getElementById('indCertDespachados').textContent = fmt(r.indicadores.certDespachadas);
+            document.getElementById('indOrdDespachados').textContent = fmt(r.indicadores.ordDespachadas);
             
-            document.getElementById('indTiempoPromCPC').textContent = r.indicadores.tiempoPromedio + 'h';
-            document.getElementById('indPiezasRiesgo').textContent = r.indicadores.piezasEnRiesgo;
+            // El tiempo promedio lleva 1 decimal
+            document.getElementById('indTiempoPromCPC').textContent = fmt(r.indicadores.tiempoPromedio, 1) + 'h';
+            document.getElementById('indPiezasRiesgo').textContent = fmt(r.indicadores.piezasEnRiesgo);
         }
     } catch (e) { console.error("Error cargando Indicadores", e); }
 }
-
 // 2. Cargar Camiones de IPOSTEL (Actualiza Indicadores)
 async function cargarCamionesPorRecibir() {
   const tbody = document.getElementById('tablaCamionesPorRecibir');
