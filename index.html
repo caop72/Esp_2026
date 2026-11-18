@@ -1917,8 +1917,7 @@ let chartMotivos, chartSistemas, chartConductores, chartVehiculos;
 async function cargarIndicadoresEncaminamiento() {
     try {
         const r = await postAPI({ accion: 'obtenerIndicadoresEncaminamiento' });
-        if (r.exito) {
-            // Formateador: punto para miles, coma para decimales
+        if (r.exito && r.indicadores) {
             const fmt = (num, dec = 0) => {
                 if (num === undefined || num === null || isNaN(num)) return '0';
                 let n = Number(num);
@@ -1928,20 +1927,34 @@ async function cargarIndicadoresEncaminamiento() {
                 return partes.join(',');
             };
 
-            document.getElementById('indRecibidosIPOSTEL').textContent = fmt(r.indicadores.totalPiezasRecibidas);
-            document.getElementById('indCertRecibidos').textContent = fmt(r.indicadores.certRecibidas);
-            document.getElementById('indOrdRecibidos').textContent = fmt(r.indicadores.ordRecibidas);
+            // Asignación de valores con fallback (por si el backend envía undefined)
+            const rec = r.indicadores.totalPiezasRecibidas || 0;
+            const certRec = r.indicadores.certRecibidas || 0;
+            const ordRec = r.indicadores.ordRecibidas || 0;
             
-            document.getElementById('indDespachadosMRW').textContent = fmt(r.indicadores.totalPiezasDespachadas);
-            document.getElementById('indCertDespachados').textContent = fmt(r.indicadores.certDespachadas);
-            document.getElementById('indOrdDespachados').textContent = fmt(r.indicadores.ordDespachadas);
+            const des = r.indicadores.totalPiezasDespachadas || 0;
+            const certDes = r.indicadores.certDespachadas || 0;
+            const ordDes = r.indicadores.ordDespachadas || 0;
             
-            // El tiempo promedio lleva 1 decimal
-            document.getElementById('indTiempoPromCPC').textContent = fmt(r.indicadores.tiempoPromedio, 1) + 'h';
-            document.getElementById('indPiezasRiesgo').textContent = fmt(r.indicadores.piezasEnRiesgo);
+            const tProm = r.indicadores.tiempoPromedio || 0;
+            const riesgo = r.indicadores.piezasEnRiesgo || 0;
+
+            document.getElementById('indRecibidosIPOSTEL').textContent = fmt(rec);
+            document.getElementById('indCertRecibidos').textContent = fmt(certRec);
+            document.getElementById('indOrdRecibidos').textContent = fmt(ordRec);
+            
+            document.getElementById('indDespachadosMRW').textContent = fmt(des);
+            document.getElementById('indCertDespachados').textContent = fmt(certDes);
+            document.getElementById('indOrdDespachados').textContent = fmt(ordDes);
+            
+            document.getElementById('indTiempoPromCPC').textContent = fmt(tProm, 1) + 'h';
+            document.getElementById('indPiezasRiesgo').textContent = fmt(riesgo);
         }
-    } catch (e) { console.error("Error cargando Indicadores", e); }
+    } catch (e) { 
+        console.error("Error cargando Indicadores", e); 
+    }
 }
+
 // 2. Cargar Camiones de IPOSTEL (Actualiza Indicadores)
 async function cargarCamionesPorRecibir() {
   const tbody = document.getElementById('tablaCamionesPorRecibir');
