@@ -1260,7 +1260,6 @@ async function enviarAlBackend() {
     iniciarApp(resp);
   } catch (err) { Swal.fire('Error de conexión', err.message, 'error'); btn.disabled = false; btn.textContent = '🔑 Ingresar al Sistema'; }
 }
-
 function iniciarApp(r) {
   document.getElementById('pantallaLogin').style.display = 'none';
   document.getElementById('pantallaApp').style.display = 'block';
@@ -1284,10 +1283,13 @@ function iniciarApp(r) {
     cargarTablaDespachos();
   } else if (r.rol === 'COORD_ENCAM') { 
     mostrar('appEncaminamiento'); 
-    mostrar('btnInformeMariela'); // <--- LÍNEA AGREGADA AQUÍ
+    mostrar('btnInformeMariela'); 
     modalRecibirCamion = new bootstrap.Modal(document.getElementById('modalRecibirCamion'));
     modalEntregarMRW = new bootstrap.Modal(document.getElementById('modalEntregarMRW'));
     modalCrearMaster = new bootstrap.Modal(document.getElementById('modalCrearMaster'));
+    
+    cargarIndicadoresEncaminamiento(); // <--- LÍNEA AGREGADA AQUÍ
+    
     cargarCamionesPorRecibir();
     cargarValijasMRW();
   } else if (r.rol === 'COORD_ALIANZA') {
@@ -1301,7 +1303,6 @@ function iniciarApp(r) {
     mostrar('appObservatorio'); cargarObservatorio();
   }
 }
-
 // ==========================================
 // LÓGICA GERENCIA DE OPERACIONES (VUELOS Y CAMIONES)
 // ==========================================
@@ -1927,28 +1928,17 @@ async function cargarIndicadoresEncaminamiento() {
                 return partes.join(',');
             };
 
-            // Asignación de valores con fallback (por si el backend envía undefined)
-            const rec = r.indicadores.totalPiezasRecibidas || 0;
-            const certRec = r.indicadores.certRecibidas || 0;
-            const ordRec = r.indicadores.ordRecibidas || 0;
+            // Asignación a los IDs de la pantalla (PIEZAS RECIBIDAS, PIEZAS DESPACHADAS, etc)
+            document.getElementById('indRecibidosIPOSTEL').textContent = fmt(r.indicadores.totalPiezasRecibidas);
+            document.getElementById('indCertRecibidos').textContent = fmt(r.indicadores.certRecibidas);
+            document.getElementById('indOrdRecibidos').textContent = fmt(r.indicadores.ordRecibidas);
             
-            const des = r.indicadores.totalPiezasDespachadas || 0;
-            const certDes = r.indicadores.certDespachadas || 0;
-            const ordDes = r.indicadores.ordDespachadas || 0;
+            document.getElementById('indDespachadosMRW').textContent = fmt(r.indicadores.totalPiezasDespachadas);
+            document.getElementById('indCertDespachados').textContent = fmt(r.indicadores.certDespachadas);
+            document.getElementById('indOrdDespachados').textContent = fmt(r.indicadores.ordDespachadas);
             
-            const tProm = r.indicadores.tiempoPromedio || 0;
-            const riesgo = r.indicadores.piezasEnRiesgo || 0;
-
-            document.getElementById('indRecibidosIPOSTEL').textContent = fmt(rec);
-            document.getElementById('indCertRecibidos').textContent = fmt(certRec);
-            document.getElementById('indOrdRecibidos').textContent = fmt(ordRec);
-            
-            document.getElementById('indDespachadosMRW').textContent = fmt(des);
-            document.getElementById('indCertDespachados').textContent = fmt(certDes);
-            document.getElementById('indOrdDespachados').textContent = fmt(ordDes);
-            
-            document.getElementById('indTiempoPromCPC').textContent = fmt(tProm, 1) + 'h';
-            document.getElementById('indPiezasRiesgo').textContent = fmt(riesgo);
+            document.getElementById('indTiempoPromCPC').textContent = fmt(r.indicadores.tiempoPromedio, 1) + 'h';
+            document.getElementById('indPiezasRiesgo').textContent = fmt(r.indicadores.piezasEnRiesgo);
         }
     } catch (e) { 
         console.error("Error cargando Indicadores", e); 
