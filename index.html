@@ -2095,12 +2095,13 @@ async function cargarHistorialDespachosMRW() {
         if (r.datos.length === 0) return tbody.innerHTML = '<tr><td colspan="6" class="text-center">No hay registros.</td></tr>';
 
         r.datos.forEach(d => {
+            // Aquí leemos las propiedades basándonos en cómo las devuelve el backend
             tbody.innerHTML += `<tr>
                 <td>${d.fecha || '—'}</td>
                 <td><b>${d.guia || '—'}</b></td>
                 <td>${d.estado || '—'}</td>
-                <td>${d.choferMRW || d.chofer || '—'}</td>
-                <td>${d.placaMRW || d.placa || '—'}</td>
+                <td>${d.chofer || '—'}</td>
+                <td>${d.placa || '—'}</td>
                 <td>${d.piezas || '0'}</td>
             </tr>`;
         });
