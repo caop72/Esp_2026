@@ -2169,7 +2169,7 @@ async function cargarValijasMRW() {
         <td>${d.guiaAerea}</td>
         <td>${d.valijas} Val / ${d.piezas} Pzs</td>
         <td>${d.fechaRecepcion}</td>
-        <td><button class="btn btn-sm btn-primary" onclick="abrirModalEntregarMRW('${d.idMaster}', '${d.piezas}')">Entregar a MRW</button></td>
+        <td><button class="btn btn-sm btn-primary" onclick="abrirModalEntregarMRW('${d.id}', '${d.piezas}')")">Entregar a MRW</button></td>
       </tr>`;
     });
   } catch(e) { 
