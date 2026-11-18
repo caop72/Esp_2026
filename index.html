@@ -1613,7 +1613,7 @@ async function confirmarEntregaUPAE() {
 }
 
 async function cargarHistorialEntregas() {
-  const tbody = document.getElementById('tablaHistorial'); tbody.innerHTML = '<tr><td colspan="7" class="text-center py-3 text-muted">Cargando...</td></tr>';
+  const tbody = document.getElementById('tablaHistorial'); tbody.innerHTML = '<tr><td colspan="7" class="text-center py-3 text-muted">Cargando...</td></tr>'; 
   try {
     const r = await postAPI({accion: 'cargarHistorialEntregas', opt: estadoApp.optSel});
     if (!r.exito) throw new Error(r.mensaje);
