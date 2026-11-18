@@ -2183,9 +2183,27 @@ async function cargarCamionesMRWPorRecibir() {
   if(!tbody) return;
   tbody.innerHTML = '<tr><td colspan="5" class="text-center py-3 text-muted">Cargando camiones de MRW...</td></tr>';
   
-  setTimeout(() => {
-    tbody.innerHTML = '<tr><td colspan="5" class="text-center py-3 text-muted">No hay camiones de MRW en tránsito.</td></tr>';
-  }, 1000);
+  try {
+    const r = await postAPI({ accion: 'obtenerCamionesMRWPorRecibir' });
+    if (!r.exito) throw new Error(r.mensaje);
+    
+    tbody.innerHTML = '';
+    if(r.datos.length === 0) {
+      return tbody.innerHTML = '<tr><td colspan="5" class="text-center py-3">No hay camiones de MRW en tránsito.</td></tr>';
+    }
+    
+    r.datos.forEach(d => {
+      tbody.innerHTML += `<tr>
+        <td><b>${d.vehiculo}</b><br><small>${d.conductor}</small></td>
+        <td>${d.precinto}</td>
+        <td>Guía: ${d.guiaAerea}<br><small>${d.valijas} Val | ${d.piezas} Pzs</small></td>
+        <td>${d.fechaSalida}</td>
+        <td><button class="btn btn-sm btn-success fw-bold" onclick="abrirModalRecibirCamion('${d.idDespacho}', '${d.vehiculo}', '${d.conductor}', '${d.precinto}', '${d.guiaAerea}', '${d.valijas}', '${d.piezas}')">Recibir</button></td>
+      </tr>`;
+    });
+  } catch(e) { 
+    tbody.innerHTML = `<tr><td colspan="5" class="text-center text-danger">${e.message}</td></tr>`; 
+  }
 }
 
 // 8. Abrir Modal Analítica Avanzada
