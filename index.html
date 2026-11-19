@@ -2747,7 +2747,6 @@ async function cargarObservatorioNacional() {
   Swal.fire({ title: 'Cargando datos nacionales...', didOpen: () => Swal.showLoading() });
   
   try {
-    // Por defecto pediremos los últimos 30 días
     const hace30 = new Date(); hace30.setDate(hace30.getDate() - 30);
     const fechaInicio = hace30.toISOString().split('T')[0];
     const fechaFin = new Date().toISOString().split('T')[0];
@@ -2760,24 +2759,23 @@ async function cargarObservatorioNacional() {
     const k = r.kpis;
     const format = (num) => Number(num || 0).toLocaleString('es-VE');
 
-    // 1. Llenar las Tarjetas (¡AQUÍ ESTÁ LA CORRECCIÓN! Todos los IDs tienen 'obs' adelante)
+    // 1. Llenar las Tarjetas
     document.getElementById('obskpiVuelos').textContent = format(k.piezasVuelos);
     document.getElementById('obskpiKilosVuelos').textContent = format(k.kilosVuelos) + ' Kilos';
-    
     document.getElementById('obskpiDistribuidas').textContent = format(k.piezasDistribuidas);
     document.getElementById('obskpiPctDistribucion').textContent = k.pctDistribucion + '% del total recibido';
-    
     document.getElementById('obskpiEntregadas').textContent = format(k.piezasEntregadas);
     document.getElementById('obskpiPctEntrega').textContent = k.pctEntrega + '% de lo distribuido';
-    
     document.getElementById('obskpiEfectividadGlobal').textContent = k.pctCumplimiento + '%';
-
     document.getElementById('obskpiCustodia').textContent = format(k.piezasEnCustodia);
     document.getElementById('obskpiRiesgo').textContent = format(k.piezasEnRiesgo);
     document.getElementById('obskpiReencaminadas').textContent = format(k.piezasReencaminadas);
     document.getElementById('obskpiDevueltas').textContent = format(k.piezasDevueltas);
 
-    // 2. Llenar la tabla de OPTs
+    // 2. Llenar el Análisis IA
+    document.getElementById('obsTextoAnalisis').value = r.analisisIA || 'No se pudo generar el análisis.';
+
+    // 3. Llenar la tabla de OPTs
     const tbody = document.getElementById('tablaOptsNacional');
     tbody.innerHTML = '';
     
@@ -2801,6 +2799,32 @@ async function cargarObservatorioNacional() {
         `;
       });
     }
+
+    // 4. Dibujar Gráfico de Barras (Top 5 OPTs)
+    const top5 = r.tablaOPTs.slice(0, 5);
+    const ctx = document.getElementById('graficoOPTs').getContext('2d');
+    
+    // Si ya existía un gráfico, lo destruimos para que no se superponga
+    if (window.chartTopOPTs) window.chartTopOPTs.destroy();
+
+    window.chartTopOPTs = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: top5.map(o => o.opt),
+        datasets: [{
+          label: '% Efectividad',
+          data: top5.map(o => o.efectividad),
+          backgroundColor: top5.map(o => o.efectividad >= 80 ? '#198754' : (o.efectividad >= 50 ? '#ffc107' : '#dc3545')),
+          borderRadius: 5
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: { x: { max: 100, beginAtZero: true } }
+      }
+    });
 
   } catch(e) {
     Swal.fire('Error', e.message, 'error');
