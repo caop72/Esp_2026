@@ -2382,8 +2382,12 @@ function renderChartVehiculos(datos) {
     });
 }
 
-  async function abrirModalInformeGerente() {
-  const getFechaVE = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Caracas', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
+async function abrirModalInformeGerente() {
+  const getFechaVE = () => {
+    const d = new Date();
+    d.setHours(d.getHours() - 4);
+    return d.toISOString().split('T')[0];
+  };
   
   const { value: formValues } = await Swal.fire({
     title: 'Cierre Diario / Informe',
@@ -2406,121 +2410,138 @@ function renderChartVehiculos(datos) {
     confirmButtonColor: '#ffc107',
     cancelButtonColor: '#6c757d',
     preConfirm: () => {
-      return [
-        document.getElementById('swal-fecha-inicio').value,
-        document.getElementById('swal-fecha-fin').value
-      ]
+      return [document.getElementById('swal-fecha-inicio').value, document.getElementById('swal-fecha-fin').value]
     }
   });
 
   if (!formValues) return;
-
   const [fechaInicio, fechaFin] = formValues;
-  // Lee el estado de la barra superior
   const textoEstado = document.body.innerText.match(/Estado:\s*([^\s|]+)/);
   const estadoActual = textoEstado ? textoEstado[1].trim() : 'Anzoátegui';
 
-  Swal.fire({ title: 'Generando informe...', didOpen: () => Swal.showLoading() });
+  Swal.fire({ title: 'Generando informe gerencial...', didOpen: () => Swal.showLoading() });
 
   try {
-    const payload = { 
-      accion: 'obtenerResumenGerente', 
-      fechaInicio: fechaInicio, 
-      fechaFin: fechaFin,
-      estado: estadoActual
-    };
-    
-    console.log("Enviando al backend:", payload); // Para depurar
-
-    const r = await postAPI(payload);
-    
-    if (!r) throw new Error("El servidor no devolvió respuesta.");
-    if (!r.exito) throw new Error(r.mensaje || "Error desconocido en el backend");
-    
+    const r = await postAPI({ accion: 'obtenerResumenGerente', fechaInicio, fechaFin, estado: estadoActual });
+    if (!r || !r.exito) throw new Error(r ? r.mensaje : "Error de red");
     Swal.close();
 
-    const d = r; // Los datos vienen directo en la respuesta
+    const d = r;
     
-    let filasDetalle = '';
-    if (d.detalle && d.detalle.length > 0) {
-      d.detalle.forEach(item => {
-        filasDetalle += `
+    // --- ARMAR TABLA DE DESGLOSE DE OPTs ---
+    let filasOPT = '';
+    if (d.detalleOPTs && d.detalleOPTs.length > 0) {
+      d.detalleOPTs.forEach(o => {
+        filasOPT += `
           <tr>
-            <td>${item.id}</td>
-            <td>${item.destino}</td>
-            <td>${item.cert}</td>
-            <td>${item.ord}</td>
-            <td>${item.totalPiezas}</td>
-            <td>${item.fechaDespacho}</td>
+            <td class="text-start"><b>${o.opt}</b></td>
+            <td>${o.creados}</td>
+            <td>${o.despachados}</td>
+            <td>${o.cert}</td>
+            <td>${o.ord}</td>
+            <td>${o.piezasDespachadas}</td>
+            <td><span class="badge ${o.operatividad >= 80 ? 'bg-success' : o.operatividad >= 50 ? 'bg-warning text-dark' : 'bg-danger'}">${o.operatividad}%</span></td>
           </tr>
         `;
       });
     } else {
-      filasDetalle = '<tr><td colspan="6" class="text-center">No hay despachos en este período.</td></tr>';
+      filasOPT = '<tr><td colspan="7" class="text-center">No hay movimientos en OPTs.</td></tr>';
+    }
+
+    // --- CALCULAR TOP 2 Y PEORES 2 ---
+    let topMejoresHTML = '<li class="text-muted">Sin datos suficientes</li>';
+    let topPeoresHTML = '<li class="text-muted">Sin datos suficientes</li>';
+    
+    // Filtrar solo las que tienen paquetes creados para que la evaluación sea justa
+    const optsConDatos = d.detalleOPTs.filter(o => o.creados > 0);
+    if (optsConDatos.length > 0) {
+      // Ordenar por operatividad
+      const optsOrdenadas = [...optsConDatos].sort((a, b) => b.operatividad - a.operatividad);
+      
+      const mejores = optsOrdenadas.slice(0, 2);
+      const peores = [...optsOrdenadas].reverse().slice(0, 2);
+
+      topMejoresHTML = mejores.map(o => `<li><b>${o.opt}</b> (${o.operatividad}%)</li>`).join('');
+      topPeoresHTML = peores.map(o => `<li><b>${o.opt}</b> (${o.operatividad}%)</li>`).join('');
     }
 
     const htmlInforme = `
       <div class="text-center mb-3">
-        <h4 class="fw-bold">Informe de Gestión - Gerencia de Estado</h4>
-        <p class="mb-1">Estado: ${d.infoGerencia ? d.infoGerencia.estado : estadoActual}</p>
+        <h4 class="fw-bold text-primary">Informe de Gestión - Gerencia de Estado</h4>
+        <p class="mb-1 fw-bold">Estado: ${d.infoGerencia.estado}</p>
         <p class="mb-0 text-muted">Período: ${fechaInicio} al ${fechaFin}</p>
       </div>
-      <hr>
-      <h6 class="fw-bold">Indicadores de Operatividad</h6>
-      <div class="row text-center mb-3">
-        <div class="col-4 border rounded p-2 me-1 bg-light">
-          <small class="d-block">Valijas Recibidas</small><b>${d.kpis.totValijasRecibidas}</b>
+
+      <!-- TARJETAS KPI GLOBALES -->
+      <div class="row text-center mb-3 g-2">
+        <div class="col-3 border rounded p-2 bg-light">
+          <small class="d-block text-muted">Piezas Recibidas</small><b class="fs-5">${d.kpis.totPiezasRecibidas}</b>
         </div>
-        <div class="col-4 border rounded p-2 me-1 bg-light">
-          <small class="d-block">Piezas Recibidas</small><b>${d.kpis.totPiezasRecibidas}</b>
+        <div class="col-3 border rounded p-2 bg-light">
+          <small class="d-block text-muted">Paquetes Creados</small><b class="fs-5">${d.kpis.totPaquetesCreados}</b>
         </div>
-        <div class="col-4 border rounded p-2 bg-light">
-          <small class="d-block">Operatividad</small><b>${d.kpis.operatividad}%</b>
+        <div class="col-3 border rounded p-2 bg-light">
+          <small class="d-block text-muted">Piezas Despachadas</small><b class="fs-5">${d.kpis.piezasDespachadas}</b>
         </div>
-      </div>
-      <div class="row text-center mb-3">
-        <div class="col-4 border rounded p-2 me-1 bg-light">
-          <small class="d-block">Paquetes Creados</small><b>${d.kpis.totPaquetesCreados}</b>
-        </div>
-        <div class="col-4 border rounded p-2 me-1 bg-light">
-          <small class="d-block">Paquetes Despachados</small><b>${d.kpis.totPaquetesDespachados}</b>
-        </div>
-        <div class="col-4 border rounded p-2 bg-light">
-          <small class="d-block">Piezas Despachadas</small><b>${d.kpis.piezasDespachadas}</b>
+        <div class="col-3 border rounded p-2 bg-light">
+          <small class="d-block text-muted">Operatividad Global</small><b class="fs-5 text-primary">${d.kpis.operatividad}%</b>
         </div>
       </div>
+
       <hr>
-      <h6 class="fw-bold">Detalle de Despachos Realizados</h6>
+
+      <!-- TOP MEJORES Y PEORES -->
+      <div class="row mb-3 text-start" style="font-size:0.9rem;">
+        <div class="col-6">
+          <div class="alert alert-success py-2 mb-0">
+            <b class="d-block mb-1">🏆 Top 2 Mejores OPTs:</b>
+            <ul class="mb-0 ps-3">${topMejoresHTML}</ul>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="alert alert-danger py-2 mb-0">
+            <b class="d-block mb-1">⚠️ Top 2 Críticas (Peores):</b>
+            <ul class="mb-0 ps-3">${topPeoresHTML}</ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- TABLA DE RELACIÓN POR OPT -->
+      <h6 class="fw-bold text-start mb-2">Desglose Operativo por OPT</h6>
       <div class="table-responsive">
-        <table class="table table-sm table-bordered table-striped text-center" style="font-size: 0.85rem;">
+        <table class="table table-sm table-bordered table-striped text-center align-middle" style="font-size: 0.85rem;">
           <thead class="table-dark">
             <tr>
-              <th>Máster ID</th>
-              <th>Destino</th>
+              <th>OPT / Destino</th>
+              <th>Creados</th>
+              <th>Despachados</th>
               <th>Certificados</th>
               <th>Ordinarios</th>
               <th>Total Pzs</th>
-              <th>Fecha Despacho</th>
+              <th>Operatividad</th>
             </tr>
           </thead>
-          <tbody>${filasDetalle}</tbody>
+          <tbody>${filasOPT}</tbody>
         </table>
       </div>
+      
+      <p class="text-muted text-end mt-2" style="font-size:0.75rem;">Generado el ${new Date().toLocaleString('es-VE')}</p>
     `;
 
     Swal.fire({
       html: htmlInforme,
-      width: '800px',
+      width: '900px', // Un poco más ancho para que quepa bien la tabla
       showCancelButton: true,
-      confirmButtonText: '<i class="bi bi-printer"></i> Imprimir',
+      confirmButtonText: '<i class="bi bi-printer"></i> Imprimir Reporte',
       cancelButtonText: 'Cerrar',
       confirmButtonColor: '#0d6efd'
     }).then((result) => {
       if (result.isConfirmed) {
         const printWindow = window.open('', '_blank');
-        printWindow.document.write('<html><head><title>Informe Gerencia</title>');
+        printWindow.document.write('<html><head><title>Informe Gerencial</title>');
         printWindow.document.write('<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">');
-        printWindow.document.write('</head><body class="p-4">');
+        printWindow.document.write('<style>body { padding: 20px; } .text-start { text-align: left !important; }</style>');
+        printWindow.document.write('</head><body>');
         printWindow.document.write(htmlInforme);
         printWindow.document.write('</body></html>');
         printWindow.document.close();
@@ -2534,6 +2555,7 @@ function renderChartVehiculos(datos) {
     Swal.fire('Error', e.message, 'error');
   }
 }
+ 
 // 9. Informe de Mariela
 let modalInformeMariela;
 
