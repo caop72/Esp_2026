@@ -2722,7 +2722,7 @@ async function generarInforme() {
         Swal.fire('Error', 'No se pudo generar el informe: ' + e.message, 'error');
     }
 }
-  async function cargarObservatorioNacional() {
+async function cargarObservatorioNacional() {
   Swal.fire({ title: 'Cargando datos nacionales...', didOpen: () => Swal.showLoading() });
   
   try {
@@ -2739,22 +2739,22 @@ async function generarInforme() {
     const k = r.kpis;
     const format = (num) => Number(num || 0).toLocaleString('es-VE');
 
-    // 1. Llenar las Tarjetas
-    document.getElementById('kpiVuelos').textContent = format(k.piezasVuelos);
-    document.getElementById('kpiKilosVuelos').textContent = format(k.kilosVuelos) + ' Kilos';
+    // 1. Llenar las Tarjetas (¡AQUÍ ESTÁ LA CORRECCIÓN! Todos los IDs tienen 'obs' adelante)
+    document.getElementById('obskpiVuelos').textContent = format(k.piezasVuelos);
+    document.getElementById('obskpiKilosVuelos').textContent = format(k.kilosVuelos) + ' Kilos';
     
-    document.getElementById('kpiDistribuidas').textContent = format(k.piezasDistribuidas);
-    document.getElementById('kpiPctDistribucion').textContent = k.pctDistribucion + '% del total recibido';
+    document.getElementById('obskpiDistribuidas').textContent = format(k.piezasDistribuidas);
+    document.getElementById('obskpiPctDistribucion').textContent = k.pctDistribucion + '% del total recibido';
     
-    document.getElementById('kpiEntregadas').textContent = format(k.piezasEntregadas);
-    document.getElementById('kpiPctEntrega').textContent = k.pctEntrega + '% de lo distribuido';
+    document.getElementById('obskpiEntregadas').textContent = format(k.piezasEntregadas);
+    document.getElementById('obskpiPctEntrega').textContent = k.pctEntrega + '% de lo distribuido';
     
-    document.getElementById('kpiEfectividadGlobal').textContent = k.pctCumplimiento + '%';
+    document.getElementById('obskpiEfectividadGlobal').textContent = k.pctCumplimiento + '%';
 
-    document.getElementById('kpiCustodia').textContent = format(k.piezasEnCustodia);
-    document.getElementById('kpiRiesgo').textContent = format(k.piezasEnRiesgo);
-    document.getElementById('kpiReencaminadas').textContent = format(k.piezasReencaminadas);
-    document.getElementById('kpiDevueltas').textContent = format(k.piezasDevueltas);
+    document.getElementById('obskpiCustodia').textContent = format(k.piezasEnCustodia);
+    document.getElementById('obskpiRiesgo').textContent = format(k.piezasEnRiesgo);
+    document.getElementById('obskpiReencaminadas').textContent = format(k.piezasReencaminadas);
+    document.getElementById('obskpiDevueltas').textContent = format(k.piezasDevueltas);
 
     // 2. Llenar la tabla de OPTs
     const tbody = document.getElementById('tablaOptsNacional');
@@ -2764,7 +2764,6 @@ async function generarInforme() {
       tbody.innerHTML = '<tr><td colspan="6">No hay datos de OPTs en este período</td></tr>';
     } else {
       r.tablaOPTs.forEach(o => {
-        // Color de la píldora según efectividad
         let badgeColor = 'bg-danger';
         if (o.efectividad >= 80) badgeColor = 'bg-success';
         else if (o.efectividad >= 50) badgeColor = 'bg-warning text-dark';
@@ -2786,7 +2785,6 @@ async function generarInforme() {
     Swal.fire('Error', e.message, 'error');
   }
 }
-  
 </script>
 
 <!-- El script de Bootstrap debe ir AFUERA del script de la lógica -->
