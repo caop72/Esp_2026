@@ -567,6 +567,27 @@
     </div>
   </div>
 </div> 
+  <!-- FILA 3: ANÁLISIS IA Y GRÁFICO -->
+  <div class="row g-3 mt-4">
+    <div class="col-md-6">
+      <div class="card shadow-sm border-info h-100">
+        <div class="card-header bg-info text-white fw-bold">
+          <i class="bi bi-robot"></i> Análisis Cualitativo del Reporte (IA)
+        </div>
+        <div class="card-body">
+          <textarea class="form-control" id="obsTextoAnalisis" rows="8" readonly style="resize: none;">Cargando análisis...</textarea>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card shadow-sm h-100">
+        <div class="card-header bg-white fw-bold"><i class="bi bi-bar-chart-fill text-primary"></i> Top 5 OPTs (Efectividad)</div>
+        <div class="card-body">
+          <canvas id="graficoOPTs" style="max-height: 250px;"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
 <!-- MODALES (OPT) -->
 <div class="modal fade" id="modalRecepcion" tabindex="-1">
   <div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header bg-warning text-dark"><h5 class="modal-title fw-bold">Confirmar Recepción</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body">
