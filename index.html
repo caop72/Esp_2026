@@ -458,7 +458,7 @@
         </div>
       </div>
     </div>
-<div id="appObservatorio" class="oculto">
+   <div id="appObservatorio" class="oculto">
   <div class="d-flex justify-content-between align-items-center mb-4 mt-3">
     <h3 class="fw-bold text-primary m-0"><i class="bi bi-globe-americas"></i> Observatorio Nacional</h3>
     <button class="btn btn-outline-primary" onclick="cargarObservatorioNacional()"><i class="bi bi-arrow-clockwise"></i> Actualizar Datos</button>
@@ -566,92 +566,7 @@
       </div>
     </div>
   </div>
-</div>
-  <!-- KPIs Maestros (Estilo PDF) -->
-  <div class="row g-3 mb-4">
-    <div class="col-6 col-md-3">
-        <div class="card bg-primary text-white shadow-sm border-0 h-100">
-            <div class="card-body text-center p-3">
-                <h6 class="text-uppercase text-white-50 mb-1">Recibidas (Nacional)</h6>
-                <h2 class="mb-0 fw-bold" id="obsKpiRecibidas">0</h2>
-                <small>Piezas</small>
-            </div>
-        </div>
-    </div>
-    <div class="col-6 col-md-3">
-        <div class="card bg-secondary text-white shadow-sm border-0 h-100">
-            <div class="card-body text-center p-3">
-                <h6 class="text-uppercase text-white-50 mb-1">Distribuidas a Estados</h6>
-                <h2 class="mb-0 fw-bold" id="obsKpiDistribuidas">0</h2>
-                <small>Piezas</small>
-            </div>
-        </div>
-    </div>
-    <div class="col-6 col-md-3">
-        <div class="card bg-success text-white shadow-sm border-0 h-100">
-            <div class="card-body text-center p-3">
-                <h6 class="text-uppercase text-white-50 mb-1">Entregadas al Elector</h6>
-                <h2 class="mb-0 fw-bold" id="obsKpiEntregadas">0</h2>
-                <small><span id="obsKpiPct">0%</span> de Cumplimiento</small>
-            </div>
-        </div>
-    </div>
-    <div class="col-6 col-md-3">
-        <div class="card bg-warning text-dark shadow-sm border-0 h-100">
-            <div class="card-body text-center p-3">
-                <h6 class="text-uppercase text-dark-50 mb-1">Piezas por Entregar</h6>
-                <h2 class="mb-0 fw-bold" id="obsKpiPendientes">0</h2>
-                <small class="text-danger fw-bold" id="obsKpiReencaminadas">0 Reencaminadas</small>
-            </div>
-        </div>
-    </div>
-  </div>
-
-  <!-- Análisis de la IA -->
-  <div class="card shadow-sm mb-4 border-info">
-      <div class="card-header bg-info text-white fw-bold d-flex justify-content-between">
-          <span><i class="bi bi-robot"></i> Análisis Cualitativo del Reporte (IA)</span>
-          <button class="btn btn-sm btn-light fw-bold" onclick="generarAnalisisIA()">Generar Análisis</button>
-      </div>
-      <div class="card-body">
-          <textarea class="form-control" id="obsTextoAnalisis" rows="3" placeholder="Haga clic en 'Generar Análisis' para que la IA redacte el resumen ejecutivo basado en los datos..."></textarea>
-      </div>
-  </div>
-
-  <!-- Gráficos -->
-  <div class="row g-3 mb-4">
-    <div class="col-md-12">
-        <div class="card shadow-sm h-100">
-            <div class="card-header bg-white fw-bold"><i class="bi bi-bar-chart-fill text-primary"></i> Desempeño por Estado (Enviadas vs Recibidas vs Entregadas)</div>
-            <div class="card-body" style="height: 350px; position: relative;">
-                <canvas id="obsChartBarras"></canvas>
-            </div>
-        </div>
-    </div>
-  </div>
-
-  <!-- Tabla Detallada -->
-  <div class="card shadow-sm border-0">
-    <div class="card-header bg-dark text-white fw-bold"><i class="bi bi-table"></i> Reporte de Distribución por Estado</div>
-    <div class="card-body p-0 table-responsive" style="max-height: 400px; overflow-y: auto;">
-        <table class="table table-hover mb-0 align-middle">
-            <thead class="table-light" style="position: sticky; top: 0; z-index: 1;">
-                <tr>
-                    <th>Región</th>
-                    <th>Estado</th>
-                    <th class="text-center">Piezas Enviadas CPC</th>
-                    <th class="text-center">Piezas Recibidas OPT</th>
-                    <th class="text-center">Piezas Entregadas</th>
-                </tr>
-            </thead>
-            <tbody id="obsTablaEstados">
-                <tr><td colspan="5" class="text-center py-3">Cargando datos...</td></tr>
-            </tbody>
-        </table>
-    </div>
-  </div>
-</div>
-    
+</div> 
 <!-- MODALES (OPT) -->
 <div class="modal fade" id="modalRecepcion" tabindex="-1">
   <div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header bg-warning text-dark"><h5 class="modal-title fw-bold">Confirmar Recepción</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body">
