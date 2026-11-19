@@ -2794,8 +2794,12 @@ async function cargarObservatorioNacional() {
     const hace30 = new Date(); hace30.setDate(hace30.getDate() - 30);
     const fechaInicio = hace30.toISOString().split('T')[0];
     const fechaFin = new Date().toISOString().split('T')[0];
+    
+    // Capturar filtros
+    const filtroRegion = document.getElementById('obsFiltroRegion') ? document.getElementById('obsFiltroRegion').value : 'TODAS';
+    const filtroEstado = document.getElementById('obsFiltroEstado') ? document.getElementById('obsFiltroEstado').value : 'TODOS';
 
-    const r = await postAPI({ accion: 'obtenerDatosObservatorioNacional', fechaInicio, fechaFin });
+    const r = await postAPI({ accion: 'obtenerDatosObservatorioNacional', fechaInicio, fechaFin, filtroRegion, filtroEstado });
     
     if (!r.exito) throw new Error(r.mensaje);
     Swal.close();
@@ -2803,7 +2807,7 @@ async function cargarObservatorioNacional() {
     const k = r.kpis;
     const format = (num) => Number(num || 0).toLocaleString('es-VE');
 
-    // 1. Llenar las Tarjetas
+    // 1. Llenar Tarjetas
     document.getElementById('obskpiVuelos').textContent = format(k.piezasVuelos);
     document.getElementById('obskpiKilosVuelos').textContent = format(k.kilosVuelos) + ' Kilos';
     document.getElementById('obskpiDistribuidas').textContent = format(k.piezasDistribuidas);
@@ -2815,35 +2819,37 @@ async function cargarObservatorioNacional() {
     document.getElementById('obskpiRiesgo').textContent = format(k.piezasEnRiesgo);
     document.getElementById('obskpiReencaminadas').textContent = format(k.piezasReencaminadas);
     document.getElementById('obskpiDevueltas').textContent = format(k.piezasDevueltas);
-
-    // 2. Llenar el Análisis IA
-    document.getElementById('obsTextoAnalisis').value = r.analisisIA || 'No se pudo generar el análisis.';
-
-    // 3. Llenar la tabla de OPTs
-    const tbody = document.getElementById('tablaOptsNacional');
-    tbody.innerHTML = '';
     
-    if (r.tablaOPTs.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="6">No hay datos de OPTs en este período</td></tr>';
-    } else {
-      r.tablaOPTs.forEach(o => {
-        let badgeColor = 'bg-danger';
-        if (o.efectividad >= 80) badgeColor = 'bg-success';
-        else if (o.efectividad >= 50) badgeColor = 'bg-warning text-dark';
+    // 2. Análisis IA
+    document.getElementById('obsTextoAnalisis').value = r.analisisIA || 'Sin análisis.';
 
+    // 3. Función auxiliar para pintar tablas
+    const pintarTabla = (idTabla, data) => {
+      const tbody = document.getElementById(idTabla);
+      tbody.innerHTML = '';
+      if (data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="2" class="text-muted">Sin datos</td></tr>';
+        return;
+      }
+      data.forEach(o => {
+        let badgeColor = o.efectividad >= 80 ? 'bg-success' : (o.efectividad >= 50 ? 'bg-warning text-dark' : 'bg-danger');
         tbody.innerHTML += `
           <tr>
-            <td class="text-start fw-bold">${o.opt}</td>
-            <td>${format(o.recibidas)}</td>
-            <td class="text-success fw-bold">${format(o.entregadas)}</td>
-            <td>${format(o.custodia)}</td>
-            <td class="${o.enRiesgo > 0 ? 'text-danger fw-bold' : ''}">${format(o.enRiesgo)}</td>
+            <td class="text-start fw-bold">${o.nombre}</td>
             <td><span class="badge ${badgeColor}">${o.efectividad}%</span></td>
           </tr>
         `;
       });
-    }
+    };
 
+    pintarTabla('tablaRegionesNacional', r.arrRegiones);
+    pintarTabla('tablaEstadosNacional', r.arrEstados);
+    pintarTabla('tablaOptsNacional', r.arrOPTs);
+
+  } catch(e) {
+    Swal.fire('Error', e.message, 'error');
+  }
+}
     // 4. Dibujar Gráfico de Barras (Top 5 OPTs)
     const top5 = r.tablaOPTs.slice(0, 5);
     const ctx = document.getElementById('graficoOPTs').getContext('2d');
