@@ -2382,8 +2382,7 @@ function renderChartVehiculos(datos) {
     });
 }
 
-async function abrirModalInformeGerente() {
-  // 1. Pedir las fechas (por defecto hoy en Venezuela)
+  async function abrirModalInformeGerente() {
   const getFechaVE = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Caracas', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
   
   const { value: formValues } = await Swal.fire({
@@ -2417,31 +2416,33 @@ async function abrirModalInformeGerente() {
   if (!formValues) return;
 
   const [fechaInicio, fechaFin] = formValues;
-
-  // 2. Obtener el estado del gerente actual (de la sesión)
-  const estadoActual = localStorage.getItem('gerenteEstado') || 'Anzoátegui'; // Ajusta esto si guardas el estado en otra variable
+  // Lee el estado de la barra superior
+  const textoEstado = document.body.innerText.match(/Estado:\s*([^\s|]+)/);
+  const estadoActual = textoEstado ? textoEstado[1].trim() : 'Anzoátegui';
 
   Swal.fire({ title: 'Generando informe...', didOpen: () => Swal.showLoading() });
 
   try {
-    // 3. Llamar al backend
-    const r = await postAPI({ 
+    const payload = { 
       accion: 'obtenerResumenGerente', 
       fechaInicio: fechaInicio, 
       fechaFin: fechaFin,
       estado: estadoActual
-    });
+    };
     
-    if (!r.exito) throw new Error(r.mensaje);
+    console.log("Enviando al backend:", payload); // Para depurar
+
+    const r = await postAPI(payload);
+    
+    if (!r) throw new Error("El servidor no devolvió respuesta.");
+    if (!r.exito) throw new Error(r.mensaje || "Error desconocido en el backend");
+    
     Swal.close();
 
-    const d = r;
+    const d = r; // Los datos vienen directo en la respuesta
     
-    // 4. Construir el HTML del informe
     let filasDetalle = '';
-    if (d.detalle.length === 0) {
-      filasDetalle = '<tr><td colspan="6" class="text-center">No hay despachos en este período.</td></tr>';
-    } else {
+    if (d.detalle && d.detalle.length > 0) {
       d.detalle.forEach(item => {
         filasDetalle += `
           <tr>
@@ -2454,12 +2455,14 @@ async function abrirModalInformeGerente() {
           </tr>
         `;
       });
+    } else {
+      filasDetalle = '<tr><td colspan="6" class="text-center">No hay despachos en este período.</td></tr>';
     }
 
     const htmlInforme = `
       <div class="text-center mb-3">
         <h4 class="fw-bold">Informe de Gestión - Gerencia de Estado</h4>
-        <p class="mb-1">Estado: ${d.infoGerencia.estado}</p>
+        <p class="mb-1">Estado: ${d.infoGerencia ? d.infoGerencia.estado : estadoActual}</p>
         <p class="mb-0 text-muted">Período: ${fechaInicio} al ${fechaFin}</p>
       </div>
       <hr>
@@ -2505,7 +2508,6 @@ async function abrirModalInformeGerente() {
       </div>
     `;
 
-    // 5. Mostrar el informe con opción de imprimir
     Swal.fire({
       html: htmlInforme,
       width: '800px',
@@ -2515,7 +2517,6 @@ async function abrirModalInformeGerente() {
       confirmButtonColor: '#0d6efd'
     }).then((result) => {
       if (result.isConfirmed) {
-        // Abrir ventana de impresión
         const printWindow = window.open('', '_blank');
         printWindow.document.write('<html><head><title>Informe Gerencia</title>');
         printWindow.document.write('<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">');
@@ -2529,10 +2530,10 @@ async function abrirModalInformeGerente() {
     });
 
   } catch(e) {
+    console.error("Error en informe:", e);
     Swal.fire('Error', e.message, 'error');
   }
 }
-  
 // 9. Informe de Mariela
 let modalInformeMariela;
 
