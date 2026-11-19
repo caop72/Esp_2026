@@ -2868,13 +2868,13 @@ async function cargarObservatorioNacional() {
           borderRadius: 5
         }]
       },
-      options: {
+            options: {
         indexAxis: 'y',
         maintainAspectRatio: false,
         plugins: { legend: { display: false } },
         scales: { x: { max: 100, beginAtZero: true } }
       }
-    });
+    }); // <--- AGREGA ESTA LÍNEA SI NO ESTÁ
 
   } catch(e) {
     Swal.fire('Error', e.message, 'error');
