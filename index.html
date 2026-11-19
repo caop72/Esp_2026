@@ -458,136 +458,181 @@
         </div>
       </div>
     </div>
-   <div id="appObservatorio" class="oculto">
-  <div class="d-flex justify-content-between align-items-center mb-4 mt-3">
-    <h3 class="fw-bold text-primary m-0"><i class="bi bi-globe-americas"></i> Observatorio Nacional</h3>
-    <button class="btn btn-outline-primary" onclick="cargarObservatorioNacional()"><i class="bi bi-arrow-clockwise"></i> Actualizar Datos</button>
-  </div>
+   
+    <!-- PANEL OBSERVATORIO NACIONAL (NUEVO Y CORREGIDO) -->
+    <div id="appObservatorio" class="oculto">
+      <div class="d-flex justify-content-between align-items-center mb-4 mt-3">
+        <h3 class="fw-bold text-primary m-0"><i class="bi bi-globe-americas"></i> Observatorio Nacional</h3>
+        <button class="btn btn-outline-primary" onclick="cargarObservatorioNacional()"><i class="bi bi-arrow-clockwise"></i> Actualizar Datos</button>
+      </div>
 
-  <!-- FILA 1: RECEPCIÓN Y DISTRIBUCIÓN -->
-  <div class="row g-3 mb-4">
-    <div class="col-md-3">
-      <div class="card border-0 shadow-sm h-100 border-start border-4 border-warning">
-        <div class="card-body">
-          <h6 class="text-muted text-uppercase fw-bold mb-2">Piezas Recibidas (Vuelos)</h6>
-          <h2 class="mb-0 fw-bold" id="obskpiVuelos">0</h2>
-          <small class="text-muted" id="obskpiKilosVuelos">0 Kilos</small>
+      <!-- FILTROS -->
+      <div class="card shadow-sm mb-4 border-0">
+        <div class="card-body bg-light rounded">
+          <div class="row g-3 align-items-center">
+            <div class="col-md-4">
+              <label class="form-label fw-bold mb-1">Región</label>
+              <select class="form-select" id="obsFiltroRegion" onchange="cargarObservatorioNacional()">
+                <option value="TODAS">Todas las Regiones</option>
+                <option value="Capital">Capital</option>
+                <option value="Central">Central</option>
+                <option value="Oriente">Oriente</option>
+                <option value="Occidente">Occidente</option>
+                <option value="Andina">Andina</option>
+                <option value="Centro Llano">Centro Llano</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-bold mb-1">Estado</label>
+              <select class="form-select" id="obsFiltroEstado" onchange="cargarObservatorioNacional()">
+                <option value="TODOS">Todos los Estados</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+               <label class="form-label fw-bold mb-1">Período</label>
+               <input type="text" class="form-control bg-white" value="Últimos 30 días" readonly disabled>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-    <div class="col-md-3">
-      <div class="card border-0 shadow-sm h-100 border-start border-4 border-info">
-        <div class="card-body">
-          <h6 class="text-muted text-uppercase fw-bold mb-2">Piezas Distribuidas</h6>
-          <h2 class="mb-0 fw-bold" id="obskpiDistribuidas">0</h2>
-          <small class="text-success fw-bold" id="obskpiPctDistribucion">0% del total</small>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-3">
-      <div class="card border-0 shadow-sm h-100 border-start border-4 border-primary">
-        <div class="card-body">
-          <h6 class="text-muted text-uppercase fw-bold mb-2">Entregadas al Elector</h6>
-          <h2 class="mb-0 fw-bold" id="obskpiEntregadas">0</h2>
-          <small class="text-primary fw-bold" id="obskpiPctEntrega">0% de lo distribuido</small>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-3">
-      <div class="card border-0 shadow-sm h-100 border-start border-4 border-success">
-        <div class="card-body">
-          <h6 class="text-muted text-uppercase fw-bold mb-2">Efectividad Global</h6>
-          <h2 class="mb-0 fw-bold" id="obskpiEfectividadGlobal">0%</h2>
-          <small class="text-muted">(Entregadas / Recibidas)</small>
-        </div>
-      </div>
-    </div>
-  </div>
 
-  <!-- FILA 2: ALERTAS Y RIESGOS -->
-  <div class="row g-3 mb-4">
-    <div class="col-md-4">
-      <div class="card border-0 shadow-sm bg-light">
-        <div class="card-body d-flex justify-content-between align-items-center">
-          <div>
-            <h6 class="text-muted fw-bold mb-1">En Custodia (OPTs)</h6>
-            <h4 class="mb-0 fw-bold" id="obskpiCustodia">0</h4>
+      <!-- FILA 1: KPIs -->
+      <div class="row g-3 mb-4">
+        <div class="col-md-3">
+          <div class="card border-0 shadow-sm h-100 border-start border-4 border-warning">
+            <div class="card-body">
+              <h6 class="text-muted text-uppercase fw-bold mb-2">Piezas Recibidas (Vuelos)</h6>
+              <h2 class="mb-0 fw-bold" id="obskpiVuelos">0</h2>
+              <small class="text-muted" id="obskpiKilosVuelos">0 Kilos</small>
+            </div>
           </div>
-          <i class="bi bi-box-seam fs-1 text-secondary opacity-50"></i>
+        </div>
+        <div class="col-md-3">
+          <div class="card border-0 shadow-sm h-100 border-start border-4 border-info">
+            <div class="card-body">
+              <h6 class="text-muted text-uppercase fw-bold mb-2">Piezas Distribuidas</h6>
+              <h2 class="mb-0 fw-bold" id="obskpiDistribuidas">0</h2>
+              <small class="text-success fw-bold" id="obskpiPctDistribucion">0% del total</small>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card border-0 shadow-sm h-100 border-start border-4 border-primary">
+            <div class="card-body">
+              <h6 class="text-muted text-uppercase fw-bold mb-2">Entregadas al Elector</h6>
+              <h2 class="mb-0 fw-bold" id="obskpiEntregadas">0</h2>
+              <small class="text-primary fw-bold" id="obskpiPctEntrega">0% de lo distribuido</small>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card border-0 shadow-sm h-100 border-start border-4 border-success">
+            <div class="card-body">
+              <h6 class="text-muted text-uppercase fw-bold mb-2">Efectividad Global</h6>
+              <h2 class="mb-0 fw-bold" id="obskpiEfectividadGlobal">0%</h2>
+              <small class="text-muted">(Entregadas / Recibidas)</small>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-    <div class="col-md-4">
-      <div class="card border-0 shadow-sm bg-danger bg-opacity-10">
-        <div class="card-body d-flex justify-content-between align-items-center">
-          <div>
-            <h6 class="text-danger fw-bold mb-1">Piezas en Riesgo (+12h)</h6>
-            <h4 class="mb-0 fw-bold text-danger" id="obskpiRiesgo">0</h4>
-          </div>
-          <i class="bi bi-exclamation-triangle fs-1 text-danger opacity-50"></i>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-4">
-      <div class="card border-0 shadow-sm bg-warning bg-opacity-10">
-        <div class="card-body d-flex justify-content-between align-items-center">
-          <div>
-            <h6 class="text-warning text-dark fw-bold mb-1">Reencaminadas / Devueltas</h6>
-            <h4 class="mb-0 fw-bold text-dark"><span id="obskpiReencaminadas">0</span> / <span id="obskpiDevueltas">0</span></h4>
-          </div>
-          <i class="bi bi-arrow-return-left fs-1 text-warning opacity-50"></i>
-        </div>
-      </div>
-    </div>
-  </div>
 
-  <!-- TABLA DE RENDIMIENTO POR OPT -->
-  <div class="card border-0 shadow-sm mt-4">
-    <div class="card-header bg-white fw-bold py-3">
-      <i class="bi bi-building"></i> Rendimiento por Oficina Postal (OPT)
-    </div>
-    <div class="card-body p-0">
-      <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
-        <table class="table table-hover table-striped mb-0 text-center align-middle">
-          <thead class="table-dark sticky-top">
-            <tr>
-              <th class="text-start">OPT</th>
-              <th>Recibidas</th>
-              <th>Entregadas</th>
-              <th>En Custodia</th>
-              <th>En Riesgo</th>
-              <th>% Efectividad</th>
-            </tr>
-          </thead>
-          <tbody id="tablaOptsNacional">
-            <!-- Se llena dinámicamente -->
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-</div> 
-  <!-- FILA 3: ANÁLISIS IA Y GRÁFICO -->
-  <div class="row g-3 mt-4">
-    <div class="col-md-6">
-      <div class="card shadow-sm border-info h-100">
-        <div class="card-header bg-info text-white fw-bold">
-          <i class="bi bi-robot"></i> Análisis Cualitativo del Reporte (IA)
+      <!-- FILA 2: ALERTAS -->
+      <div class="row g-3 mb-4">
+        <div class="col-md-4">
+          <div class="card border-0 shadow-sm bg-light">
+            <div class="card-body d-flex justify-content-between align-items-center">
+              <div>
+                <h6 class="text-muted fw-bold mb-1">En Custodia (OPTs)</h6>
+                <h4 class="mb-0 fw-bold" id="obskpiCustodia">0</h4>
+              </div>
+              <i class="bi bi-box-seam fs-1 text-secondary opacity-50"></i>
+            </div>
+          </div>
         </div>
-        <div class="card-body">
-          <textarea class="form-control" id="obsTextoAnalisis" rows="8" readonly style="resize: none;">Cargando análisis...</textarea>
+        <div class="col-md-4">
+          <div class="card border-0 shadow-sm bg-danger bg-opacity-10">
+            <div class="card-body d-flex justify-content-between align-items-center">
+              <div>
+                <h6 class="text-danger fw-bold mb-1">Piezas en Riesgo (+12h)</h6>
+                <h4 class="mb-0 fw-bold text-danger" id="obskpiRiesgo">0</h4>
+              </div>
+              <i class="bi bi-exclamation-triangle fs-1 text-danger opacity-50"></i>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
-    <div class="col-md-6">
-      <div class="card shadow-sm h-100">
-        <div class="card-header bg-white fw-bold"><i class="bi bi-bar-chart-fill text-primary"></i> Top 5 OPTs (Efectividad)</div>
-        <div class="card-body">
-          <canvas id="graficoOPTs" style="max-height: 250px;"></canvas>
+        <div class="col-md-4">
+          <div class="card border-0 shadow-sm bg-warning bg-opacity-10">
+            <div class="card-body d-flex justify-content-between align-items-center">
+              <div>
+                <h6 class="text-warning text-dark fw-bold mb-1">Reencaminadas / Devueltas</h6>
+                <h4 class="mb-0 fw-bold text-dark"><span id="obskpiReencaminadas">0</span> / <span id="obskpiDevueltas">0</span></h4>
+              </div>
+              <i class="bi bi-arrow-return-left fs-1 text-warning opacity-50"></i>
+            </div>
+          </div>
         </div>
       </div>
+
+      <!-- TABLAS EN CASCADA -->
+      <div class="row g-3 mb-4">
+        <div class="col-md-4">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-dark text-white fw-bold"><i class="bi bi-map"></i> Rendimiento por Región</div>
+            <div class="card-body p-0">
+              <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+                <table class="table table-sm table-hover mb-0 text-center align-middle">
+                  <thead class="table-light sticky-top"><tr><th>Región</th><th>Efectividad</th></tr></thead>
+                  <tbody id="tablaRegionesNacional"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-4">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-dark text-white fw-bold"><i class="bi bi-flag"></i> Rendimiento por Estado</div>
+            <div class="card-body p-0">
+              <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+                <table class="table table-sm table-hover mb-0 text-center align-middle">
+                  <thead class="table-light sticky-top"><tr><th>Estado</th><th>Efectividad</th></tr></thead>
+                  <tbody id="tablaEstadosNacional"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-dark text-white fw-bold"><i class="bi bi-building"></i> Rendimiento por OPT</div>
+            <div class="card-body p-0">
+              <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+                <table class="table table-sm table-hover mb-0 text-center align-middle">
+                  <thead class="table-light sticky-top"><tr><th>OPT</th><th>Efectividad</th></tr></thead>
+                  <tbody id="tablaOptsNacional"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FILA 3: ANALISIS IA -->
+      <div class="row g-3 mt-2">
+        <div class="col-md-12">
+          <div class="card shadow-sm border-info">
+            <div class="card-header bg-info text-white fw-bold">
+              <i class="bi bi-robot"></i> Análisis Cualitativo del Reporte (IA)
+            </div>
+            <div class="card-body">
+              <textarea class="form-control" id="obsTextoAnalisis" rows="3" readonly style="resize: none;">Cargando análisis...</textarea>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
+    
 <!-- MODALES (OPT) -->
 <div class="modal fade" id="modalRecepcion" tabindex="-1">
   <div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header bg-warning text-dark"><h5 class="modal-title fw-bold">Confirmar Recepción</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body">
@@ -1207,7 +1252,6 @@
     </div>
   </div>
 </div>
-  
 <script>
 const API_URL = 'https://script.google.com/macros/s/AKfycbzx_AeJRGOOXphA0N5sUFEMJbDBwsyzfElr0hH38dmzUmFt9dy1NJ7w3MjMycrWzoI2/exec';
 const estadoApp = { rol: null, requiereEstado: false, requiereOPT: false, estadoSel: null, optSel: null, subRolSel: null };
