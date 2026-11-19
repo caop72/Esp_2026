@@ -2382,6 +2382,157 @@ function renderChartVehiculos(datos) {
     });
 }
 
+async function abrirModalInformeGerente() {
+  // 1. Pedir las fechas (por defecto hoy en Venezuela)
+  const getFechaVE = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Caracas', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
+  
+  const { value: formValues } = await Swal.fire({
+    title: 'Cierre Diario / Informe',
+    html: `
+      <div class="d-flex justify-content-between gap-3">
+        <div class="w-50 text-start">
+          <label class="form-label fw-bold">Desde</label>
+          <input id="swal-fecha-inicio" type="date" class="form-control" value="${getFechaVE()}">
+        </div>
+        <div class="w-50 text-start">
+          <label class="form-label fw-bold">Hasta</label>
+          <input id="swal-fecha-fin" type="date" class="form-control" value="${getFechaVE()}">
+        </div>
+      </div>
+    `,
+    focusConfirm: false,
+    showCancelButton: true,
+    confirmButtonText: 'Generar e Imprimir',
+    cancelButtonText: 'Cancelar',
+    confirmButtonColor: '#ffc107',
+    cancelButtonColor: '#6c757d',
+    preConfirm: () => {
+      return [
+        document.getElementById('swal-fecha-inicio').value,
+        document.getElementById('swal-fecha-fin').value
+      ]
+    }
+  });
+
+  if (!formValues) return;
+
+  const [fechaInicio, fechaFin] = formValues;
+
+  // 2. Obtener el estado del gerente actual (de la sesión)
+  const estadoActual = localStorage.getItem('gerenteEstado') || 'Anzoátegui'; // Ajusta esto si guardas el estado en otra variable
+
+  Swal.fire({ title: 'Generando informe...', didOpen: () => Swal.showLoading() });
+
+  try {
+    // 3. Llamar al backend
+    const r = await postAPI({ 
+      accion: 'obtenerResumenGerente', 
+      fechaInicio: fechaInicio, 
+      fechaFin: fechaFin,
+      estado: estadoActual
+    });
+    
+    if (!r.exito) throw new Error(r.mensaje);
+    Swal.close();
+
+    const d = r;
+    
+    // 4. Construir el HTML del informe
+    let filasDetalle = '';
+    if (d.detalle.length === 0) {
+      filasDetalle = '<tr><td colspan="6" class="text-center">No hay despachos en este período.</td></tr>';
+    } else {
+      d.detalle.forEach(item => {
+        filasDetalle += `
+          <tr>
+            <td>${item.id}</td>
+            <td>${item.destino}</td>
+            <td>${item.cert}</td>
+            <td>${item.ord}</td>
+            <td>${item.totalPiezas}</td>
+            <td>${item.fechaDespacho}</td>
+          </tr>
+        `;
+      });
+    }
+
+    const htmlInforme = `
+      <div class="text-center mb-3">
+        <h4 class="fw-bold">Informe de Gestión - Gerencia de Estado</h4>
+        <p class="mb-1">Estado: ${d.infoGerencia.estado}</p>
+        <p class="mb-0 text-muted">Período: ${fechaInicio} al ${fechaFin}</p>
+      </div>
+      <hr>
+      <h6 class="fw-bold">Indicadores de Operatividad</h6>
+      <div class="row text-center mb-3">
+        <div class="col-4 border rounded p-2 me-1 bg-light">
+          <small class="d-block">Valijas Recibidas</small><b>${d.kpis.totValijasRecibidas}</b>
+        </div>
+        <div class="col-4 border rounded p-2 me-1 bg-light">
+          <small class="d-block">Piezas Recibidas</small><b>${d.kpis.totPiezasRecibidas}</b>
+        </div>
+        <div class="col-4 border rounded p-2 bg-light">
+          <small class="d-block">Operatividad</small><b>${d.kpis.operatividad}%</b>
+        </div>
+      </div>
+      <div class="row text-center mb-3">
+        <div class="col-4 border rounded p-2 me-1 bg-light">
+          <small class="d-block">Paquetes Creados</small><b>${d.kpis.totPaquetesCreados}</b>
+        </div>
+        <div class="col-4 border rounded p-2 me-1 bg-light">
+          <small class="d-block">Paquetes Despachados</small><b>${d.kpis.totPaquetesDespachados}</b>
+        </div>
+        <div class="col-4 border rounded p-2 bg-light">
+          <small class="d-block">Piezas Despachadas</small><b>${d.kpis.piezasDespachadas}</b>
+        </div>
+      </div>
+      <hr>
+      <h6 class="fw-bold">Detalle de Despachos Realizados</h6>
+      <div class="table-responsive">
+        <table class="table table-sm table-bordered table-striped text-center" style="font-size: 0.85rem;">
+          <thead class="table-dark">
+            <tr>
+              <th>Máster ID</th>
+              <th>Destino</th>
+              <th>Certificados</th>
+              <th>Ordinarios</th>
+              <th>Total Pzs</th>
+              <th>Fecha Despacho</th>
+            </tr>
+          </thead>
+          <tbody>${filasDetalle}</tbody>
+        </table>
+      </div>
+    `;
+
+    // 5. Mostrar el informe con opción de imprimir
+    Swal.fire({
+      html: htmlInforme,
+      width: '800px',
+      showCancelButton: true,
+      confirmButtonText: '<i class="bi bi-printer"></i> Imprimir',
+      cancelButtonText: 'Cerrar',
+      confirmButtonColor: '#0d6efd'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Abrir ventana de impresión
+        const printWindow = window.open('', '_blank');
+        printWindow.document.write('<html><head><title>Informe Gerencia</title>');
+        printWindow.document.write('<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">');
+        printWindow.document.write('</head><body class="p-4">');
+        printWindow.document.write(htmlInforme);
+        printWindow.document.write('</body></html>');
+        printWindow.document.close();
+        printWindow.focus();
+        setTimeout(() => printWindow.print(), 500);
+      }
+    });
+
+  } catch(e) {
+    Swal.fire('Error', e.message, 'error');
+  }
+}
+  
 // 9. Informe de Mariela
 let modalInformeMariela;
 
