@@ -2802,6 +2802,12 @@ async function generarInforme() {
     }
 }
 async function cargarObservatorioNacional() {
+  // Llenar la lista de estados si está vacía
+  const selectEstado = document.getElementById('obsFiltroEstado');
+  if (selectEstado && selectEstado.options.length === 1) {
+      await cargarEstadosObservatorio();
+  }
+
   Swal.fire({ title: 'Cargando datos nacionales...', didOpen: () => Swal.showLoading() });
   
   try {
@@ -2811,7 +2817,7 @@ async function cargarObservatorioNacional() {
     
     // Capturar filtros
     const filtroRegion = document.getElementById('obsFiltroRegion') ? document.getElementById('obsFiltroRegion').value : 'TODAS';
-    const filtroEstado = document.getElementById('obsFiltroEstado') ? document.getElementById('obsFiltroEstado').value : 'TODOS';
+    const filtroEstado = selectEstado ? selectEstado.value : 'TODOS';
 
     const r = await postAPI({ accion: 'obtenerDatosObservatorioNacional', fechaInicio, fechaFin, filtroRegion, filtroEstado });
     
