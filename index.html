@@ -1762,9 +1762,16 @@ async function cargarObservatorio() {
   if (document.getElementById('obsFiltroEstado').options.length === 1) {
       await cargarEstadosObservatorio();
   }
+  
+  // FUNCIÓN AUXILIAR PARA FECHA DE VENEZUELA
+  const getFechaVE = (date) => {
+    const d = date || new Date();
+    return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Caracas', year: 'numeric', month: '2-digit', day: '2-digit' }).format(d);
+  };
+
   if (!document.getElementById('obsFiltroDesde').value) {
-      const hoy = new Date().toISOString().split('T')[0];
-      const hace7 = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      const hoy = getFechaVE();
+      const hace7 = getFechaVE(new Date(Date.now() - 7 * 24 * 60 * 60 * 1000));
       document.getElementById('obsFiltroDesde').value = hace7;
       document.getElementById('obsFiltroHasta').value = hoy;
   }
