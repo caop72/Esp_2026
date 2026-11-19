@@ -1338,8 +1338,11 @@ async function enviarAlBackend() {
 function iniciarApp(r) {
   document.getElementById('pantallaLogin').style.display = 'none';
   document.getElementById('pantallaApp').style.display = 'block';
-  document.getElementById('lblBienvenida').innerText = `Rol: ${r.rol} | Estado: ${estadoApp.estadoSel || ''} | OPT: ${estadoApp.optSel || ''}`;
-  
+    if (r.rol === 'OBSERVATORIO' || r.rol === 'PRESIDENCIA' || r.rol === 'DESPACHO') {
+    document.getElementById('lblBienvenida').innerText = `Rol: ${r.rol} NACIONAL`;
+  } else {
+    document.getElementById('lblBienvenida').innerText = `Rol: ${r.rol} | Estado: ${estadoApp.estadoSel || ''} | OPT: ${estadoApp.optSel || ''}`;
+  }
   if (r.rol === 'JEFE_OPT' || r.rol === 'ANALISTA_OPT') {
     mostrar('appOPT'); mostrar('btnInformeOPT');
     modalRecepcion = new bootstrap.Modal(document.getElementById('modalRecepcion'));
