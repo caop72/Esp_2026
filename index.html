@@ -2812,16 +2812,26 @@ async function cargarObservatorioNacional() {
       await cargarEstadosObservatorio();
   }
 
+  // Si no hay fechas seleccionadas, poner por defecto los últimos 30 días
+  const inputDesde = document.getElementById('obsFiltroDesde');
+  const inputHasta = document.getElementById('obsFiltroHasta');
+  
+  if (!inputDesde.value || !inputHasta.value) {
+      const hoy = new Date();
+      const hace30 = new Date(); hace30.setDate(hace30.getDate() - 30);
+      // Formatear a YYYY-MM-DDThh:mm (formato que acepta el input)
+      inputHasta.value = hoy.toISOString().slice(0, 16);
+      inputDesde.value = hace30.toISOString().slice(0, 16);
+  }
+
   Swal.fire({ title: 'Cargando datos nacionales...', didOpen: () => Swal.showLoading() });
   
   try {
-    const hace30 = new Date(); hace30.setDate(hace30.getDate() - 30);
-    const fechaInicio = hace30.toISOString().split('T')[0];
-    const fechaFin = new Date().toISOString().split('T')[0];
-    
     // Capturar filtros
     const filtroRegion = document.getElementById('obsFiltroRegion') ? document.getElementById('obsFiltroRegion').value : 'TODAS';
     const filtroEstado = selectEstado ? selectEstado.value : 'TODOS';
+    const fechaInicio = inputDesde.value; // Ya incluye hora
+    const fechaFin = inputHasta.value;    // Ya incluye hora
 
     const r = await postAPI({ accion: 'obtenerDatosObservatorioNacional', fechaInicio, fechaFin, filtroRegion, filtroEstado });
     
@@ -2889,17 +2899,8 @@ async function cargarObservatorioNacional() {
       options: {
         indexAxis: 'y',
         maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            callbacks: {
-              label: function(context) { return context.raw + ' días en promedio'; }
-            }
-          }
-        },
-        scales: {
-          x: { beginAtZero: true, title: { display: true, text: 'Días Promedio' } }
-        }
+        plugins: { legend: { display: false } },
+        scales: { x: { beginAtZero: true } }
       }
     });
 
