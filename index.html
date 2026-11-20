@@ -1336,46 +1336,52 @@ async function enviarAlBackend() {
 function iniciarApp(r) {
   document.getElementById('pantallaLogin').style.display = 'none';
   document.getElementById('pantallaApp').style.display = 'block';
-    if (r.rol === 'OBSERVATORIO' || r.rol === 'PRESIDENCIA' || r.rol === 'DESPACHO') {
+  
+  if (r.rol === 'OBSERVATORIO' || r.rol === 'PRESIDENCIA' || r.rol === 'DESPACHO') {
     document.getElementById('lblBienvenida').innerText = `Rol: ${r.rol} NACIONAL`;
   } else {
     document.getElementById('lblBienvenida').innerText = `Rol: ${r.rol} | Estado: ${estadoApp.estadoSel || ''} | OPT: ${estadoApp.optSel || ''}`;
   }
+
   if (r.rol === 'JEFE_OPT' || r.rol === 'ANALISTA_OPT') {
     mostrar('appOPT'); mostrar('btnInformeOPT');
     modalRecepcion = new bootstrap.Modal(document.getElementById('modalRecepcion'));
     modalEntrega = new bootstrap.Modal(document.getElementById('modalEntrega'));
     modalInforme = new bootstrap.Modal(document.getElementById('modalInforme')); 
     cargarEstadisticasOPT(); cargarPorRecibir(); cargarCustodia(); cargarHistorialEntregas();
-  } else if (r.rol === 'DIR_CNC' || r.rol === 'COORD_CNC') {
+  } 
+  else if (r.rol === 'DIR_CNC' || r.rol === 'COORD_CNC') {
     mostrar('appCNC'); mostrar('btnInformeCNC'); 
     modalInformeCNC = new bootstrap.Modal(document.getElementById('modalInformeCNC')); 
     cargarCNC();
-  } else if (r.rol === 'DIR_OPER' || r.rol === 'GER_OPER') {
+  } 
+  else if (r.rol === 'DIR_OPER' || r.rol === 'GER_OPER') {
     mostrar('appOperaciones'); 
     modalOperaciones = new bootstrap.Modal(document.getElementById('modalOperaciones'));
     modalDespachoCamion = new bootstrap.Modal(document.getElementById('modalDespachoCamion'));
     cargarPanelOperaciones();
     cargarTablaDespachos();
-  } else if (r.rol === 'COORD_ENCAM') { 
+  } 
+  else if (r.rol === 'COORD_ENCAM') { 
     mostrar('appEncaminamiento'); 
     mostrar('btnInformeMariela'); 
     modalRecibirCamion = new bootstrap.Modal(document.getElementById('modalRecibirCamion'));
     modalEntregarMRW = new bootstrap.Modal(document.getElementById('modalEntregarMRW'));
     modalCrearMaster = new bootstrap.Modal(document.getElementById('modalCrearMaster'));
-    
-    cargarIndicadoresEncaminamiento(); // <--- LÍNEA AGREGADA AQUÍ
-    
+    cargarIndicadoresEncaminamiento();
     cargarCamionesPorRecibir();
     cargarValijasMRW();
-  } else if (r.rol === 'COORD_ALIANZA') {
-    mostrar('appAliado'); 
-    modalAliado = new bootstrap.Modal(document.getElementById('modalAliado'));
-    cargarPanelAliado();
-  } else if (r.rol === 'GERENTE_ESTADO') {
+  } 
+  else if (r.rol === 'CONTROLADOR_CENTRAL') { 
+    // <--- NUEVO ROL AQUÍ
+    mostrar('appControlador'); 
+    cargarPanelControlador();
+  } 
+  else if (r.rol === 'GERENTE_ESTADO') {
     mostrar('appGerente'); mostrar('btnInformeGerente');
     iniciarGerente();
-  } else {
+  } 
+  else {
     mostrar('appObservatorio'); cargarObservatorioNacional();
   }
 }
