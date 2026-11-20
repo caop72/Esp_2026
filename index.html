@@ -2914,6 +2914,194 @@ async function cargarObservatorioNacional() {
     Swal.fire('Error', e.message, 'error');
   }
 }
+// ==========================================
+// LÓGICA DEL CONTROLADOR CENTRAL (ALFREDO)
+// ==========================================
+let modalCtrlRecepcion, modalCtrlClasificar, modalCtrlCatalogo;
+
+function cargarPanelControlador() {
+  // Inicializar modales
+  if (!modalCtrlRecepcion) modalCtrlRecepcion = new bootstrap.Modal(document.getElementById('modalCtrlRecepcion'));
+  if (!modalCtrlClasificar) modalCtrlClasificar = new bootstrap.Modal(document.getElementById('modalCtrlClasificar'));
+  if (!modalCtrlCatalogo) modalCtrlCatalogo = new bootstrap.Modal(document.getElementById('modalCtrlCatalogo'));
+  
+  // Cargar datos iniciales de las pestañas
+  Ctrl_cargarVehiculos();
+  Ctrl_cargarEnviosPorClasificar();
+  Ctrl_cargarColaDespacho();
+  Ctrl_cargarCatalogo();
+}
+
+// --- TAB 1: RECEPCIÓN DE VEHÍCULOS ---
+async function Ctrl_cargarVehiculos() {
+  const tbody = document.getElementById('tablaCtrlRecepcion');
+  if(!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="6" class="text-center py-3">Cargando...</td></tr>';
+  try {
+    const r = await postAPI({ accion: 'Ctrl_obtenerVehiculosRecibidos' });
+    if (!r.exito) throw new Error(r.mensaje);
+    tbody.innerHTML = '';
+    if(r.datos.length === 0) return tbody.innerHTML = '<tr><td colspan="6" class="text-center">No hay vehículos registrados.</td></tr>';
+    r.datos.forEach(d => {
+      tbody.innerHTML += `<tr>
+        <td><span class="badge ${d.tipo === 'MRW' ? 'bg-primary' : 'bg-success'}">${d.tipo}</span></td>
+        <td><b>${d.placa}</b><br><small>${d.guiaAerea}</small></td>
+        <td>${d.conductor}</td>
+        <td>${d.valijas} Val / ${d.piezas} Pzs</td>
+        <td>${new Date(d.fechaLlegada).toLocaleString()}</td>
+        <td><span class="badge bg-info text-dark">${d.estado}</span></td>
+      </tr>`;
+    });
+  } catch(e) { tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">${e.message}</td></tr>`; }
+}
+
+function Ctrl_abrirModalRecepcion() {
+  document.getElementById('ctrlRecTipo').value = 'IPOSTEL';
+  document.getElementById('ctrlRecPlaca').value = '';
+  document.getElementById('ctrlRecConductor').value = '';
+  document.getElementById('ctrlRecPrecinto').value = '';
+  document.getElementById('ctrlRecGuia').value = '';
+  document.getElementById('ctrlRecValijas').value = '0';
+  document.getElementById('ctrlRecPiezas').value = '0';
+  document.getElementById('ctrlRecKg').value = '0';
+  modalCtrlRecepcion.show();
+}
+
+async function Ctrl_guardarRecepcion() {
+  const payload = {
+    accion: 'Ctrl_registrarRecepcionVehiculo',
+    tipo: document.getElementById('ctrlRecTipo').value,
+    placa: document.getElementById('ctrlRecPlaca').value,
+    conductor: document.getElementById('ctrlRecConductor').value,
+    precinto: document.getElementById('ctrlRecPrecinto').value,
+    guiaAerea: document.getElementById('ctrlRecGuia').value,
+    valijas: document.getElementById('ctrlRecValijas').value,
+    piezas: document.getElementById('ctrlRecPiezas').value,
+    kg: document.getElementById('ctrlRecKg').value
+  };
+  if(!payload.placa) return Swal.fire('Atención', 'Indique la placa.', 'warning');
+  Swal.fire({title: 'Guardando...', didOpen: () => Swal.showLoading()});
+  const r = await postAPI(payload);
+  if(r.exito) { modalCtrlRecepcion.hide(); Swal.fire('Registrado', 'Vehículo recibido.', 'success'); Ctrl_cargarVehiculos(); }
+  else Swal.fire('Error', r.mensaje, 'error');
+}
+
+// --- TAB 2: CLASIFICAR ENVÍOS ---
+async function Ctrl_cargarEnviosPorClasificar() {
+  const tbody = document.getElementById('tablaCtrlClasificar');
+  if(!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="5" class="text-center py-3">Cargando...</td></tr>';
+  try {
+    const r = await postAPI({ accion: 'Ctrl_obtenerEnviosPorClasificar' });
+    if (!r.exito) throw new Error(r.mensaje);
+    tbody.innerHTML = '';
+    if(r.datos.length === 0) return tbody.innerHTML = '<tr><td colspan="5" class="text-center">No hay envíos pendientes.</td></tr>';
+    r.datos.forEach(d => {
+      tbody.innerHTML += `<tr>
+        <td><b>${d.guiaValija}</b></td>
+        <td>${d.tipoEnvio}</td>
+        <td>${d.estadoOrigen} &rarr; ${d.estadoDestino}</td>
+        <td>${d.peso} kg / ${d.cantidadPiezas} pzs</td>
+        <td><button class="btn btn-sm btn-warning fw-bold" onclick="Ctrl_abrirClasificar('${d.idEnvio}', '${d.guiaValija}', '${d.estadoDestino}')">Clasificar</button></td>
+      </tr>`;
+    });
+  } catch(e) { tbody.innerHTML = `<tr><td colspan="5" class="text-center text-danger">${e.message}</td></tr>`; }
+}
+
+async function Ctrl_abrirClasificar(id, guia, destino) {
+  document.getElementById('ctrlClasId').value = id;
+  document.getElementById('ctrlClasGuia').value = guia;
+  document.getElementById('ctrlClasDestino').value = destino;
+  
+  const select = document.getElementById('ctrlClasTipo');
+  select.innerHTML = '<option value="">Cargando...</option>';
+  const r = await postAPI({ accion: 'Ctrl_obtenerClasificaciones' });
+  if(r.exito) {
+    select.innerHTML = '';
+    r.datos.forEach(c => select.innerHTML += `<option value="${c.codigo}">${c.ponderacion} - ${c.nombre}</option>`);
+  }
+  modalCtrlClasificar.show();
+}
+
+async function Ctrl_guardarClasificacionEnvio() {
+  const payload = {
+    accion: 'Ctrl_clasificarEnvio',
+    idEnvio: document.getElementById('ctrlClasId').value,
+    guiaValija: document.getElementById('ctrlClasGuia').value,
+    clasificacion: document.getElementById('ctrlClasTipo').value,
+    estadoDestino: document.getElementById('ctrlClasDestino').value
+  };
+  if(!payload.clasificacion) return Swal.fire('Atención', 'Seleccione clasificación.', 'warning');
+  Swal.fire({title: 'Guardando...', didOpen: () => Swal.showLoading()});
+  const r = await postAPI(payload);
+  if(r.exito) { modalCtrlClasificar.hide(); Swal.fire('Clasificado', 'Envío listo.', 'success'); Ctrl_cargarEnviosPorClasificar(); Ctrl_cargarColaDespacho(); }
+  else Swal.fire('Error', r.mensaje, 'error');
+}
+
+// --- TAB 3: COLA DE DESPACHO ---
+async function Ctrl_cargarColaDespacho() {
+  const tbody = document.getElementById('tablaCtrlCola');
+  if(!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="5" class="text-center py-3">Cargando...</td></tr>';
+  try {
+    const r = await postAPI({ accion: 'Ctrl_obtenerColaDespacho' });
+    if (!r.exito) throw new Error(r.mensaje);
+    tbody.innerHTML = '';
+    if(r.datos.length === 0) return tbody.innerHTML = '<tr><td colspan="5" class="text-center">Cola vacía.</td></tr>';
+    r.datos.forEach(d => {
+      tbody.innerHTML += `<tr>
+        <td><span class="badge ${d.ponderacion <= 3 ? 'bg-danger' : d.ponderacion <= 5 ? 'bg-warning text-dark' : 'bg-secondary'} fs-6">${d.ponderacion}</span></td>
+        <td><b>${d.guiaValija}</b></td>
+        <td>${d.clasificacion}</td>
+        <td>${d.estadoDestino}</td>
+        <td>${d.cantidadPiezas}</td>
+      </tr>`;
+    });
+  } catch(e) { tbody.innerHTML = `<tr><td colspan="5" class="text-center text-danger">${e.message}</td></tr>`; }
+}
+
+// --- TAB 4: CATÁLOGO DE CLASIFICACIONES ---
+async function Ctrl_cargarCatalogo() {
+  const tbody = document.getElementById('tablaCtrlCatalogo');
+  if(!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="4" class="text-center py-3">Cargando...</td></tr>';
+  try {
+    const r = await postAPI({ accion: 'Ctrl_obtenerClasificaciones' });
+    if (!r.exito) throw new Error(r.mensaje);
+    tbody.innerHTML = '';
+    r.datos.forEach(d => {
+      tbody.innerHTML += `<tr>
+        <td><b>${d.ponderacion}</b></td>
+        <td><span class="badge bg-primary">${d.codigo}</span></td>
+        <td>${d.nombre}</td>
+        <td><small class="text-muted">${d.descripcion}</small></td>
+      </tr>`;
+    });
+  } catch(e) { tbody.innerHTML = `<tr><td colspan="4" class="text-center text-danger">${e.message}</td></tr>`; }
+}
+
+function Ctrl_abrirModalClasificacion() {
+  document.getElementById('ctrlCatCodigo').value = '';
+  document.getElementById('ctrlCatPonderacion').value = '9';
+  document.getElementById('ctrlCatNombre').value = '';
+  document.getElementById('ctrlCatDesc').value = '';
+  modalCtrlCatalogo.show();
+}
+
+async function Ctrl_guardarCatalogo() {
+  const payload = {
+    accion: 'Ctrl_guardarClasificacion',
+    codigo: document.getElementById('ctrlCatCodigo').value,
+    nombre: document.getElementById('ctrlCatNombre').value,
+    ponderacion: document.getElementById('ctrlCatPonderacion').value,
+    descripcion: document.getElementById('ctrlCatDesc').value
+  };
+  if(!payload.codigo || !payload.nombre) return Swal.fire('Atención', 'Complete código y nombre.', 'warning');
+  Swal.fire({title: 'Guardando...', didOpen: () => Swal.showLoading()});
+  const r = await postAPI(payload);
+  if(r.exito) { modalCtrlCatalogo.hide(); Swal.fire('Guardado', 'Clasificación registrada.', 'success'); Ctrl_cargarCatalogo(); }
+  else Swal.fire('Error', r.mensaje, 'error');
+}
 </script>
 
 <!-- El script de Bootstrap debe ir AFUERA del script de la lógica -->
