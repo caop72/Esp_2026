@@ -431,34 +431,119 @@
         </div>
       </div>
     </div>
-    <!-- PANEL AUDITORÍA DEL ALIADO (ALFREDO) -->
-    <div id="appAliado" class="oculto">
-      <h4 class="text-primary mb-3 fw-bold"><i class="bi bi-clipboard-check"></i> Auditoría del Aliado (MRW)</h4>
-      <div class="alert alert-info py-2 small"><i class="bi bi-info-circle"></i> Supervisión de tiempos y volumetría de la carga entregada por MRW a los estados.</div>
-      
-      <div class="row g-2 mb-4">
-        <div class="col-6 col-md-3"><div class="stat-mini bg-primary bg-opacity-10"><small class="text-primary fw-bold">Valijas Entregadas</small><h3 class="text-primary" id="aliadokpiValijas">0</h3><small class="text-muted">Por MRW</small></div></div>
-        <div class="col-6 col-md-3"><div class="stat-mini bg-success bg-opacity-10"><small class="text-success fw-bold">Piezas Entregadas</small><h3 class="text-success" id="aliadokpiPiezas">0</h3><small class="text-muted">Por MRW</small></div></div>
-        <div class="col-6 col-md-3"><div class="stat-mini bg-warning bg-opacity-25"><small class="text-warning fw-bold">Kg Recibidos</small><h3 class="text-warning" id="aliadokpiKg">0</h3><small class="text-muted">Por MRW</small></div></div>
-        <div class="col-6 col-md-3"><div class="stat-mini bg-danger bg-opacity-10"><small class="text-danger fw-bold">Incumplimientos</small><h3 class="text-danger" id="aliadokpiNovedades">0</h3><small class="text-muted">De MRW</small></div></div>
-      </div>
+<!-- PANEL CONTROLADOR CENTRAL DE OPERACIONES (NUEVO) -->
+<div id="appControlador" class="oculto">
+  <h4 class="text-primary mb-3 fw-bold"><i class="bi bi-diagram-3"></i> Controlador Central de Operaciones</h4>
+  
+  <ul class="nav nav-tabs mb-3" id="tabsControlador" role="tablist">
+    <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-ctrl-recepcion" type="button"><i class="bi bi-truck"></i> 1. Recepción Vehículos</button></li>
+    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-ctrl-clasificar" type="button"><i class="bi bi-tags"></i> 2. Clasificación y Encaminamiento</button></li>
+    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-ctrl-cola" type="button"><i class="bi bi-list-ol"></i> 3. Cola de Despacho</button></li>
+    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-ctrl-catalogo" type="button"><i class="bi bi-gear"></i> Catálogo Clasificaciones</button></li>
+  </ul>
 
+  <div class="tab-content">
+    <!-- TAB 1: RECEPCIÓN -->
+    <div class="tab-pane fade show active" id="tab-ctrl-recepcion">
       <div class="card shadow-sm">
         <div class="card-header bg-white d-flex justify-content-between py-3">
-          <h6 class="mb-0 fw-bold">Auditoría de Entregas (MRW)</h6>
-          <button class="btn btn-primary btn-sm fw-bold" onclick="abrirModalAliado()"><i class="bi bi-plus-circle"></i> Registrar Auditoría</button>
+          <h6 class="mb-0 fw-bold">Vehículos Recibidos (IPOSTEL / MRW)</h6>
+          <button class="btn btn-primary btn-sm fw-bold" onclick="Ctrl_abrirModalRecepcion()"><i class="bi bi-plus-circle"></i> Registrar Recepción</button>
         </div>
         <div class="card-body p-0 table-responsive">
           <table class="table table-hover mb-0 align-middle">
-            <thead class="table-light"><tr><th>Guía Aérea</th><th>Llegada Vuelo</th><th>Entrega MRW</th><th>Valijas (D/E)</th><th>Piezas (D/E)</th><th>Kg</th><th>Estado</th><th>Novedad</th></tr></thead>
-            <tbody id="tablaAliado">
-              <tr><td colspan="8" class="text-center py-3">Cargando...</td></tr>
-            </tbody>
+            <thead class="table-light"><tr><th>Tipo</th><th>Placa/Guía</th><th>Conductor</th><th>Carga</th><th>Fecha</th><th>Estado</th></tr></thead>
+            <tbody id="tablaCtrlRecepcion"><tr><td colspan="6" class="text-center py-3">Cargando...</td></tr></tbody>
           </table>
         </div>
       </div>
     </div>
 
+    <!-- TAB 2: CLASIFICACIÓN -->
+    <div class="tab-pane fade" id="tab-ctrl-clasificar">
+      <div class="card shadow-sm">
+        <div class="card-header bg-white d-flex justify-content-between py-3">
+          <h6 class="mb-0 fw-bold">Envíos Pendientes por Clasificar</h6>
+          <button class="btn btn-warning btn-sm fw-bold" onclick="Ctrl_cargarEnviosPorClasificar()"><i class="bi bi-arrow-clockwise"></i> Actualizar</button>
+        </div>
+        <div class="card-body p-0 table-responsive">
+          <table class="table table-hover mb-0 align-middle">
+            <thead class="table-light"><tr><th>Guía</th><th>Tipo</th><th>Origen/Destino</th><th>Peso/Piezas</th><th>Acción</th></tr></thead>
+            <tbody id="tablaCtrlClasificar"><tr><td colspan="5" class="text-center py-3">Cargando...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: COLA -->
+    <div class="tab-pane fade" id="tab-ctrl-cola">
+      <div class="card shadow-sm border-primary">
+        <div class="card-header bg-primary text-white d-flex justify-content-between py-3">
+          <h6 class="mb-0 fw-bold">Cola de Despacho (Prioridad 1 = Máxima)</h6>
+          <button class="btn btn-light btn-sm fw-bold" onclick="Ctrl_cargarColaDespacho()"><i class="bi bi-arrow-clockwise"></i> Actualizar</button>
+        </div>
+        <div class="card-body p-0 table-responsive">
+          <table class="table table-hover mb-0 align-middle">
+            <thead class="table-light"><tr><th>Prioridad</th><th>Guía</th><th>Clasificación</th><th>Destino</th><th>Piezas</th></tr></thead>
+            <tbody id="tablaCtrlCola"><tr><td colspan="5" class="text-center py-3">Cargando...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 4: CATÁLOGO -->
+    <div class="tab-pane fade" id="tab-ctrl-catalogo">
+      <div class="card shadow-sm">
+        <div class="card-header bg-white d-flex justify-content-between py-3">
+          <h6 class="mb-0 fw-bold">Catálogo de Clasificaciones (1=Máxima Prioridad)</h6>
+          <button class="btn btn-success btn-sm fw-bold" onclick="Ctrl_abrirModalClasificacion()"><i class="bi bi-plus-circle"></i> Nueva Clasificación</button>
+        </div>
+        <div class="card-body p-0 table-responsive">
+          <table class="table table-hover mb-0 align-middle">
+            <thead class="table-light"><tr><th>Ponderación</th><th>Código</th><th>Nombre</th><th>Descripción</th></tr></thead>
+            <tbody id="tablaCtrlCatalogo"><tr><td colspan="4" class="text-center py-3">Cargando...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODALES DEL CONTROLADOR -->
+<div class="modal fade" id="modalCtrlRecepcion" tabindex="-1">
+  <div class="modal-dialog"><div class="modal-content"><div class="modal-header bg-primary text-white"><h5 class="modal-title fw-bold">Registrar Recepción</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body">
+    <div class="row g-3">
+      <div class="col-6"><label class="form-label fw-bold">Tipo</label><select class="form-select" id="ctrlRecTipo"><option value="IPOSTEL">IPOSTEL</option><option value="MRW">MRW</option></select></div>
+      <div class="col-6"><label class="form-label fw-bold">Placa</label><input type="text" class="form-control" id="ctrlRecPlaca" required></div>
+      <div class="col-6"><label class="form-label fw-bold">Conductor</label><input type="text" class="form-control" id="ctrlRecConductor" required></div>
+      <div class="col-6"><label class="form-label fw-bold">Precinto</label><input type="text" class="form-control" id="ctrlRecPrecinto"></div>
+      <div class="col-12"><label class="form-label fw-bold">Guía Aérea</label><input type="text" class="form-control" id="ctrlRecGuia"></div>
+      <div class="col-4"><label class="form-label fw-bold">Valijas</label><input type="number" class="form-control" id="ctrlRecValijas" value="0"></div>
+      <div class="col-4"><label class="form-label fw-bold">Piezas</label><input type="number" class="form-control" id="ctrlRecPiezas" value="0"></div>
+      <div class="col-4"><label class="form-label fw-bold">Kg</label><input type="number" class="form-control" id="ctrlRecKg" value="0"></div>
+    </div>
+  </div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-primary fw-bold" onclick="Ctrl_guardarRecepcion()">Guardar</button></div></div></div>
+</div>
+
+<div class="modal fade" id="modalCtrlClasificar" tabindex="-1">
+  <div class="modal-dialog"><div class="modal-content"><div class="modal-header bg-warning text-dark"><h5 class="modal-title fw-bold">Clasificar Envío</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body">
+    <input type="hidden" id="ctrlClasId">
+    <div class="mb-3"><label class="form-label fw-bold">Guía</label><input type="text" class="form-control" id="ctrlClasGuia" readonly></div>
+    <div class="mb-3"><label class="form-label fw-bold">Clasificación</label><select class="form-select" id="ctrlClasTipo"></select></div>
+    <div class="mb-3"><label class="form-label fw-bold">Estado Destino</label><input type="text" class="form-control" id="ctrlClasDestino"></div>
+  </div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-warning fw-bold" onclick="Ctrl_guardarClasificacionEnvio()">Clasificar</button></div></div></div>
+</div>
+
+<div class="modal fade" id="modalCtrlCatalogo" tabindex="-1">
+  <div class="modal-dialog"><div class="modal-content"><div class="modal-header bg-success text-white"><h5 class="modal-title fw-bold">Nueva Clasificación</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body">
+    <div class="row g-3">
+      <div class="col-6"><label class="form-label fw-bold">Código</label><input type="text" class="form-control" id="ctrlCatCodigo" placeholder="Ej: DIPLOMATICO"></div>
+      <div class="col-6"><label class="form-label fw-bold">Ponderación (1=Mayor)</label><input type="number" class="form-control" id="ctrlCatPonderacion" value="9"></div>
+      <div class="col-12"><label class="form-label fw-bold">Nombre</label><input type="text" class="form-control" id="ctrlCatNombre" placeholder="Ej: Envío Diplomático"></div>
+      <div class="col-12"><label class="form-label fw-bold">Descripción</label><textarea class="form-control" id="ctrlCatDesc" rows="2"></textarea></div>
+    </div>
+  </div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-success fw-bold" onclick="Ctrl_guardarCatalogo()">Guardar</button></div></div></div>
+</div>
 <!-- PANEL OBSERVATORIO NACIONAL (NUEVO Y CORREGIDO) -->
     <div id="appObservatorio" class="oculto">
       <div class="d-flex justify-content-between align-items-center mb-4 mt-3">
